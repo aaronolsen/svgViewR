@@ -1,0 +1,52 @@
+<div id="control_icons" class="control_icons" >
+	<div id="control_icon_control" class="control_icon" onClick="javascript:showHideControlPanel();" style="" title="No control panel contents to display" >
+		<a id="control_icon_control_vertical" class="control_icon" style="font-size:0.55em;line-height:18px;" >&#124;</a>
+		<a id="control_icon_control_horizontal" class="control_icon" style="position:relative;right:0px;top:-17px;font-size:0.55em;" >&#8213;</a>
+	</div>
+	<div id="control_icon_rotate" class="control_icon" style="border:1px solid #000000;" onClick="javascript:toggle_rotate_mode('rotate');" title="Turn on rotate mode or press and hold 'r'" >
+		<a id="control_icon_rotate_arrow" class="control_icon" style="line-height:22px;font-size:0.7em;color:black;" >&#8634;</a>
+	</div>
+	<div id="control_icon_translate" class="control_icon" style="border:1px solid #cccccc;color:#cccccc;" onClick="javascript:toggle_rotate_mode('translate');" title="Translate mode on, click and drag to move object"  >
+		<a class="control_icon" style="font-size:0.6em;line-height:18px;" >&#8597;</a>
+		<a class="control_icon" style="font-size:0.6em;position:relative;right:0px;top:-18px;" >&#8596;</a>
+	</div>
+	<div class="control_icon" onClick="javascript:about_alert();" title="About SVGViewR" >
+		<a class="control_icon" style="font-size:0.6em;font-family:Times;line-height:21px;" ><i>i</i></a>
+	</div>
+</div>
+
+<div id="control_container" class="control_container" style="display:none;width: 85px;" >
+	<div id="control_main" class="control_main" >
+
+		<div id="control_animation_container" class="control_animation_container" >
+			<div id="control_animation_header" class="control_animation_header" >
+				<a id="control_animation_click" class="control_animation_click" onClick="javascript:show_hide_control(this);" >&#9660;</a>
+				Animation
+			</div>
+			<div id="control_animation_main" class="control_animation_main" >
+
+				<div class="control_animation_frame" >
+					<div id="control_play" class="control_icon_play" onClick="playPauseAnimation();" title="Pause animation or press the spacebar" >
+						<a id="control_icon_play" class="control_icon_play" >&#9612; &#9612;</a>
+					</div>
+					<div class="control_animation_frame_range" >
+						<input id="animation_frame_range_input" type="range" title="Click to skip to frame" class="control_animation_frame_range" oninput="inputAnimationState(this)" value=100 />
+					</div>
+					<div class="control_animation_frame_count" >
+						<input id="animation_frame_count_input" type="number" oninput="inputAnimationState(this)" title="Enter number to skip to frame" class="control_animation_frame_count" min="1" max="10" step="1" value="1" />
+					</div>
+				</div>
+				<div style="border-bottom:1px solid #aaaaaa;margin:0px 10px;" ></div>
+				<div class="control_animation_frame" >
+					<div class="control_animation_duration" >
+						<a title="Change the speed of the animation" >Animation duration: </a>
+						<input id="animation_duration_input" type="number" oninput="changeAnimationDuration(this);" title="Change the speed of the animation" class="control_animation_duration" min="0" max="60" step="1" value="1" />
+						sec
+					</div>
+					<div class="control_animation_reverse" >
+						<a title="Run the animation in reverse after the last frame" >Reverse</a>
+						<input id="animation_reverse_checkbox" type="checkbox" title="Run the animation in reverse after the last frame" name="animation_reverse_checkbox" onchange="toggleAnimationReverse();" value="1"/>
+					</div>
+				</div>
+			</div>
+		</div>

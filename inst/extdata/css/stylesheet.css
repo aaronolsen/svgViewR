@@ -1,0 +1,262 @@
+body{
+	font-family: Arial, Corbel, Myriad Pro, Cabin, League Gothic, 'sans serif';
+	font-size: 13px;
+}
+
+a.control_layer_text_nochild{
+	padding-left:2px;
+}
+
+a.control_layer_layer_vis{
+}
+
+a.control_click{
+	font-size:2em;
+}
+
+a.control_icon_play{
+	color:white;
+	font-size:0.8em;
+	letter-spacing:-1px;
+	line-height:19px;
+}
+
+a.control_rotate{
+	font-weight:900;
+	font-size:1.7em;
+	color:#cccccc;
+}
+
+a.control_translate{
+	font-weight:900;
+	font-size:1.45em;
+	vertical-align:31%;
+	color:black;
+}
+
+span.control_layer_shape_vis{
+/*	font-size:1.8em; */
+/*	line-height:0.6; */
+/*	vertical-align:-1%; */
+}
+
+a.control_layer_level1{padding-left:0px;}
+a.control_layer_level2{padding-left:15px;}
+a.control_layer_level3{padding-left:30px;}
+a.control_layer_level4{padding-left:45px;}
+
+div.control_animation_duration{
+	float:left;
+	padding:0px 0px 0px 5px;
+	color:white;
+	background-color:;
+}
+
+div.control_animation_frame{
+	height:25px;
+	background-color:;
+	margin:5px 0px 0px 0px;
+	padding:0px 0px 0px 0px;
+}
+
+div.control_animation_frame_range{
+	text-align:center;
+	float:left;
+	height:18px;
+	margin:0px 0px 0px 2px;
+	padding:2px 0px 0px 0px;
+	background-color:;
+/*	background-color:green; */
+/*	border-right:1px solid rgb(200,200,200); */
+}
+
+div.control_animation_main{
+	background-color: rgba(0,0,0,0.5);
+	margin:0px 0px 9px 0px;
+	padding:3px 0px 10px 0px;
+	height:50px;
+}
+
+div.control_animation_reverse{
+	float:left;
+	color:white;
+	margin:1px 0px 0px 40px;
+	background-color:;
+}
+
+div.control_container{
+    border-radius: 10px;
+	background-color: rgba(0,0,0,0.3);
+	cursor: default;
+	position: fixed;
+/*	padding:5px 0px 10px 0px; */
+	top: 20px;
+	right: 60px;
+}
+
+div.control_icons{
+	position: fixed;
+	width: 30px;
+	top: 20px;
+	right: 20px;
+}
+
+div.control_icon{
+	cursor: default;
+    border-radius: 50%;
+	width: 20px;
+	font-size:2em;
+	height: 20px;
+	font-weight:100;
+	text-align:center;
+	background-color:white;
+	border:1px solid black;
+	margin:0 0 5px 0;
+}
+
+div.control_icon_play{
+	float:left;
+	cursor: default;
+	background-color:;
+	width: 18px;
+	height: 20px;
+	padding:0px 0px 0px 5px;
+	text-align:center;
+}
+
+div.control_main{
+	margin:5px 0px 5px 0px;
+}
+
+div.control_layers_container, div.control_animation_container{
+/*	background-color: rgba(0,0,0,0.2); */
+	margin:0px 0px 5px 0px;
+}
+
+div.control_layers_header, div.control_animation_header{
+	padding:0px 0px 1px 3px;
+	color:white;
+}
+
+div.control_layers_main{
+	background-color: rgba(255,255,255,0.8);
+	margin:0px 0px 0px 0px;
+	padding:3px 0px 10px 2px;
+	height:150px;
+	overflow-y: scroll;
+}
+
+div.control_layer_subheader_label{
+/*	background-color:red; */
+	float:left;
+	width:50px;
+	text-align:center;
+/*	border-right:1px solid rgb(225, 225, 225); */
+	border-right:1px solid white;
+/*	font-size: 12px; */
+/*	letter-spacing: 0.1px; */
+}
+
+div.control_layer_subheader{
+	background-color: rgba(0,0,0,0.5);
+/*	background-color: ; */
+	width:296px;
+	color:white;
+/*	font-weight:bold; */
+	margin:0px;
+	padding:2px;
+/*	border:1px solid black; */
+/*	border-bottom:1px solid black; */
+}
+
+div.control_layer_container{
+/*	background-color: green; */
+/*	margin:5px 0px 0px 15px; */
+/*	margin:5px 0px 0px 0px; */
+}
+
+div.control_layer_header{
+/*	background-color: green; */
+	margin:3px 0px 0px 0px;
+/*	padding:0px 0px 0px 0px; */
+}
+
+div.control_layer_main{
+	width:400px;
+}
+
+div.control_layer_shape_vis_range{
+	float:left;
+	width:53px;
+	height:18px;
+/*	background-color:green; */
+/*	border-right:1px solid rgb(200,200,200); */
+}
+
+input.control_layer_shape_vis_range {
+	-webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+	width: 46px;
+	cursor: default;
+	margin-top: 6px;
+}
+
+input.control_animation_duration{
+	width:35px;
+	margin:0px 0px 0px 0px;
+}
+
+input.control_animation_frame_range {
+	-webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+	width: 214px;
+	cursor: default;
+	margin: 3px 8px 0px 0px;
+	float:left;
+	background-color:transparent;
+}
+
+input.control_animation_frame_count{
+	width:40px;
+	margin:0px 0px 0px 0px;
+}
+
+input.control_layer_shape_vis_range::-webkit-slider-thumb, input.control_animation_frame_range::-webkit-slider-thumb {
+	-webkit-appearance: none;
+}
+
+input[type=range]:focus {
+  outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
+}
+
+input.control_animation_frame_range::-webkit-slider-thumb {
+	height: 10px;
+	width: 6px;
+	background: #ffffff;
+	border-radius: 3px;
+	margin-top: 0px;
+	box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+	border: 0px solid #000000;
+}
+
+input.control_layer_shape_vis_range::-webkit-slider-thumb{
+	border: 1px solid #333333;
+	height: 12px;
+	width: 5px;
+	border-radius: 3px;
+	background: #ffffff;
+	margin-top: -4px;
+	box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+}
+
+input.control_animation_frame_range::-webkit-slider-runnable-track {
+	height: 10px;
+	box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+	background: rgb(200,200,200);
+	border-radius: 3px;
+}
+
+input.control_layer_shape_vis_range::-webkit-slider-runnable-track {
+	height: 3px;
+	box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+	background: rgb(150,150,150);
+	border-radius: 1.3px;
+}
