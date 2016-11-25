@@ -27,6 +27,7 @@ svgviewr.pathsC <- function(path, file=NULL, col=NULL, col.fill="none", col.stro
 	for(i in 1:length(path)){
 
 		if(is.null(path[[i]])) next
+		if(length(path[[i]]) == 0) next
 
 		# IF INITIAL INDEX IS NON-ZERO ADD INDEX_I TO ALL PATH_LIST VALUES
 		if(index.add > 0) path[[i]] <- path[[i]] + rep(index.add, length(path[[i]]))		

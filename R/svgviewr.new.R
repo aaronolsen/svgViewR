@@ -19,7 +19,7 @@ svgviewr.new <- function(file, window.title="SVG Viewer", animate.duration = 1,
 		}, warning = function(w) {
 		}, error = function(e) {
 			if(e[1]$message == 'none of the packages are loaded'){
-				fdir_dev <- '/Users/aaron/Documents/Research/R dev/svgViewR/inst/extdata/'
+				fdir_dev <- '/Users/aaron/Documents/Research/github/svgViewR/inst/extdata/'
 				if(file.exists(fdir_dev)){
 					return(fdir_dev)
 				}else{
