@@ -1,7 +1,7 @@
 dependencies:
   - name: svgviewr
     version: 0.0.1
-    src: extdata
+    src: htmlwidgets/svgviewr/
     script: 
       [
         js/math.js,

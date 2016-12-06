@@ -4,11 +4,11 @@
 \alias{svgviewr}
 \title{<Add Title>}
 \usage{
-svgviewr(svg = "", animation_reverse = FALSE, animation_duration = NULL,
-  animation_repeat = NULL, animation_count = NULL, margin = list(),
+svgviewr(svg = NULL, animation_reverse = FALSE, animation_duration = 1,
+  animation_repeat = -1, animation_count = 0, margin = list(),
   background_color = NULL, start_rotate = FALSE,
-  show_control_panel = TRUE, width = NULL, height = NULL,
-  elementId = NULL)
+  show_control_panel = TRUE, svgviewr_version = "1.2", width = NULL,
+  height = NULL, elementId = NULL)
 }
 \description{
 <Add Description>

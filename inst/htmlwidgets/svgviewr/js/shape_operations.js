@@ -222,7 +222,7 @@ function animateShapes(anim_frame){
 					circlesAttributesAnimate[i][attribute_properties[j]][anim_n];
 			}
 
-			shape = svgDocument.getElementById('circle' + circlesAttributesAnimate[i].i);
+			shape = svgDocument.querySelector('.circle' + circlesAttributesAnimate[i].i);
 			shape.setAttribute("style", attributesToString(circlesAttributes[circlesAttributesAnimate[i].i]));
 		}
 	}
@@ -238,7 +238,7 @@ function animateShapes(anim_frame){
 					imagesAttributesAnimate[i][attribute_properties[j]][anim_n];
 			}
 
-			shape = svgDocument.getElementById('image' + imagesAttributesAnimate[i].i);
+			shape = svgDocument.querySelector('.image' + imagesAttributesAnimate[i].i);
 			shape.setAttribute("style", attributesToString(imagesAttributes[imagesAttributesAnimate[i].i]));
 		}
 	}
@@ -254,7 +254,7 @@ function animateShapes(anim_frame){
 					linesAttributesAnimate[i][attribute_properties[j]][anim_n];
 			}
 
-			shape = svgDocument.getElementById('line' + linesAttributesAnimate[i].i);
+			shape = svgDocument.querySelector('.line' + linesAttributesAnimate[i].i);
 			shape.setAttribute("style", attributesToString(linesAttributes[linesAttributesAnimate[i].i]));
 		}
 	}
@@ -270,11 +270,11 @@ function animateShapes(anim_frame){
 					arrowsAttributesAnimate[i][attribute_properties[j]][anim_n];
 			}
 
-			shape = svgDocument.getElementById('arrow' + arrowsAttributesAnimate[i].i);
+			shape = svgDocument.querySelector('.arrow' + arrowsAttributesAnimate[i].i);
 			shape.setAttribute("style", attributesToString(arrowsAttributes[arrowsAttributesAnimate[i].i]));
-			shape = svgDocument.getElementById('arrowha' + arrowsAttributesAnimate[i].i);
+			shape = svgDocument.querySelector('.arrowha' + arrowsAttributesAnimate[i].i);
 			shape.setAttribute("style", attributesToString(arrowsAttributes[arrowsAttributesAnimate[i].i]));
-			shape = svgDocument.getElementById('arrowhb' + arrowsAttributesAnimate[i].i);
+			shape = svgDocument.querySelector('.arrowhb' + arrowsAttributesAnimate[i].i);
 			shape.setAttribute("style", attributesToString(arrowsAttributes[arrowsAttributesAnimate[i].i]));
 		}
 	}
@@ -290,7 +290,7 @@ function animateShapes(anim_frame){
 					pointsAttributesAnimate[i][attribute_properties[j]][anim_n];
 			}
 
-			shape = svgDocument.getElementById('point' + pointsAttributesAnimate[i].i);
+			shape = svgDocument.querySelector('.point' + pointsAttributesAnimate[i].i);
 			shape.setAttribute("style", attributesToString(pointsAttributes[pointsAttributesAnimate[i].i]));
 			shape.setAttribute("r", pointsAttributesAnimate[i].r[anim_n]);
 		}
@@ -307,22 +307,22 @@ function animateShapes(anim_frame){
 					textsAttributesAnimate[i][attribute_properties[j]][anim_n];
 			}
 
-			shape = svgDocument.getElementById('text' + textsAttributesAnimate[i].i);
+			shape = svgDocument.querySelector('.text' + textsAttributesAnimate[i].i);
 			shape.setAttribute("style", attributesToString(textsAttributes[textsAttributesAnimate[i].i]));
 		}
 	}
 
 	// Update animation controls
-	var frame_input =document.getElementById('animation_frame_count_input');
+	var frame_input =document.querySelector('.animation_frame_count_input');
 
 	// Check that frame controls are present
 	if(frame_input !== null){
 
 		// Add frame count to animation frame input
-		document.getElementById('animation_frame_count_input').value = (anim_n+1);
+		document.querySelector('.animation_frame_count_input').value = (anim_n+1);
 
 		// Update slider position
-		document.getElementById('animation_frame_range_input').value = Math.round(((anim_n) / (animation_length-1))*100);
+		document.querySelector('.animation_frame_range_input').value = Math.round(((anim_n) / (animation_length-1))*100);
 	}
 
 	anim_n = anim_n + frame_adv;
@@ -900,7 +900,7 @@ function onLoadFunctions(evt){
 	svgns = "http://www.w3.org/2000/svg";
 	XLINK = "http://www.w3.org/1999/xlink";
 
-	svgDocument = document.getElementById("world");
+	svgDocument = document.querySelector("svg.world");
 
 	window.onresize = function(event) {
 		onWindowResize();
@@ -912,9 +912,9 @@ function onLoadFunctions(evt){
 		svgDocument.style.height = getWindowHeight() + "px";
 	}
 
-	document.getElementById('keydown').focus();
-	document.getElementById('keydown').onclick = setEvents;
-	document.getElementById('keydown').onclick();
+	document.querySelector('.keydown').focus();
+	document.querySelector('.keydown').onclick = setEvents;
+	document.querySelector('.keydown').onclick();
 	document.onkeyup = detectKeyUp;
 //	document.onmousemove = getMouseMoveXY;
 //	document.onmousedown = mouseDownEvent;
@@ -975,8 +975,8 @@ function playPauseAnimation(state){
 		if(state == 'stop'){stop_anim = 1;}else{stop_anim = 0;}
 	}
 
-	var control_play = document.getElementById('control_play');
-	var control_icon_play = document.getElementById('control_icon_play');
+	var control_play = document.querySelector('.control_play');
+	var control_icon_play = document.querySelector('.control_icon_play');
 
 	if(stop_anim == 1){
 		// Pause animation
@@ -1084,22 +1084,22 @@ function setAnimationParameters(){
 			'}else{' + shape_tags[i] + 's_attributes_animate = false;}');
 	}
 
-	if(document.getElementById('animation_frame_count_input') == null) return;
+	if(document.querySelector('.animation_frame_count_input') == null) return;
 
 	// If there is no animation, hide animation controls
 	if(animation_length == 0){
-		document.getElementById('control_animation_container').style.display = 'none';
+		document.querySelector('.control_animation_container').style.display = 'none';
 		return;
 	}
 
 	// Update animation control max
-	document.getElementById('animation_frame_count_input').max = animation_length;
+	document.querySelector('.animation_frame_count_input').max = animation_length;
 
 	// Update animation duration
-	document.getElementById('animation_duration_input').value = animation_duration;
+	document.querySelector('.animation_duration_input').value = animation_duration;
 	
 	// Set animation reverse setting
-	document.getElementById('animation_reverse_checkbox').checked = animation_reverse;
+	document.querySelector('.animation_reverse_checkbox').checked = animation_reverse;
 }
 
 function startAnimation(){
@@ -1205,21 +1205,21 @@ function updateShapes(){
 	}
 
 	for (i = 0, len = arrows_proj.length; i < len; i++) {
-		var shape = svgDocument.getElementById('arrow' + i);
+		var shape = svgDocument.querySelector('.arrow' + i);
 		shape.setAttribute("x1", arrows_proj[i].x1);
 		shape.setAttribute("y1", arrows_proj[i].y1);
 		shape.setAttribute("x2", arrows_proj[i].x2);
 		shape.setAttribute("y2", arrows_proj[i].y2);
 
 		// Arrow head (1st half)
-		var shape = svgDocument.getElementById('arrowha' + i);
+		var shape = svgDocument.querySelector('.arrowha' + i);
 		shape.setAttribute("x1", arrows_proj[i].x2);
 		shape.setAttribute("y1", arrows_proj[i].y2);
 		shape.setAttribute("x2", arrows_proj[i].hax);
 		shape.setAttribute("y2", arrows_proj[i].hay);
 
 		// Arrow head (2nd half)
-		var shape = svgDocument.getElementById('arrowhb' + i);
+		var shape = svgDocument.querySelector('.arrowhb' + i);
 		shape.setAttribute("x1", arrows_proj[i].x2);
 		shape.setAttribute("y1", arrows_proj[i].y2);
 		shape.setAttribute("x2", arrows_proj[i].hbx);
@@ -1227,7 +1227,7 @@ function updateShapes(){
 	}
 
 	for (i = 0, len = texts_proj.length; i < len; i++) {
-		var shape = svgDocument.getElementById('text' + i);
+		var shape = svgDocument.querySelector('.text' + i);
 		shape.setAttribute("x", texts_proj[i].x);
 		shape.setAttribute("y", texts_proj[i].y);
 		shape.setAttribute("font-size", 'font-size:' + texts_proj[i].s + 'px');

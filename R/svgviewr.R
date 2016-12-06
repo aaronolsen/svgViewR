@@ -15,6 +15,7 @@ svgviewr <- function(
   background_color = NULL,
   start_rotate = FALSE,
   show_control_panel = TRUE,
+  svgviewr_version = "1.2",
   width = NULL, height = NULL, elementId = NULL
 ) {
 
@@ -37,7 +38,8 @@ svgviewr <- function(
     margin = margin,
     background_color = background_color,
     start_rotate = start_rotate,
-    show_control_panel = show_control_panel
+    show_control_panel = show_control_panel,
+    svgviewr_version = svgviewr_version
   )
 
   # create widget
