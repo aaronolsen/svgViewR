@@ -13,7 +13,7 @@ HTMLWidgets.widget({
       renderValue: function(x) {
 
         var svg = document.createElement('svg_doc');
-        document.body.append(svg);
+        el.appendChild(svg);
         svg.outerHTML = x.svg;
         
         Object.keys(x)

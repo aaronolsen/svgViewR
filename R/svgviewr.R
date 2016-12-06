@@ -15,7 +15,7 @@ svgviewr <- function(
   background_color = NULL,
   start_rotate = FALSE,
   show_control_panel = TRUE,
-  width = 0, height = 0, elementId = NULL
+  width = NULL, height = NULL, elementId = NULL
 ) {
 
   stopifnot(inherits(svg,c("character","connection")))
@@ -61,11 +61,11 @@ svgviewr_html <- function(id, style, class, ...){
     collapse="\n"
   )
   htmltools::tagList(
-    htmltools::tags$a(id="keydown", type="checkbox", onkeydown="javascript:;"),
-    htmltools::HTML(control_panel),
-    htmltools::tag("svg",list(style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px; z-index: -1; background-color: white;",id="world")),
     htmltools::tags$div(
-      id = id, class = class, style = style, ...
+      id = id, class = class, style = style, style="position:relative;", ...,
+      htmltools::tags$a(id="keydown", type="checkbox", onkeydown="javascript:;"),
+      htmltools::HTML(control_panel),
+      htmltools::tag("svg",list(style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px; z-index: -1; background-color: white;",id="world"))
     )
   )
 }

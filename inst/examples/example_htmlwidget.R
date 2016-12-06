@@ -1,3 +1,5 @@
+library(svgViewR)
+
 svgViewR:::svg.new(file='svgviewr.html', animate.duration=1)
 
 # Create points with varying sin phase
