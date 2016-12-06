@@ -110,7 +110,7 @@ function layer_visibility(element){
 	var opacity = element.value
 
 	// Show hide all child layers and layers of the same name
-	layer_visibility_children(document.getElementById("control_layers_container"), layers, opacity)
+	layer_visibility_children(document.querySelector("control_layers_container"), layers, opacity)
 }
 
 function layer_visibility_children(container, layers, opacity){
@@ -238,11 +238,11 @@ function showHideControlPanel(action, write_cookie){
 
 	// Check whether any containers within control panel are visible
 	var none_visible = true;
-	if(document.getElementById('control_layers_container') !== null && document.getElementById('control_layers_container').style.display == '') none_visible = false;
-	if(document.getElementById('control_animation_container') !== null && document.getElementById('control_animation_container').style.display == '') none_visible = false;
+	if(document.querySelector('.control_layers_container') !== null && document.querySelector('.control_layers_container').style.display == '') none_visible = false;
+	if(document.querySelector('.control_animation_container') !== null && document.querySelector('.control_animation_container').style.display == '') none_visible = false;
 
 	if(none_visible){
-		document.getElementById('control_container').style.display = 'none';
+		document.querySelector('.control_container').style.display = 'none';
 		writeControlIcon('control', 'disable');
 		return;
 	}
@@ -257,7 +257,7 @@ function showHideControlPanel(action, write_cookie){
 		}
 	}
 
-	var control_container = document.getElementById('control_container');
+	var control_container = document.querySelector('.control_container');
 
 	if(control_container == null) return;
 
@@ -297,12 +297,12 @@ function toggle_rotate_mode(element, write_cookie){
 
 	if(rotate_mode){
 		rotate_mode = false;
-		document.getElementById("control_icon_rotate").title = "Turn on rotate mode or press and hold 'r'";
-		document.getElementById("control_icon_translate").title = 'Translate mode on, click and drag to move object';
-		document.getElementById("control_icon_rotate").style.border = '1px solid #cccccc';
-		document.getElementById("control_icon_rotate_arrow").style.color = '#cccccc';
-		document.getElementById("control_icon_translate").style.border = '1px solid black';
-		document.getElementById("control_icon_translate").style.color = 'black';
+		document.querySelector("control_icon_rotate").title = "Turn on rotate mode or press and hold 'r'";
+		document.querySelector("control_icon_translate").title = 'Translate mode on, click and drag to move object';
+		document.querySelector("control_icon_rotate").style.border = '1px solid #cccccc';
+		document.querySelector("control_icon_rotate_arrow").style.color = '#cccccc';
+		document.querySelector("control_icon_translate").style.border = '1px solid black';
+		document.querySelector("control_icon_translate").style.color = 'black';
 
 		if(write_cookie){
 			deleteCookie('toggle_rotate_mode("rotate")');
@@ -310,12 +310,12 @@ function toggle_rotate_mode(element, write_cookie){
 		}
 	}else{
 		rotate_mode = true;
-		document.getElementById("control_icon_rotate").title = 'Rotate mode on, click and drag to rotate object';
-		document.getElementById("control_icon_translate").title = 'Turn on translate mode';
-		document.getElementById("control_icon_rotate").style.border = '1px solid #000000';
-		document.getElementById("control_icon_rotate_arrow").style.color = 'black';
-		document.getElementById("control_icon_translate").style.border = '1px solid #cccccc';
-		document.getElementById("control_icon_translate").style.color = '#cccccc';
+		document.querySelector("control_icon_rotate").title = 'Rotate mode on, click and drag to rotate object';
+		document.querySelector("control_icon_translate").title = 'Turn on translate mode';
+		document.querySelector("control_icon_rotate").style.border = '1px solid #000000';
+		document.querySelector("control_icon_rotate_arrow").style.color = 'black';
+		document.querySelector("control_icon_translate").style.border = '1px solid #cccccc';
+		document.querySelector("control_icon_translate").style.color = '#cccccc';
 
 		if(write_cookie){
 			deleteCookie('toggle_rotate_mode("translate")');
@@ -336,21 +336,21 @@ function writeControlIcon(name, state){
 			if(state == undefined) continue;
 			
 			if(state == 'show'){
-				document.getElementById("control_icon_control").title = 'Hide control panel';
-				document.getElementById("control_icon_control_vertical").innerHTML = '&#8213;';
-				document.getElementById("control_icon_control_horizontal").innerHTML = '';
+				document.querySelector("control_icon_control").title = 'Hide control panel';
+				document.querySelector("control_icon_control_vertical").innerHTML = '&#8213;';
+				document.querySelector("control_icon_control_horizontal").innerHTML = '';
 			}
 			if(state == 'hide'){
-				document.getElementById("control_icon_control").title = 'Show control panel';
-				document.getElementById("control_icon_control_vertical").innerHTML = '&#124;';
-				document.getElementById("control_icon_control_horizontal").innerHTML = '&#8213;';
+				document.querySelector("control_icon_control").title = 'Show control panel';
+				document.querySelector("control_icon_control_vertical").innerHTML = '&#124;';
+				document.querySelector("control_icon_control_horizontal").innerHTML = '&#8213;';
 			}
 			if(state == 'disable'){
-				document.getElementById("control_icon_control").title = 'No control panel contents to display';
-				document.getElementById("control_icon_control").style.color = '#cccccc';
-				document.getElementById("control_icon_control").style.border = '1px solid #cccccc';
-				document.getElementById("control_icon_control_vertical").innerHTML = '&#124;';
-				document.getElementById("control_icon_control_horizontal").innerHTML = '&#8213;';
+				document.querySelector("control_icon_control").title = 'No control panel contents to display';
+				document.querySelector("control_icon_control").style.color = '#cccccc';
+				document.querySelector("control_icon_control").style.border = '1px solid #cccccc';
+				document.querySelector("control_icon_control_vertical").innerHTML = '&#124;';
+				document.querySelector("control_icon_control_horizontal").innerHTML = '&#8213;';
 			}
 		}
 
@@ -358,9 +358,9 @@ function writeControlIcon(name, state){
 
 			if(state == undefined){
 				if(BrowserDetect.browser == "Firefox"){
-					document.getElementById("control_icon_rotate_arrow").style.fontSize = '0.9em';
-					document.getElementById("control_icon_rotate_arrow").style.lineHeight = '16px';
-					document.getElementById("control_icon_rotate_arrow").style.fontWeight = '100';
+					document.querySelector("control_icon_rotate_arrow").style.fontSize = '0.9em';
+					document.querySelector("control_icon_rotate_arrow").style.lineHeight = '16px';
+					document.querySelector("control_icon_rotate_arrow").style.fontWeight = '100';
 				}
 			}
 		}
