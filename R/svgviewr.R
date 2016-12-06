@@ -63,9 +63,9 @@ svgviewr_html <- function(id, style, class, ...){
     collapse="\n"
   )
   htmltools::tagList(
+    htmltools::tags$a(class="keydown", type="checkbox", onkeydown="javascript:;"),
     htmltools::tags$div(
       id = id, class = class, style = style, style="position:relative;", ...,
-      htmltools::tags$a(class="keydown", type="checkbox", onkeydown="javascript:;"),
       htmltools::HTML(control_panel),
       htmltools::tag("svg",list(style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px; z-index: -1; background-color: white;",class="world"))
     )
