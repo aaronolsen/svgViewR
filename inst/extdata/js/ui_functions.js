@@ -88,7 +88,7 @@ function ajax_state_changed(){
 			eval(function_name[j] + '(j, xmlHttp)');
 
 			time2[j] = new Date().getTime() / 1000;
-			if(document.getElementById("run_time")) document.getElementById("run_time").innerHTML = "Run-time: " + Math.round((time2[j] - time1[j])*100)/100 + " sec";
+			if(document.querySelector('."run_time")) document.querySelector('."run_time").innerHTML = "Run-time: " + Math.round((time2[j] - time1[j])*100)/100 + " sec";
 			
 			request_status[j] = 1;
 			if(j - skip_buffer > 0){skip_to = j - skip_buffer;}
@@ -669,7 +669,7 @@ function updateVisibility(){
 	var layers = new Array();
 
 	// CYCLE THROUGH TABLE ELEMENTS
-	var div_control_panel_layers = document.getElementById("control_panel_layers");
+	var div_control_panel_layers = document.querySelector('."control_panel_layers");
 	var items = div_control_panel_layers.getElementsByTagName("*");
 	for (i = items.length; i--;) {
 
