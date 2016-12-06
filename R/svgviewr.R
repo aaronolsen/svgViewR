@@ -57,8 +57,8 @@ svgviewr <- function(
 svgviewr_html <- function(id, style, class, ...){
   control_panel <- paste0(
     c(
-      readLines(system.file("extdata/html/control_panel1.html", package="svgViewR")),
-      readLines(system.file("extdata/html/control_panel2.html", package="svgViewR"))
+      readLines(system.file("htmlwidgets/svgviewr/html/control_panel1.html", package="svgViewR")),
+      readLines(system.file("htmlwidgets/svgviewr/html/control_panel2.html", package="svgViewR"))
     ),
     collapse="\n"
   )
