@@ -1,0 +1,13 @@
+dependencies:
+  - name: svgviewr
+    version: 0.0.1
+    src: extdata
+    script: 
+      [
+        js/math.js,
+        js/ui_functions.js,
+        js/shape_operations.js,
+        js/shapes.js,
+        js/control_panel.js
+      ]
+    stylesheet: "css/stylesheet.css"
