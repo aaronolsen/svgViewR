@@ -479,19 +479,6 @@ function fitShapesToWindow(){
 
 	}else{
 
-		// Get window dimensions
-		if(z_range == 0){
-			var view_width = getWindowWidth() - 5*margin;
-			var view_height = getWindowHeight() - 5*margin;
-		}else{
-			var view_width = getWindowWidth() - 2*margin;
-			var view_height = getWindowHeight() - 2*margin;
-		}
-
-		// Find projection factor
-		var u = -(depth - eyez) / ((z_range / 2) - eyez);
-		var u2 = -(depth - eyez) / ((-z_range / 2) - eyez);
-
 		// Solve for scaling from each dimension
 		var scaling_x = 1 / ((((x_range / 2) * (depth - eyez)) / (eyez * ((getWindowWidth() - margin) - x_window_shift))) + ((z_range / 2) / eyez));
 		var scaling_y = 1 / ((((y_range / 2) * (depth - eyez)) / (eyez * ((getWindowHeight() - margin) - y_window_shift))) + ((z_range / 2) / eyez));
@@ -1172,7 +1159,7 @@ function updateShapes(){
 	var len;
 	var shape;
 
-	var i, j, k, n_i0, n_i1, pathd, u, u1, u2, len;
+	var i, j, k, n_i0, n_i1, pathd, len;
 	var circle, n_i, type, visibility, vec;
 	var x, y, x1, x2, y1, y2;
 
