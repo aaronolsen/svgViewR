@@ -8,6 +8,7 @@ html2plot <- function(svg.file, plot.file, as = c('jpeg'), height = 480, width =
 	
 	# Fit shapes to window
 	fit_shapes <- fitShapes(read_html, width=width, height=height)
+#	fit_shapes <- read_html
 	
 	# Get default graphics parameters
 	dgp <- default_gpar()

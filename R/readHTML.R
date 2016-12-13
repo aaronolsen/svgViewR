@@ -166,6 +166,10 @@ readHTML <- function(file){
 			}else{
 				shapes[[lnum]][['xyz']] <- matrix(unlist(shapes[[lnum]][c('x1', 'y1', 'z1', 'x2', 'y2', 'z2')]), nrow=1, ncol=6)
 			}
+
+			#if(type %in% c('line')){
+				#print(shapes[[lnum]][['xyz']])
+			#}
 		}
 		
 		for(name_split in split_comma){

@@ -44,6 +44,8 @@ fitShapes <- function(read_html, width, height){
 
 	# Center all shapes
 	for(lnum in 1:length(shapes)){
+
+		# Center xyz coordinates
 		xyz <- shapes[[lnum]][['xyz']]
 		if(length(dim(xyz)) == 2){
 			if(ncol(xyz) == 3) shapes[[lnum]][['xyz']] <- shapes[[lnum]][['xyz']] - matrix(center, nrow=nrow(xyz), ncol=3, byrow=TRUE)
@@ -54,7 +56,13 @@ fitShapes <- function(read_html, width, height){
 	}
 
 	# Scale all shapes
-	for(lnum in 1:length(shapes)) shapes[[lnum]][['xyz']] <- shapes[[lnum]][['xyz']]*scaling
+	for(lnum in 1:length(shapes)){
+
+		shapes[[lnum]][['xyz']] <- shapes[[lnum]][['xyz']]*scaling
+
+		# Scale arrowhead length
+		if(shapes[[lnum]][['type']] == 'arrow') shapes[[lnum]][['l']] <- shapes[[lnum]][['l']]*scaling
+	}
 
 	params[['x.shift']] <- width/2
 	params[['y.shift']] <- height/2

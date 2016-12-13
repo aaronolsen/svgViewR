@@ -1,10 +1,13 @@
 default_gpar <- function(){
 
 	list(
+		'fill'='black',
+		'fill-opacity'=1,
+		'font-family'="Arial",
+		'opacity'=1,
 		'r'=1,
 		'stroke'='black',
-		'fill'='black',
-		'stroke-width'=1,
-		'fill-opacity'=1
+		'stroke-opacity'=1,
+		'stroke-width'=1
 	)
 }
