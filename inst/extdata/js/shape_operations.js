@@ -2,6 +2,8 @@
 var shape_tags = ['circle', 'image', 'line', 'arrow', 'text', 'path', 'point'];
 var shape_names = firstToUpperCase(shape_tags);
 //var shape_transform = addC(shape_tags, 's').concat(['pointsAnimate']);
+var shape_animate = addC(shape_tags, 'sAnimate');
+var shape_attributes_animate = addC(shape_tags, 'sAttributesAnimate');
 var shape_transform = addC(shape_tags, 's').concat(addC(shape_tags, 'sAnimate'));
 
 // Create global arrays for shapes
@@ -34,6 +36,8 @@ var shape_properties = [
 	'l', 'a', 'h', 'w'
 ];
 
+var animate_all_properties = shape_properties.slice(0,12).concat(['s', 'r']);
+
 var attribute_properties = [
 	'r', 'fill', 'stroke', 'fill_opacity', 'stroke_opacity', 'opacity', 'stroke_width', 
 	'z_index', 'text_anchor', 'font_size', 'font_family', 'font_style', 
@@ -41,10 +45,14 @@ var attribute_properties = [
 	'src', 'preserveAspectRatio'
 ];
 
+var animate_all_attributes = attribute_properties.slice(1,9);
+animate_all_attributes = animate_all_attributes.concat(attribute_properties.slice(10, attribute_properties.length));
+
 var properties = shape_properties.concat(attribute_properties);
 var opacity_types = ['opacity', 'stroke_opacity', 'fill_opacity'];
 var rotate_mode = true;
 
+var animation_lengths = [0];
 var animation_length = 0;
 var frame_width = 10;
 var object_name = 'shape_viewer_3d';
@@ -60,6 +68,7 @@ var arrow_angle = 25;
 var currentEvent = "nothing";
 var globalkeypress = '';
 var IE = document.all ? true : false
+var animate_all = false;
 var initiate = 0;
 var zoom_speed = 5;
 var sort_shapes = 0;
@@ -97,7 +106,7 @@ AnimatePoints = new Array();
 AnimateArrows = new Array();
 AnimateLines = new Array();
 
-Translate = new Array();
+Translate = {x:new Array(), y:new Array(), z:new Array()};
 Rotate = new Array();
 
 function animateShapes(anim_frame){
@@ -344,6 +353,149 @@ function applyCookies(){
 	}
 }
 
+function applyTransformations(){
+
+	var i, j, k, ilen, jlen, klen, prop_len, iter, fn_str, xyz, xyz1, xyz2, rs;
+	var RM = new Array();
+	
+	// Get maximum animation length between shapes and transformations
+	animation_length = maxC(animation_lengths);
+
+	// Check for transformations
+	if(animate_all == false) return;
+
+	// Expand all animate elements to match maximum animation length
+	for (i = 0, ilen = shape_animate.length; i < ilen; i++){
+		if(eval(shape_animate[i] + '[0] == undefined')) continue
+		klen = eval(shape_animate[i] + '.length');
+		for (k = 0; k < klen; k++){
+
+			for (j = 0, jlen = animate_all_properties.length; j < jlen; j++){
+
+				if(eval(shape_animate[i] + '[0].' + animate_all_properties[j] + ' == undefined')) continue
+
+				if(eval(shape_animate[i] + '[' + k + '].' + animate_all_properties[j] + '.length') != animation_length){
+					fn_str = shape_animate[i] + '[' + k + '].' + animate_all_properties[j] + ' = fillArray(' + shape_animate[i] + '[' + k + '].' + animate_all_properties[j] + ', ' + animation_length + ').map(parseFloat)';
+					eval(fn_str);
+				}
+			}
+		}
+	}
+
+	//shape_attributes_animate = ['textsAttributesAnimate'];
+
+	for (i = 0, ilen = shape_attributes_animate.length; i < ilen; i++){
+
+		if(eval(shape_attributes_animate[i] + '[0] == undefined')) continue
+		klen = eval(shape_attributes_animate[i] + '.length');
+
+		for (k = 0; k < klen; k++){
+
+			for (j = 0, jlen = attribute_properties.length; j < jlen; j++){
+
+				if(eval(shape_attributes_animate[i] + '[0].' + attribute_properties[j] + ' == undefined')) continue
+
+				prop_len = 1
+				if(eval('typeof(' + shape_attributes_animate[i] + '[' + k + '].' + attribute_properties[j] + ') == "object"')){
+					prop_len = eval(shape_attributes_animate[i] + '[' + k + '].' + attribute_properties[j] + '.length')
+				}
+
+				if(prop_len != animation_length){
+					fn_str = shape_attributes_animate[i] + '[' + k + '].' + attribute_properties[j] + ' = fillArray(' + shape_attributes_animate[i] + '[' + k + '].' + attribute_properties[j] + ', ' + animation_length + ')';
+					eval(fn_str);
+				}
+			}
+		}
+	}
+	
+	if(animation_length == 1) return;
+
+	// Set transformations to match the number of iterations
+	if(Translate.x.length == 1){
+		Translate.x = fillArray(Translate.x, animation_length)
+		Translate.y = fillArray(Translate.y, animation_length)
+		Translate.z = fillArray(Translate.z, animation_length)
+	}
+	if(Rotate.length == 9) Rotate = fillArray(Rotate, animation_length*9)
+	
+	//alert(textsAnimate[0].x1)
+
+	// Apply transformations
+	for (i = 0, ilen = shape_animate.length; i < ilen; i++){
+
+		if(eval(shape_animate[i] + '[0] == undefined')) continue
+
+		klen = eval(shape_animate[i] + '.length');
+
+		for (k = 0; k < klen; k++){
+
+			for(iter = 0; iter < animation_length; iter++){
+
+				rs = iter*9
+				
+				// Fill rotation matrix
+				RM[0] = new Array(Rotate[rs+0], Rotate[rs+3], Rotate[rs+6]);
+				RM[1] = new Array(Rotate[rs+1], Rotate[rs+4], Rotate[rs+7]);
+				RM[2] = new Array(Rotate[rs+2], Rotate[rs+5], Rotate[rs+8]);
+				
+				if(i == 0 && k == 0 && iter == 1){
+				//	alert(xyz)
+				}
+
+				if(eval(shape_animate[i] + '[' + k + '].x') != undefined){
+					xyz = eval('[' + shape_animate[i] + '[' + k + '].x[' + iter + '], ' + shape_animate[i] + '[' + k + '].y[' + iter + '], ' + shape_animate[i] + '[' + k + '].z[' + iter + ']]');
+
+					// Apply rotation
+					if(Rotate.length > 0){
+						xyz = multM(xyz, RM)
+					}
+
+					// Apply translation
+					if(Translate.x.length > 0){
+						xyz = add(xyz, [Translate.x[iter], Translate.y[iter], Translate.z[iter]].map(parseFloat));
+					}
+					
+					eval(shape_animate[i] + '[' + k + '].x[' + iter + '] = ' + xyz[0] + ';');
+					eval(shape_animate[i] + '[' + k + '].y[' + iter + '] = ' + xyz[1] + ';');
+					eval(shape_animate[i] + '[' + k + '].z[' + iter + '] = ' + xyz[2] + ';');
+				}
+
+				if(i == 0 && k == 0 && iter == 1){
+				//	alert(xyz)
+				}
+
+				if(eval(shape_animate[i] + '[' + k + '].x1') != undefined){
+					xyz1 = eval('[' + shape_animate[i] + '[' + k + '].x1[' + iter + '], ' + shape_animate[i] + '[' + k + '].y1[' + iter + '], ' + shape_animate[i] + '[' + k + '].z1[' + iter + ']]');
+					xyz2 = eval('[' + shape_animate[i] + '[' + k + '].x2[' + iter + '], ' + shape_animate[i] + '[' + k + '].y2[' + iter + '], ' + shape_animate[i] + '[' + k + '].z2[' + iter + ']]');
+
+					// Apply rotation
+					if(Rotate.length > 0){
+						xyz1 = multM(xyz1, RM)
+						xyz2 = multM(xyz2, RM)
+					}
+
+					// Apply translation
+					if(Translate.x.length > 0){
+						xyz1 = add(xyz1, [Translate.x[iter], Translate.y[iter], Translate.z[iter]].map(parseFloat));
+						xyz2 = add(xyz2, [Translate.x[iter], Translate.y[iter], Translate.z[iter]].map(parseFloat));
+					}
+
+					eval(shape_animate[i] + '[' + k + '].x1[' + iter + '] = ' + xyz1[0] + ';');
+					eval(shape_animate[i] + '[' + k + '].y1[' + iter + '] = ' + xyz1[1] + ';');
+					eval(shape_animate[i] + '[' + k + '].z1[' + iter + '] = ' + xyz1[2] + ';');
+					eval(shape_animate[i] + '[' + k + '].x2[' + iter + '] = ' + xyz2[0] + ';');
+					eval(shape_animate[i] + '[' + k + '].y2[' + iter + '] = ' + xyz2[1] + ';');
+					eval(shape_animate[i] + '[' + k + '].z2[' + iter + '] = ' + xyz2[2] + ';');
+				}
+			}
+		}
+
+		// Apply rotations
+	}
+	
+	//alert(textsAnimate[0].x)
+}
+
 function changeLayerOpacity(layer, opacity){
 
 	var i, j, len, len_j;
@@ -542,20 +694,45 @@ function getMouseMoveXY(e){
 	return false;
 }
 
-function get_transformations(){
+function getTransformations(){
 
-	if(document.getElementsByTagName("transformation").length){
-		for(i = 0;i < document.getElementsByTagName("transformation").length;i++){
+	// FILL TRANSLATION OBJECT
+	if(document.getElementsByTagName("translate").length){
+		for(i = 0;i < document.getElementsByTagName("translate").length;i++){
 
-			var svg_elem = document.getElementsByTagName("transformation")[i];
+			var svg_elem = document.getElementsByTagName("translate")[i];
+			var x = svg_elem.getAttribute("x");
+			var y = svg_elem.getAttribute("y");
+			var z = svg_elem.getAttribute("z");
 
-			// SET TRANSLATE ARRAY
-			if(svg_elem.getAttribute("translate") !== null) Translate = Translate.concat(string_to_array_cs(svg_elem.getAttribute("translate")))
-
-			// SET ROTATE ARRAY
-			if(svg_elem.getAttribute("rotate") !== null) Rotate = Rotate.concat(string_to_array_cs(svg_elem.getAttribute("rotate")))
+			if(x.indexOf(',') > -1){
+				Translate.x = Translate.x.concat(x.split(","));
+				Translate.y = Translate.y.concat(y.split(","));
+				Translate.z = Translate.z.concat(z.split(","));
+			}else{
+				Translate.x = Translate.x.concat(x);
+				Translate.y = Translate.y.concat(y);
+				Translate.z = Translate.z.concat(z);
+			}
 		}
+		
+		animate_all = true;
 	}
+
+	// FILL ROTATE OBJECT
+	if(document.getElementsByTagName("rotate").length){
+		for(i = 0;i < document.getElementsByTagName("rotate").length;i++){
+
+			var svg_elem = document.getElementsByTagName("rotate")[i];
+			Rotate = Rotate.concat(svg_elem.getAttribute("r").split(","));
+		}
+
+		animate_all = true;
+	}
+
+	// ADD ANIMATION LENGTHS
+	if(Translate.x.length > 0) animation_lengths = animation_lengths.concat(Translate.x.length)
+	if(Rotate.length > 0) animation_lengths = animation_lengths.concat(Rotate.length / 9)
 }
 
 function getShapes(){
@@ -596,7 +773,7 @@ function getShapes(){
 				
 				if(doc_shapes[j].getAttribute(property_name).indexOf(',') > -1){
 					eval(shape_properties[k] + " = doc_shapes[j].getAttribute(\"" + property_name + "\").split(\",\");");
-					eval("animation_length = " + shape_properties[k] + ".length;");
+					eval("animation_lengths.push(" + shape_properties[k] + ".length);");
 					eval(shape_properties[k] + "_init = " + shape_properties[k] + "[0]");
 				}else{
 					eval(shape_properties[k] + "_init = doc_shapes[j].getAttribute(\"" + property_name + "\");");
@@ -614,13 +791,24 @@ function getShapes(){
 
 				if(doc_shapes[j].getAttribute(property_name).indexOf(',') > -1 && doc_shapes[j].getAttribute(property_name).indexOf('rgb') == -1 && property_name !== 'src'){
 					eval(attribute_properties[k] + " = doc_shapes[j].getAttribute(\"" + property_name + "\").split(\",\");");
-					eval("animation_length = " + attribute_properties[k] + ".length;");
+					eval("animation_lengths.push(" + attribute_properties[k] + ".length);");
 					eval(attribute_properties[k] + "_init = " + attribute_properties[k] + "[0]");
 					attributes_animate = true;
 				}else{
 					eval(attribute_properties[k] + "_init = doc_shapes[j].getAttribute(\"" + property_name + "\");");
 					eval(attribute_properties[k] + " = null");
 				}
+			}
+			
+			// Set coordinate variables as non-null to animate all shapes
+			if(animate_all == true){
+				for(k = 0, len_k = animate_all_properties.length;k < len_k; k++){
+					eval("if(" + animate_all_properties[k] + " == null) " + animate_all_properties[k] + " = [" + animate_all_properties[k] + "_init]");
+				}
+				for(k = 0, len_k = animate_all_attributes.length;k < len_k; k++){
+					eval("if(" + animate_all_attributes[k] + " == null) " + animate_all_attributes[k] + " = " + animate_all_attributes[k] + "_init")
+				}
+				attributes_animate = true;
 			}
 
 			if(shape_tags_loc[i] == 'circle'){
@@ -828,7 +1016,7 @@ function getShapes(){
 			}
 
 			if(shape_tags_loc[i] == 'text'){
-
+			
 				// Multiple coordinates given but only single font size, replicate to same length
 				if(x !== null && font_size == null){
 					font_size = Array.apply(null, new Array(x.length)).map(String.prototype.valueOf, font_size_init);
@@ -862,7 +1050,7 @@ function getShapes(){
 					(!z_index_init ? 0 : z_index_init),
 					(!attributes_animate ? null : textsAttributesAnimate.length)
 				);
-
+				
 				if(attributes_animate){
 					textsAttributesAnimate[textsAttributesAnimate.length] = 
 						new textAttributesAnimate(j, text_anchor, fill, 
@@ -917,8 +1105,10 @@ function onLoadFunctions(evt){
 	svgDocument.onmousewheel = scrollEvent;
 
 	setViewboxProperties();
+	getTransformations();
 	getShapes();
-	get_transformations();
+	applyTransformations();
+	
 	setAnimationParameters();
 
 	// Apply default show/hide control panel

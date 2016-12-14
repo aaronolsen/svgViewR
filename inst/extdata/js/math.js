@@ -45,6 +45,14 @@ function inv(a){
 	return s;
 }
 
+function maxC(numArray) {
+  return Math.max.apply(null, numArray);
+}
+
+function minC(numArray) {
+  return Math.min.apply(null, numArray);
+}
+
 function max() {
     var args = Array.prototype.slice.call(arguments);
     return Math.max.apply(Math, args.filter(function(val) {

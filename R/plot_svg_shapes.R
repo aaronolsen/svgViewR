@@ -113,17 +113,11 @@ plot_svg_shapes <- function(svg_list, dgp, iter = 1){
 			if(shape[['text-anchor']] == "start") text_hjust <- 0
 			if(shape[['text-anchor']] == "middle") text_hjust <- 0.5
 			if(shape[['text-anchor']] == "end") text_hjust <- 1
-		
-			fontsize <- 12
-			if(!is.numeric(shape[['font-size']])){
-				fontsize_numeric <- grep.custom('[[:digit:][:punct:]]*', shape[['font-size']])
-				fontsize <- as.numeric(paste(fontsize_numeric, sep="",collapse=""))
-			}
 
 			#if(text_rot == 90) text_just <- "bottom"
 			grid.text(label=shape[['value']], x=xy1[1], y=xy1[2], just="bottom", hjust=text_hjust, 
 				vjust = NULL, rot = 0, gp=gpar(fontface="plain", fontfamily=gparams[['font-family']], 
-				fontsize=round(fontsize), col=gparams[['fill']], alpha=gparams[['opacity']]), 
+				fontsize=round(shape[['font-size']]), col=gparams[['fill']], alpha=gparams[['opacity']]), 
 				default.units="native")
 			
 			next

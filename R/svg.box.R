@@ -38,10 +38,10 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1,
 		path <- paste0('M', paste(polygon[1, ], collapse=' '), ' L ', paste(polygon[2, ], collapse=' '), 
 			' L ', paste(polygon[3, ], collapse=' '), ' L ', paste(polygon[4, ], collapse=' '), 
 			' Z')
-		svg.paths(file=file, d=path, col.stroke='none', lwd=0, opacity.fill=0, layer='Bounding panel fill')
-		svg.paths(file=file, d=path, opacity.stroke=0.4, lwd=1, col.fill='none', layer='Bounding panel outline')
-		#svg.pointsC(file=file, x=polygon, cex=0, opacity.stroke.C=0.4, 
-		#	col.fill.C='black', opacity.fill.C=0)
+		#svg.paths(file=file, d=path, col.stroke='none', lwd=0, opacity.fill=0, layer='Bounding panel fill')
+		#svg.paths(file=file, d=path, opacity.stroke=0.4, lwd=1, col.fill='none', layer='Bounding panel outline')
+		svg.pointsC(file=file, x=polygon, cex=0, opacity.stroke.C=0.4, 
+			col.fill.C='black', opacity.fill.C=0, lwd=1)
 	}
 
 	# Draw grid

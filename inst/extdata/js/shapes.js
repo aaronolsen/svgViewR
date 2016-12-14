@@ -99,11 +99,10 @@ function point(x, y, z) {
 	this.z = z;
 }
 
-function pointAnimate(x, y, z, i) {
+function pointAnimate(x, y, z) {
 	this.x = x;
 	this.y = y;
 	this.z = z;
-	this.i = i;
 }
 
 function pointProject(x, y) {
@@ -118,12 +117,11 @@ function text(x, y, z, s) {
 	this.s = s;
 }
 
-function textAnimate(x, y, z, s, i) {
+function textAnimate(x, y, z, s) {
 	this.x = x;
 	this.y = y;
 	this.z = z;
 	this.s = s;
-	this.i = i;
 }
 
 function textProject(x, y, s) {
@@ -732,6 +730,27 @@ function attributesToString(attributes){
 	if(attributes.glyph_orientation_vertical !== undefined) s += "glyph-orientation-vertical:" + attributes.glyph_orientation_vertical + ";";
 
 	return s;
+}
+
+function fillArray(value, len) {
+	var i, j, jlen;
+	var value_length = value.length;
+	if(typeof(value) == 'string') value_length = 1;
+	if(value_length > 1){ // Check for multiple values
+		var mv = true;
+		var nlen = Math.floor(len / value_length);
+		var add = len - nlen*value_length
+		len = nlen;
+		jlen = value_length;
+	}
+	var arr = [];
+	if(mv){
+		for (i = 0; i < len; i++) for (j = 0; j < jlen; j++) arr.push(value[j]);
+		for (i = 0; i < add; i++) arr.push(value[i]);
+	}else{
+		for (i = 0; i < len; i++) arr.push(value);
+	}
+	return arr;
 }
 
 function parseSVGPath(path_in){
