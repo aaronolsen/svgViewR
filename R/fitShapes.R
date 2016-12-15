@@ -3,13 +3,16 @@ fitShapes <- function(read_html, width, height){
 	
 	params <- read_html$params
 	shapes <- read_html$shapes
+	#params$margin <- 0
 	
 	# Matrix for all coordinates
 	xyz_all <- matrix(NA, nrow=0, ncol=3)
 
 	# Fill matrix
 	for(lnum in 1:length(shapes)){
-		if(is.null(shapes[[lnum]][['xyz']])) print(shapes[[lnum]])
+
+		if(is.null(shapes[[lnum]][['xyz']])) next
+
 		xyz <- shapes[[lnum]][['xyz']]
 		if(length(dim(xyz)) == 2){
 			if(ncol(xyz) == 3) xyz_all <- rbind(xyz_all, xyz)
@@ -42,9 +45,11 @@ fitShapes <- function(read_html, width, height){
 	# Find center
 	center <- colMeans(ranges)
 
-	# Center all shapes
+	# Center and scale
 	for(lnum in 1:length(shapes)){
 
+		if(is.null(shapes[[lnum]][['xyz']])) next
+	
 		# Center xyz coordinates
 		xyz <- shapes[[lnum]][['xyz']]
 		if(length(dim(xyz)) == 2){
@@ -53,15 +58,13 @@ fitShapes <- function(read_html, width, height){
 		}else if(length(dim(xyz)) == 3){
 			for(i in 1:dim(xyz)[3]) shapes[[lnum]][['xyz']][, , i] <- shapes[[lnum]][['xyz']][, , i] - matrix(center, nrow=dim(xyz)[1], ncol=dim(xyz)[2], byrow=TRUE)
 		}
-	}
 
-	# Scale all shapes
-	for(lnum in 1:length(shapes)){
-
+		# Scale shapes
 		shapes[[lnum]][['xyz']] <- shapes[[lnum]][['xyz']]*scaling
 
 		# Scale arrowhead length
 		if(shapes[[lnum]][['type']] == 'arrow') shapes[[lnum]][['l']] <- shapes[[lnum]][['l']]*scaling
+		if(shapes[[lnum]][['type']] == 'text') shapes[[lnum]][['font-size']] <- shapes[[lnum]][['font-size']]*scaling
 	}
 
 	params[['x.shift']] <- width/2

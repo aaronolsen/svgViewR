@@ -1,4 +1,4 @@
-plot_svg_shapes <- function(svg_list, dgp, iter = 1){
+plot_svg_shapes <- function(svg_list, dgp, as, iter = 1){
 
 	params <- svg_list$params
 	shapes <- svg_list$shapes
@@ -108,16 +108,16 @@ plot_svg_shapes <- function(svg_list, dgp, iter = 1){
 		}
 
 		if(shape$type %in% c('text')){
-
+		
 			text_hjust <- 0
 			if(shape[['text-anchor']] == "start") text_hjust <- 0
 			if(shape[['text-anchor']] == "middle") text_hjust <- 0.5
 			if(shape[['text-anchor']] == "end") text_hjust <- 1
-
+			
 			#if(text_rot == 90) text_just <- "bottom"
 			grid.text(label=shape[['value']], x=xy1[1], y=xy1[2], just="bottom", hjust=text_hjust, 
 				vjust = NULL, rot = 0, gp=gpar(fontface="plain", fontfamily=gparams[['font-family']], 
-				fontsize=round(shape[['font-size']]), col=gparams[['fill']], alpha=gparams[['opacity']]), 
+				fontsize=max(round(shape[['font-size']]), 1), col=gparams[['fill']], alpha=gparams[['opacity']]), 
 				default.units="native")
 			
 			next

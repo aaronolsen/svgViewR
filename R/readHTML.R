@@ -32,8 +32,12 @@ readHTML <- function(file){
 
 	# Create lists and vectors
 	params <- list()
-	shapes <- as.list(rep(NA, length(svg_vec)))
-	z.index <- rep(NA, length(svg_vec))
+	shapes <- list()
+	tform <- list()
+	tform[['rotate']] <- list()
+	rarr_len <- 0
+	tform[['translate']] <- matrix(NA, nrow=0, ncol=3)
+	z.index <- c()
 
 	# Read each item into list
 	for(lnum in 1:length(jsp_vec)){
@@ -61,13 +65,14 @@ readHTML <- function(file){
 	params[['depth']] <- floor(params[['zoom']] * (params[['eyez']] - params[['maxzoom']]) / 100 + params[['eyez']])
 
 	# Read each item into list
-	for(lnum in 1:length(svg_vec)){
+	lnum <- 1
+	for(vnum in 1:length(svg_vec)){
 
 		# Define as list
 		shapes[[lnum]] <- list()
 
 		# Get string in line
-		svg_line <- svg_vec[lnum]
+		svg_line <- svg_vec[vnum]
 
 		# Identify tag
 		shapes[[lnum]]$type <- type <- substr(svg_line, 3, regexpr(pattern=' ', text=svg_line)-1)
@@ -172,6 +177,31 @@ readHTML <- function(file){
 			#}
 		}
 		
+		if(type == 'translate'){
+			if(grepl(',', shapes[[lnum]][['x']])){
+				translate <- cbind(
+					as.numeric(strsplit(shapes[[lnum]][['x']], ',')[[1]]), 
+					as.numeric(strsplit(shapes[[lnum]][['y']], ',')[[1]]), 
+					as.numeric(strsplit(shapes[[lnum]][['z']], ',')[[1]])
+				)
+			}else{
+				translate <- matrix(unlist(shapes[[lnum]][c('x', 'y', 'z')]), nrow=1, ncol=3)
+			}
+			tform[['translate']] <- rbind(tform[['translate']], translate)
+		}
+
+		if(type == 'rotate'){
+			
+			# Read in as vector
+			rvec <- as.numeric(strsplit(shapes[[lnum]][['r']], ",")[[1]])
+
+			# Convert into array of rotation matrices
+			tform[['rotate']][[length(tform[['rotate']])+1]] <- array(rvec, dim=c(3,3,length(rvec)/9))
+			
+			# Add length to vector
+			rarr_len <- c(rarr_len, length(rvec)/9)
+		}
+
 		for(name_split in split_comma){
 			if(is.null(shapes[[lnum]][[name_split]])) next
 			if(!grepl(',', shapes[[lnum]][[name_split]])) next
@@ -181,8 +211,10 @@ readHTML <- function(file){
 		
 		# Save z.index
 		if(!is.null(shapes[[lnum]][['z-index']])) z.index[lnum] <- shapes[[lnum]][['z-index']]
+
+		lnum <- lnum + 1
 	}
-	
+
 	# Copy pathC points to pathC
 	for(lnum in 1:length(svg_vec)){
 		
@@ -200,6 +232,16 @@ readHTML <- function(file){
 		# Fill array
 		for(i in 1:length(point_indices)) shapes[[lnum]][['xyz']][i, , ] <- t(shapes[[point_indices[i]]][['xyz']])
 	}	
+	
+	# Combine rotate arrays into a single array
+	if(length(tform[['rotate']]) > 0){
+		rarr_len <- cumsum(rarr_len)
+		rotate <- array(NA, dim=c(3,3,tail(rarr_len, 1)))
+		for(i in 1:length(tform[['rotate']])){
+			rotate[, , (rarr_len[i]+1):(rarr_len[i]+dim(tform[['rotate']][[i]])[3])] <- tform[['rotate']][[i]]
+		}
+		tform[['rotate']] <- rotate
+	}
 
 	# Check results
 	#for(lnum in 1:length(svg_vec)) cat(paste0(names(shapes[[lnum]]), '=', shapes[[lnum]]), '\n')
@@ -207,6 +249,7 @@ readHTML <- function(file){
 	list(
 		'params'=params,
 		'shapes'=shapes,
+		'tform'=tform,
 		'z.index'=z.index
 	)
 }

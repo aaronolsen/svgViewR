@@ -407,17 +407,10 @@ function applyTransformations(){
 			}
 		}
 	}
-	
-	if(animation_length == 1) return;
 
-	// Set transformations to match the number of iterations
-	if(Translate.x.length == 1){
-		Translate.x = fillArray(Translate.x, animation_length)
-		Translate.y = fillArray(Translate.y, animation_length)
-		Translate.z = fillArray(Translate.z, animation_length)
-	}
-	if(Rotate.length == 9) Rotate = fillArray(Rotate, animation_length*9)
-	
+	// If no transformations, return
+	if(Translate.x.length == 0 && Rotate.length == 0) return;
+
 	//alert(textsAnimate[0].x1)
 
 	// Apply transformations
@@ -446,12 +439,12 @@ function applyTransformations(){
 					xyz = eval('[' + shape_animate[i] + '[' + k + '].x[' + iter + '], ' + shape_animate[i] + '[' + k + '].y[' + iter + '], ' + shape_animate[i] + '[' + k + '].z[' + iter + ']]');
 
 					// Apply rotation
-					if(Rotate.length > 0){
+					if(iter*9 < Rotate.length){
 						xyz = multM(xyz, RM)
 					}
 
 					// Apply translation
-					if(Translate.x.length > 0){
+					if(iter < Translate.x.length){
 						xyz = add(xyz, [Translate.x[iter], Translate.y[iter], Translate.z[iter]].map(parseFloat));
 					}
 					
@@ -460,22 +453,18 @@ function applyTransformations(){
 					eval(shape_animate[i] + '[' + k + '].z[' + iter + '] = ' + xyz[2] + ';');
 				}
 
-				if(i == 0 && k == 0 && iter == 1){
-				//	alert(xyz)
-				}
-
 				if(eval(shape_animate[i] + '[' + k + '].x1') != undefined){
 					xyz1 = eval('[' + shape_animate[i] + '[' + k + '].x1[' + iter + '], ' + shape_animate[i] + '[' + k + '].y1[' + iter + '], ' + shape_animate[i] + '[' + k + '].z1[' + iter + ']]');
 					xyz2 = eval('[' + shape_animate[i] + '[' + k + '].x2[' + iter + '], ' + shape_animate[i] + '[' + k + '].y2[' + iter + '], ' + shape_animate[i] + '[' + k + '].z2[' + iter + ']]');
 
 					// Apply rotation
-					if(Rotate.length > 0){
+					if(iter*9 < Rotate.length){
 						xyz1 = multM(xyz1, RM)
 						xyz2 = multM(xyz2, RM)
 					}
 
 					// Apply translation
-					if(Translate.x.length > 0){
+					if(iter < Translate.x.length){
 						xyz1 = add(xyz1, [Translate.x[iter], Translate.y[iter], Translate.z[iter]].map(parseFloat));
 						xyz2 = add(xyz2, [Translate.x[iter], Translate.y[iter], Translate.z[iter]].map(parseFloat));
 					}

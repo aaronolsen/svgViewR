@@ -24,6 +24,8 @@ svg.rotate <- function(vec, mag, file = NULL){
 		rmat <- array(NA, dim=c(3,3,length(mag)))
 		for(i in 1:length(mag)) rmat[, , i] <- tMatrixEP_svg(vec, mag[i])
 	}
+	
+	#print(rmat)
 
 	# SUPRESS EXPONENTIAL FORMAT FOR NEARLY ZERO VALUES (CANNOT BE READ BY SVG READER)
 	options(scipen=10)
