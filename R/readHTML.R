@@ -224,13 +224,16 @@ readHTML <- function(file){
 		point_indices <- point_idx[shapes[[lnum]][['d']]]
 
 		# Get coordinates of first point
-		first_point <- shapes[[point_indices[1]]][['xyz']]
+		point_dims <- matrix(NA, nrow=length(point_indices), ncol=2)
+		for(i in 1:length(point_indices)) point_dims[i, ] <- dim(shapes[[point_indices[i]]][['xyz']])
 
 		# Create array for points
-		shapes[[lnum]][['xyz']] <- array(NA, dim=c(length(point_indices), rev(dim(first_point))))
+		shapes[[lnum]][['xyz']] <- array(NA, dim=c(length(point_indices), rev(apply(point_dims, 2, 'max'))))
 
 		# Fill array
-		for(i in 1:length(point_indices)) shapes[[lnum]][['xyz']][i, , ] <- t(shapes[[point_indices[i]]][['xyz']])
+		for(i in 1:length(point_indices)){
+			shapes[[lnum]][['xyz']][i, , ] <- t(shapes[[point_indices[i]]][['xyz']])
+		}
 	}	
 	
 	# Combine rotate arrays into a single array

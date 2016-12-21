@@ -1,6 +1,8 @@
 html2plot <- function(svg.file, plot.file, as = c('jpeg'), height = 'default', width = 'default', 
-	clear.plot.dir = FALSE){
+	clear.plot.dir = FALSE, max.iter = NULL){
 	## Converts an svg/html file to a plot/image or set of plots/images
+	
+	require(grid)
 	
 	# Make sure as is lowercase
 	as <- tolower(as)
@@ -47,7 +49,7 @@ html2plot <- function(svg.file, plot.file, as = c('jpeg'), height = 'default', w
 
 	# Read svg/html file
 	read_html <- readHTML(svg.file)
-	
+
 	# Apply any transformations (translations, rotations)
 	applyt <- applyTransformations(read_html)
 
@@ -58,7 +60,11 @@ html2plot <- function(svg.file, plot.file, as = c('jpeg'), height = 'default', w
 	dgp <- default_gpar()
 
 	# Set the number of iterations
-	n_iter <- applyt$n.iter
+	if(is.null(max.iter)){
+		n_iter <- applyt$n.iter
+	}else{
+		n_iter <- min(applyt$n.iter, max.iter)
+	}
 	
 	# Set number of preceding zeros in plot file names
 	num_zeros <- max(ceiling(log(n_iter+1, base=10)) - 1, 1)
@@ -77,7 +83,7 @@ html2plot <- function(svg.file, plot.file, as = c('jpeg'), height = 'default', w
 		#	do.call(as[1], args=list('file'=paste0(gsub('/$', '', plot.file), '/', rep(0, num_zeros), iter, '.', as[1]), 'width'=width, 'height'=height))
 		#}
 
-		do.call(as[1], args=list('filename'=paste0(gsub('/$', '', plot.file), '/', paste(rep(0, num_zeros), collapse=''), iter, '.', as[1]), 'width'=width, 'height'=height))
+		do.call(as[1], args=list('filename'=paste0(gsub('/$', '', plot.file), '/', paste(rep(0, num_zeros-nchar(iter)+1), collapse=''), iter, '.', as[1]), 'width'=width, 'height'=height))
 
 		# Create new page
 		grid.newpage()
