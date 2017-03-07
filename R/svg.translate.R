@@ -24,14 +24,14 @@ svg.translate <- function(vec, mag, file = NULL){
 		tmat <- matrix(NA, nrow=length(mag), ncol=3)
 		for(i in 1:length(mag)) tmat[i, ] <- vec*mag[i]
 	}
-
+	
 	# SUPRESS EXPONENTIAL FORMAT FOR NEARLY ZERO VALUES (CANNOT BE READ BY SVG READER)
 	options(scipen=10)
 	tmat <- round(tmat, 8)
 
 	# WRITE LINE
-	new_line <- paste0('\t<translate x="', paste(tmat[, 1], collapse=","), '" y="', paste(tmat[, 1], collapse=","), '" z="', paste(tmat[, 1], collapse=","), '" ></translate>')
-	
+	new_line <- paste0('\t<translate x="', paste(tmat[, 1], collapse=","), '" y="', paste(tmat[, 2], collapse=","), '" z="', paste(tmat[, 3], collapse=","), '" ></translate>')
+
 	# IF FILE IS NULL, RETURN LINES OF SVG OBJECTS
 	if(is.null(file)) return(new_line)
 	
