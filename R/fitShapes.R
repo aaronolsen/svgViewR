@@ -1,49 +1,13 @@
-fitShapes <- function(read_html, width, height){
+fitShapes <- function(read_html, plot.dims, margin = NULL){
 	## Fits shapes to plot
 	
 	params <- read_html$params
 	shapes <- read_html$shapes
-	#params$margin <- 0
-	
-	# Matrix for all coordinates
-	xyz_all <- matrix(NA, nrow=0, ncol=3)
+	width <- plot.dims$width
+	height <- plot.dims$height
 
-	# Fill matrix
-	for(lnum in 1:length(shapes)){
-
-		if(is.null(shapes[[lnum]][['xyz']])) next
-
-		xyz <- shapes[[lnum]][['xyz']]
-		if(length(dim(xyz)) == 2){
-			if(ncol(xyz) == 3) xyz_all <- rbind(xyz_all, xyz)
-			if(ncol(xyz) == 6) xyz_all <- rbind(xyz_all, xyz[, 1:3], xyz[, 4:6])
-		}else if(length(dim(xyz)) == 3){
-			for(i in 1:dim(xyz)[3]) xyz_all <- rbind(xyz_all, xyz[, , i])
-		}
-	}
-	
-	# Get ranges
-	ranges <- apply(xyz_all, 2, 'range')
-	dimnames(ranges) <- list(c('min', 'max'), c('x', 'y', 'z'))
-	diff_range <- ranges[2, ] - ranges[1, ]
-
-	# If all ranges are zero, make scaling 1
-	if(sum(abs(diff_range)) == 0){
-		scaling <- 1
-	}else{
-
-		# Solve for scaling from each dimension
-		scaling <- c(
-			1 / ((((diff_range[1] / 2) * (params$depth - params$eyez)) / (params$eyez * ((width - params$margin) - width/2))) + ((diff_range[3] / 2) / params$eyez)),
-			1 / ((((diff_range[2] / 2) * (params$depth - params$eyez)) / (params$eyez * ((height - params$margin) - height/2))) + ((diff_range[3] / 2) / params$eyez))
-		)
-
-		# Take minimum scaling
-		scaling <- min(scaling)
-	}
-
-	# Find center
-	center <- colMeans(ranges)
+	center <- plot.dims$center
+	scaling <- plot.dims$scaling
 
 	# Center and scale
 	for(lnum in 1:length(shapes)){
@@ -67,8 +31,9 @@ fitShapes <- function(read_html, width, height){
 		if(shapes[[lnum]][['type']] == 'text') shapes[[lnum]][['font-size']] <- shapes[[lnum]][['font-size']]*scaling
 	}
 
-	params[['x.shift']] <- width/2
-	params[['y.shift']] <- height/2
+	# Add additional shift and scaling parameters
+	params[['shift.add']] <- plot.dims$shift.add
+	params[['scaling.add']] <- plot.dims$scaling.add
 
 	list(
 		'params'=params,

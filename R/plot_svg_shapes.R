@@ -5,6 +5,9 @@ plot_svg_shapes <- function(svg_list, dgp, as, iter = 1){
 	z.index <- svg_list$z.index
 
 	z_order <- order(z.index)
+	
+	# Save xy coordinates that are plotted
+	#xy_all <- matrix(NA, nrow=0, ncol=2)
 
 	for(lnum in z_order){
 
@@ -45,14 +48,17 @@ plot_svg_shapes <- function(svg_list, dgp, as, iter = 1){
 		if(is.matrix(xyz)){
 
 			u1 <- -(params$depth - params$eyez) / (xyz[,3] - params$eyez)
-			xy <- cbind(u1 * xyz[,1] + params$x.shift, y=-(u1 * xyz[,2]) + params$y.shift)
+			xy <- cbind((u1 * xyz[,1])*params$scaling.add + params$shift.add[1], -(u1 * xyz[,2])*params$scaling.add + params$shift.add[2])
+			#xy_all <- rbind(xy_all, xy)
 
 		}else{
 			u1 <- -(params$depth - params$eyez) / (xyz[3] - params$eyez)
-			xy1 <- c(u1 * xyz[1] + params$x.shift, y=-(u1 * xyz[2]) + params$y.shift)
+			xy1 <- c(u1 * xyz[1], -(u1 * xyz[2]))*params$scaling.add + params$shift.add
+			#xy_all <- rbind(xy_all, xy1)
 
 			u2 <- -(params$depth - params$eyez) / (xyz[6] - params$eyez)
-			xy2 <- c(u2 * xyz[4] + params$x.shift, y=-(u2 * xyz[5]) + params$y.shift)
+			xy2 <- c(u2 * xyz[4], -(u2 * xyz[5]))*params$scaling.add + params$shift.add
+			#xy_all <- rbind(xy_all, xy2)
 		}
 
 		if(shape$type %in% c('arrow', 'line')){
@@ -85,8 +91,8 @@ plot_svg_shapes <- function(svg_list, dgp, as, iter = 1){
 				hau <- -(params$depth - params$eyez) / (ha[3] - params$eyez);
 				hbu <- -(params$depth - params$eyez) / (hb[3] - params$eyez);
 		
-				ha <- c((hau * ha[1]) + params$x.shift, -(hau * ha[2]) + params$y.shift)
-				hb <- c((hbu * hb[1]) + params$x.shift, -(hbu * hb[2]) + params$y.shift)
+				ha <- c((hau * ha[1]), -(hau * ha[2]))*params$scaling.add + params$shift.add
+				hb <- c((hbu * hb[1]), -(hbu * hb[2]))*params$scaling.add + params$shift.add
 
 				grid.lines(x=c(xy2[1], ha[1]), y=c(xy2[2], ha[2]), gp=gpar(col=gparams[['stroke']],  lwd=gparams[['stroke-width']], 
 					alpha=gparams[['stroke-opacity']]), default.units="native")
@@ -148,4 +154,6 @@ plot_svg_shapes <- function(svg_list, dgp, as, iter = 1){
 		#print(shapes[[lnum]][['type']])
 		#break
 	}
+	
+	#xy_all
 }
