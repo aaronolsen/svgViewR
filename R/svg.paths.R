@@ -1,4 +1,4 @@
-svg.paths <- function(d, col=NULL, col.fill="black", col.stroke="black", 
+svg.paths <- function(d, col=NULL, col.fill=NULL, col.stroke="black", 
 	lwd=2, opacity.stroke=1, opacity.fill=1, z.index=0, layer="", label="", file=NULL){
 
 	# If file is null, set current connection
