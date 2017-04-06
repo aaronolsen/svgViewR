@@ -121,8 +121,11 @@ readHTML <- function(file){
 			point_idx[point_num] <- lnum
 			point_num <- point_num + 1
 		}
-		
-		if(type == 'pathC') shapes[[lnum]][['d']] <- as.numeric(strsplit(shapes[[lnum]][['d']], ',')[[1]])
+
+		if(type == 'pathC'){
+			d_str <- shapes[[lnum]][['d']]
+			if(grepl(',', d_str)) shapes[[lnum]][['d']] <- as.numeric(strsplit(d_str, ',')[[1]])
+		}
 
 		## Copy coordinate elements into matrices
 		if(type == 'path'){
