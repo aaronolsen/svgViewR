@@ -1,5 +1,19 @@
-svgviewr.paths <- function(d, file=NULL, col=NULL, col.fill="black", col.stroke="black", 
+svgviewr.paths <- function(d, file=NULL, col=NULL, col.fill=NULL, col.stroke="black", 
 	lwd=2, opacity.stroke=1, opacity.fill=1, z.index=0, layer="", label="", append=TRUE){
+
+	# IF D IS MATRIX, CONVERT TO PATH
+	if(is.matrix(d)){
+
+		# SUPRESS EXPONENTIAL FORMAT FOR NEARLY ZERO VALUES (CANNOT BE READ BY SVG READER)
+		options(scipen=10)
+		d <- round(d, 8)
+
+		row_collapse <- apply(d, 1, 'paste', collapse=',')
+		d <- list(paste0('M', row_collapse[1], ' ', paste('L', row_collapse[2:length(row_collapse)], collapse=' ')))
+		if(is.null(col.fill)) col.fill <- 'none'
+	}
+	
+	if(is.null(col.fill)) col.fill <- 'black'
 
 	# IF D IS VECTOR, CONVERT TO LIST
 	if(!is.list(d)) d <- list(d)
