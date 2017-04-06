@@ -1,7 +1,7 @@
 svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, 
 	tick.axes = c(2,3,2), tick.labels = c(2,3,2), tick.lwd = 1, tick.num = 10, 
 	tick.label.size = 0.13, tick.label.opacity = 1, axis.label.opacity = 1, 
-	axis.label.size = 0.14, grid.opacity = 0.1, file=NULL){
+	axis.label.size = 0.14, grid.opacity = 0.1, z.index=0, file=NULL){
 
 	# If file is null, set current connection
 	if(is.null(file)){
@@ -34,24 +34,24 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1,
 		tick.labels)
 
 	# Draw polygons
-	for(polygon in polygons){
-		path <- paste0('M', paste(polygon[1, ], collapse=' '), ' L ', paste(polygon[2, ], collapse=' '), 
-			' L ', paste(polygon[3, ], collapse=' '), ' L ', paste(polygon[4, ], collapse=' '), 
-			' Z')
+	for(i in 1:length(polygons)){
+		#path <- paste0('M', paste(polygon[1, ], collapse=' '), ' L ', paste(polygon[2, ], collapse=' '), 
+		#	' L ', paste(polygon[3, ], collapse=' '), ' L ', paste(polygon[4, ], collapse=' '), 
+		#	' Z')
 		#svg.paths(file=file, d=path, col.stroke='none', lwd=0, opacity.fill=0, layer='Bounding panel fill')
 		#svg.paths(file=file, d=path, opacity.stroke=0.4, lwd=1, col.fill='none', layer='Bounding panel outline')
-		svg.pointsC(file=file, x=polygon, cex=0, opacity.stroke.C=0.4, 
-			col.fill.C='black', opacity.fill.C=0, lwd=1)
+		svg.pointsC(file=file, x=polygons[[i]], cex=0, opacity.stroke.C=0.4, 
+			col.fill.C='black', opacity.fill.C=0, lwd=1, z.index=z.index, z.index.C=z.index)
 	}
 
 	# Draw grid
 	if(grid.lwd > 0) for(grid in grids) svg.lines(file=file, x=grid, col='black', 
-		lwd=grid.lwd, opacity=grid.opacity, layer='Grid')
+		lwd=grid.lwd, opacity=grid.opacity, layer='Grid', z.index=z.index)
 
 	# Draw ticks
 	if(tick.lwd > 0){
 		for(i in 1:length(ticks$ticks)){
-			svg.lines(file=file, x=ticks$ticks[[i]], col='black', opacity=0.5, layer='Ticks')
+			svg.lines(file=file, x=ticks$ticks[[i]], col='black', opacity=0.5, layer='Ticks', z.index=z.index)
 		}
 	}
 
@@ -60,7 +60,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1,
 		i <- 1
 		for(i in 1:length(ticks$ticklabels)){
 			svg.text(file=file, x=ticks$ticklabelspos[[i]], labels=ticks$ticklabels[[i]], col='black', 
-				opacity=tick.label.opacity, font.size=max_range*tick.label.size, layer='Tick labels')
+				opacity=tick.label.opacity, font.size=max_range*tick.label.size, layer='Tick labels', z.index=z.index)
 			i <- i + 1
 		}
 	}
@@ -70,7 +70,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1,
 		i <- 1
 		for(i in 1:length(ticks$axislabels)){
 			svg.text(file=file, x=ticks$axislabelspos[[i]], labels=ticks$axislabels[[i]], col='black', 
-				opacity=axis.label.opacity, font.size=max_range*axis.label.size, layer='Axis labels')
+				opacity=axis.label.opacity, font.size=max_range*axis.label.size, layer='Axis labels', z.index=z.index)
 			i <- i + 1
 		}
 	}
