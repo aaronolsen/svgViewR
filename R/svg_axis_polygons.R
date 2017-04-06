@@ -7,7 +7,7 @@ svg_axis_polygons <- function(xlim, ylim, zlim, sides){
 		c(xlim[2], ylim[2], zlim[1]), c(xlim[1], ylim[2], zlim[1]), c(xlim[1], ylim[1], zlim[1]))
 
 	# YZ plane at origin
-	polygons[[2]] <- rbind(c(xlim[1], ylim[1], zlim[1]), c(xlim[1], ylim[2], zlim[1]), 
+	polygons[[2]] <- rbind(c(xlim[1], ylim[1], zlim[1]), c(xlim[1], ylim[2], zlim[1]),
 		c(xlim[1], ylim[2], zlim[2]), c(xlim[1], ylim[1], zlim[2]), c(xlim[1], ylim[1], zlim[1]))
 
 	# XZ plane at origin
