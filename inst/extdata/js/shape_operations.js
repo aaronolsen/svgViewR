@@ -1352,6 +1352,7 @@ function updateShapes(){
 		shape.setAttribute("cx", circles_proj[i].x);
 		shape.setAttribute("cy", circles_proj[i].y);
 		shape.setAttribute("r", circles_proj[i].r);
+		if(isNaN(circles_proj[i].x)){shape.setAttribute("visibility", "hidden");}else{shape.setAttribute("visibility", "");}
 	}
 
 	for (i = 0, len = images_proj.length; i < len; i++) {
@@ -1368,6 +1369,7 @@ function updateShapes(){
 		shape.setAttribute("y1", lines_proj[i].y1);
 		shape.setAttribute("x2", lines_proj[i].x2);
 		shape.setAttribute("y2", lines_proj[i].y2);
+		if(isNaN(lines_proj[i].x1) || isNaN(lines_proj[i].x2)){shape.setAttribute("visibility", "hidden");}else{shape.setAttribute("visibility", "");}
 	}
 
 	for (i = 0, len = arrows_proj.length; i < len; i++) {
@@ -1376,6 +1378,7 @@ function updateShapes(){
 		shape.setAttribute("y1", arrows_proj[i].y1);
 		shape.setAttribute("x2", arrows_proj[i].x2);
 		shape.setAttribute("y2", arrows_proj[i].y2);
+		if(isNaN(arrows_proj[i].x1) || isNaN(arrows_proj[i].x2)){shape.setAttribute("visibility", "hidden");}else{shape.setAttribute("visibility", "");}
 
 		// Arrow head (1st half)
 		var shape = svgDocument.getElementById('arrowha' + i);
@@ -1383,6 +1386,7 @@ function updateShapes(){
 		shape.setAttribute("y1", arrows_proj[i].y2);
 		shape.setAttribute("x2", arrows_proj[i].hax);
 		shape.setAttribute("y2", arrows_proj[i].hay);
+		if(isNaN(arrows_proj[i].x1) || isNaN(arrows_proj[i].x2)){shape.setAttribute("visibility", "hidden");}else{shape.setAttribute("visibility", "");}
 
 		// Arrow head (2nd half)
 		var shape = svgDocument.getElementById('arrowhb' + i);
@@ -1390,6 +1394,7 @@ function updateShapes(){
 		shape.setAttribute("y1", arrows_proj[i].y2);
 		shape.setAttribute("x2", arrows_proj[i].hbx);
 		shape.setAttribute("y2", arrows_proj[i].hby);
+		if(isNaN(arrows_proj[i].x1) || isNaN(arrows_proj[i].x2)){shape.setAttribute("visibility", "hidden");}else{shape.setAttribute("visibility", "");}
 	}
 
 	for (i = 0, len = texts_proj.length; i < len; i++) {
