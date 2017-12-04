@@ -1,27 +1,115 @@
-svg.new <- function(file, window.title="SVG Viewer", animate.duration = 1, 
-	animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
-	show.control = TRUE, start.rotate = TRUE, layers = NULL, connection = TRUE, 
+svg.new <- function(file = NULL, window.title="SVG Viewer", animate.duration = 1, 
+	animate.speed = 1, animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
+	time.units = 'sec', show.control = TRUE, start.rotate = TRUE, layers = NULL, connection = TRUE, 
 	fdir = NULL, debug = FALSE){
 
-	# Set connection type
-	conn.type <- 'open'
-	if(!connection) conn.type <- 'new'
+	if(is.null(file)){
 
-	# Get basic viewer document lines
-	con <- svgviewr.new(file=file, window.title=window.title, 
-		animate.duration=animate.duration, animate.reverse=animate.reverse, 
-		animate.repeat=animate.repeat, margin=margin, col=col, show.control=show.control, 
-		start.rotate=start.rotate, layers=layers, fdir=fdir, debug=debug, conn.type=conn.type)
+		## Create server connection to plot WebGL graphics
+		# Save connection type
+		options("svgviewr_glo_type"='webgl')
 
-	if(connection){
-		if(!is.null(layers)) con$layers <- layers
-		if(!is.null(fdir)) con$fdir <- fdir
-		if(!is.null(debug)) con$debug <- debug
+		# Check whether package is loaded from source or library
+		app_dir <- tryCatch({
+			app_dir <- paste0(path.package("svgViewR"), "/extdata")
+		}, warning = function(w) {
+		}, error = function(e) {
+			if(e[1]$message == 'none of the packages are loaded'){
+				app_dir_src <- '/Users/aaron/Documents/Research/github/svgViewR/inst/extdata'
+				if(file.exists(app_dir_src)){
+					return(app_dir_src)
+				}else{
+					stop(e)
+				}
+			}
+		}, finally = {
+		})
+		
+		# Set package load source
+		if(app_dir == '/Users/aaron/Documents/Research/github/svgViewR/inst/extdata'){
+			pkg_load <- 'source'
+		}else{
+			pkg_load <- 'library'
+		}
+
+		# Set app source file directory and viewer environment
+		if(pkg_load == 'source'){
+			options("svgviewr_glo_env"='.GlobalEnv')
+		}else{
+			options("svgviewr_glo_env"='package:svgViewR')
+		}
+		
+		# Get viewer environment
+		env <- as.environment(getOption("svgviewr_glo_env"))
+
+		# Get objects in parent environment
+		parent_env_ls <- ls(envir=env)
+		
+		# Remove any objects previously added to the svgviewr environment
+		if('svgviewr_env' %in% parent_env_ls) rm(list = ls(envir = svgviewr_env), envir = svgviewr_env)
+
+		# Try stopping server, if running
+		tryCatch({ R.server$stop() }, error = function(e) {}, warning = function(e) {})
+
+		# Remove R.server, if exists
+		tryCatch({ remove(R.server) }, error = function(e) {}, warning = function(e) {})
+
+		# Try adding server to package environment instead of declaring as a global variable:
+		# 	https://stackoverflow.com/questions/12598242/global-variables-in-packages-in-r
+		# pkg.env$cur.val <- 0
+		# pkg.env$times.changed <- 0
+
+		# Create new server
+		R.server <<- Rhttpd2$new()
+
+		# Add directories that will be accessible to server
+		R.server$add(app = File$new(app_dir), name = "extdata")
+		#File$new(paste0(dirname(getwd()), '/json'))
+		R.server$add(app = File$new('/Users/aaron/Documents/Research/R Package Tests/svgViewR/WebGL and three js/json'), name = "json_dir")
+
+		#
+		env$svgviewr_env$js_var <- list()
+
+		# Set background color
+		if(substr(col,1,1) == '#'){
+
+			# If already hex color
+			env$svgviewr_env$js_var[['bg_col']] <- paste0('0x',gsub('#', '', col))
+
+		}else{
+
+			col_2_rgb <- col2rgb(col) / 255
+			env$svgviewr_env$js_var[['bg_col']] <- paste0('0x',gsub('#', '', rgb(col_2_rgb[1],col_2_rgb[2],col_2_rgb[3])))
+		}
+
+		env$svgviewr_env$js_var[['play_speed']] <- animate.speed
+		env$svgviewr_env$js_var[['time_units']] <- paste0('\"', time.units, '\"')
+
+	}else{
+
+		## Create a file
+		# Save connection type
+		options("svgviewr_glo_type"='html')
+
+		# Set connection type
+		conn.type <- 'open'
+		if(!connection) conn.type <- 'new'
+
+		# Get basic viewer document lines
+		con <- svgviewr.new(file=file, window.title=window.title, 
+			animate.duration=animate.duration, animate.reverse=animate.reverse, 
+			animate.repeat=animate.repeat, margin=margin, col=col, show.control=show.control, 
+			start.rotate=start.rotate, layers=layers, fdir=fdir, debug=debug, conn.type=conn.type)
+
+		if(connection){
+			if(!is.null(layers)) con$layers <- layers
+			if(!is.null(fdir)) con$fdir <- fdir
+			if(!is.null(debug)) con$debug <- debug
+		}
+
+		# Save connection through options to enable global access
+		options("svg_glo_con"=con)
 	}
 
-	# Save connection through options to enable global access
-	options("svg_glo_con"=con)
-
-	# Suppress return of value in console
 	ret = NULL
 }
