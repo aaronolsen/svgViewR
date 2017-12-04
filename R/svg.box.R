@@ -1,7 +1,7 @@
 svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, 
 	tick.axes = c(2,3,2), tick.labels = c(2,3,2), tick.lwd = 1, tick.num = 10, 
 	tick.label.size = 0.13, tick.label.opacity = 1, axis.label.opacity = 1, 
-	axis.label.size = 0.14, grid.opacity = 0.1, z.index=0, file=NULL){
+	axis.label.size = 0.14, grid.opacity = 0.1, z.index=0, lim.exact=FALSE, file=NULL){
 
 	# If file is null, set current connection
 	if(is.null(file)){
@@ -14,7 +14,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1,
 	}
 
 	# Get ranges
-	ranges_list <- svgviewr_ranges(x, ranges, tick.num)
+	ranges_list <- svgviewr_ranges(x, ranges, tick.num, lim.exact=lim.exact)
 	xlim <- ranges_list$xlim
 	ylim <- ranges_list$ylim
 	zlim <- ranges_list$zlim
