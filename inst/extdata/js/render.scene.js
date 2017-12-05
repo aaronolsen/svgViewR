@@ -2,6 +2,7 @@
 var lines = new Array( );
 var meshes = new Array( );
 var sprites = new Array( );
+var arrows = new Array( );
 
 // Declare global variables
 var animation, animations, anim_pause_time, camera, controls, mesh_name, renderer, scene, stats;
@@ -85,7 +86,8 @@ function addMeshToScene( geometry, materials ) {
 
 function loadGeometries(){
 
-	var geometry, i, j, line, material, num_seg, text, text_length, text_size;
+	var arrowHelper, canvas, context, dir, geometry, i, j, line, material, num_seg, origin;
+	var sprite, spriteMaterial, text, texture, text_length, text_size;
 	
 	//// Load lines
 	// Get number of line segments
@@ -101,14 +103,14 @@ function loadGeometries(){
 		});
 
 		// Set number of line segments
-		num_seg = svg_obj.lines[i].xyz.length / 3;
+		num_seg = svg_obj.lines[i].x.length / 3;
 		
 		// Create new geometry
 		geometry = new THREE.Geometry();
 
 		// Add each segment
 		for(j = 0; j < num_seg*3; j = j + 3){
-			geometry.vertices.push(new THREE.Vector3( svg_obj.lines[i].xyz[j], svg_obj.lines[i].xyz[j+1], svg_obj.lines[i].xyz[j+2] ));
+			geometry.vertices.push(new THREE.Vector3( svg_obj.lines[i].x[j], svg_obj.lines[i].x[j+1], svg_obj.lines[i].x[j+2] ));
 		}
 
 		// Create line
@@ -131,8 +133,8 @@ function loadGeometries(){
 	for(i = 0; i < text_length; i++){
 
 		// create a canvas element
-		var canvas = document.createElement('canvas');
-		var context = canvas.getContext('2d');
+		canvas = document.createElement('canvas');
+		context = canvas.getContext('2d');
 
 		// Set text
 		text = svg_obj.text[i].labels;
@@ -149,14 +151,14 @@ function loadGeometries(){
 		context.fillText(text, canvas.width/2, canvas.height/2); 
 
 		// Create text from canvas
-		var texture = new THREE.Texture(canvas) 
+		texture = new THREE.Texture(canvas) 
 		texture.needsUpdate = true;
 	  
 		// Create sprite material from texture
-		var spriteMaterial = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: false } );
+		spriteMaterial = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: false } );
 
 		// Create sprite
-		var sprite = new THREE.Sprite( spriteMaterial );
+		sprite = new THREE.Sprite( spriteMaterial );
 
 		// Set scale and position
 		sprite_scale = 2 / canvas.height
@@ -171,6 +173,36 @@ function loadGeometries(){
 
 		// Add to scene
 		scene.add( sprite );
+	}
+
+
+	//// Add arrows
+	// Get number of arrows
+	arrow_length = svg_obj.arrow.length;
+
+	for(i = 0; i < arrow_length; i++){
+		
+		// Create direction vector
+		dir = new THREE.Vector3( svg_obj.arrow[i].dir[0], svg_obj.arrow[i].dir[1], svg_obj.arrow[i].dir[2]);
+
+		// Create origin vector
+		origin = new THREE.Vector3( svg_obj.arrow[i].origin[0], svg_obj.arrow[i].origin[1], svg_obj.arrow[i].origin[2]);
+	
+		// Create arrow
+		arrowHelper = new THREE.ArrowHelper( dir, origin, svg_obj.arrow[i].length, svg_obj.arrow[i].col, 
+			svg_obj.arrow[i].len, svg_obj.arrow[i].len*0.7);
+
+		// Set line width
+		arrowHelper.line.material.linewidth = svg_obj.arrow[i].lwd;
+
+		// Set name
+		arrowHelper.name = 'arrow' + i;
+
+		// Add to arrows
+		arrows.push(arrowHelper)
+
+		// Add to scene
+		scene.add( arrowHelper );
 	}
 }
 
