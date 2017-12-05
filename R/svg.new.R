@@ -69,18 +69,9 @@ svg.new <- function(file = NULL, window.title="SVG Viewer", animate.duration = 1
 
 		#
 		env$svgviewr_env$js_var <- list()
-
+		
 		# Set background color
-		if(substr(col,1,1) == '#'){
-
-			# If already hex color
-			env$svgviewr_env$js_var[['bg_col']] <- paste0('0x',gsub('#', '', col))
-
-		}else{
-
-			col_2_rgb <- col2rgb(col) / 255
-			env$svgviewr_env$js_var[['bg_col']] <- paste0('0x',gsub('#', '', rgb(col_2_rgb[1],col_2_rgb[2],col_2_rgb[3])))
-		}
+		env$svgviewr_env$js_var[['bg_col']] <- webColor(col, format='0')
 
 		env$svgviewr_env$js_var[['play_speed']] <- animate.speed
 		env$svgviewr_env$js_var[['time_units']] <- paste0('\"', time.units, '\"')
