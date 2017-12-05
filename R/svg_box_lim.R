@@ -1,7 +1,4 @@
-svgviewr_ranges <- function(x, ranges, tick.num, lim.exact=FALSE){
-	
-	if(!is.null(x) && is.array(x)) ranges <- apply(x, 2, 'range', na.rm=TRUE)
-	if(!is.null(x) && is.matrix(x)) ranges <- apply(x, 2, 'range', na.rm=TRUE)
+svg_box_lim <- function(ranges, tick.num, lim.exact=FALSE){
 	
 	if(lim.exact){
 		# Trying exact - tick labels may not be correct yet
