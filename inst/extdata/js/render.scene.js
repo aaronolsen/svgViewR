@@ -1,27 +1,20 @@
-// Set mesh file paths
+// Start arrays for drawn objects
+var lines = new Array( );
 var meshes = new Array( );
+var sprites = new Array( );
 
 // Declare global variables
 var animation, animations, anim_pause_time, camera, controls, mesh_name, renderer, scene, stats;
 
-// Set screen dimensions
-var SCREEN_WIDTH = window.innerWidth;
-var SCREEN_HEIGHT = window.innerHeight;
-
-// Set animation start time
-var anim_start = Date.now();
-
-// Start animation not paused
-var anim_pause = false;
-
-// Set object add count
-var obj_add_ct = 0;
-
-// Set mesh load count
-var mesh_load_ct = 0;
-
-// Set mesh ready logical
-var meshes_ready = false;
+var screen_width = window.innerWidth;		// Set screen dimensions
+var screen_height = window.innerHeight;		// Set screen dimensions
+var anim_start = Date.now();				// Set animation start time
+var anim_pause = false;						// Start with animation paused
+var obj_add_ct = 0;							// Set initial object add count
+var canvas_text_res = 5;					// Set canvas text resolution (factor by which canvas is scaled up then down)
+var font_scale = 1.38*canvas_text_res;		// Set font scaling
+var mesh_load_ct = 0;						// Set initial mesh load count
+var meshes_ready = false;					// Start with meshes not ready
 
 function addLights(scene_center, distance, intensity){
 
@@ -87,6 +80,97 @@ function addMeshToScene( geometry, materials ) {
 	
 		// Run any script after meshes are loaded
 		onMeshesReady();
+	}
+}
+
+function loadGeometries(){
+
+	var geometry, i, j, line, material, num_seg, text, text_length, text_size;
+	
+	//// Load lines
+	// Get number of line segments
+	var lines_length = svg_obj.lines.length;
+
+	// Create each line
+	for(i = 0; i < lines_length; i++){
+
+		// Set line material
+		material = new THREE.LineBasicMaterial({
+			color: svg_obj.lines[i].col,
+			linewidth: svg_obj.lines[i].lwd
+		});
+
+		// Set number of line segments
+		num_seg = svg_obj.lines[i].xyz.length / 3;
+		
+		// Create new geometry
+		geometry = new THREE.Geometry();
+
+		// Add each segment
+		for(j = 0; j < num_seg*3; j = j + 3){
+			geometry.vertices.push(new THREE.Vector3( svg_obj.lines[i].xyz[j], svg_obj.lines[i].xyz[j+1], svg_obj.lines[i].xyz[j+2] ));
+		}
+
+		// Create line
+		line = new THREE.Line( geometry, material );
+
+		// Set name
+		line.name = 'line' + i;
+
+		// Add to meshes
+		lines.push(line)
+
+		// Add to scene
+		scene.add( lines[i] );
+	}
+
+	//// Add text
+	// Get number of text elements
+	text_length = svg_obj.text.length;
+
+	for(i = 0; i < text_length; i++){
+
+		// create a canvas element
+		var canvas = document.createElement('canvas');
+		var context = canvas.getContext('2d');
+
+		// Set text
+		text = svg_obj.text[i].labels;
+		
+		// Set text size
+		text_size = font_scale*svg_obj.text[i].size;
+
+		// Make canvas size a bit larger than font size so there is enough room
+		canvas.height = 1.5*text_size;
+		canvas.width = 0.6*text.length*text_size;
+
+		context.font = text_size + "px Arial";
+		context.textAlign = "center";
+		context.fillText(text, canvas.width/2, canvas.height/2); 
+
+		// Create text from canvas
+		var texture = new THREE.Texture(canvas) 
+		texture.needsUpdate = true;
+	  
+		// Create sprite material from texture
+		var spriteMaterial = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: false } );
+
+		// Create sprite
+		var sprite = new THREE.Sprite( spriteMaterial );
+
+		// Set scale and position
+		sprite_scale = 2 / canvas.height
+		sprite.scale.set(canvas.width*sprite_scale,canvas.height*sprite_scale,1);
+		sprite.position.set(svg_obj.text[i].x[0], svg_obj.text[i].x[1], svg_obj.text[i].x[2]);
+
+		// Set name
+		sprite.name = 'sprite' + i;
+
+		// Add to sprites
+		sprites.push(sprite)
+
+		// Add to scene
+		scene.add( sprite );
 	}
 }
 
@@ -199,7 +283,7 @@ function onReady(){
 	scene.background = new THREE.Color( bg_col );
 
 	// Setup the camera
-	camera = new THREE.PerspectiveCamera( 30, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 10000 );
+	camera = new THREE.PerspectiveCamera( 30, screen_width / screen_height, 1, 10000 );
 
 	// Add camera controls
 	controls = new THREE.OrbitControls( camera );
@@ -216,12 +300,11 @@ function onReady(){
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	document.body.appendChild(renderer.domElement);
 
-	// Add coordinate axes at origin
-	var axesHelper = new THREE.AxesHelper( 5 );
-	scene.add( axesHelper );
-
 	// Start mesh loading
 	loadNextMesh();
+	
+	// Load coordinate objects
+	loadGeometries();
 	
 	// Load animation from file
 	//var loader = new THREE.FileLoader();
@@ -230,7 +313,7 @@ function onReady(){
 	// Load animation from string
 	load_animation(tm_str);
 
-	// Try rendering every 10 msec until everything is loaded
+	// Try rendering every 10 msec until all objects are finished loaded
 	try_render_int = setInterval(tryRender, 10);
 }
 
@@ -278,9 +361,8 @@ var render = function () {
 
 		// Update shapes
 		updateShapes(time_index);
-		
 	}
-
+	
 	stats.update();
 	
 	renderer.render(scene, camera);
