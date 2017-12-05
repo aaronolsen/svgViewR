@@ -9,9 +9,6 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 	# Get all input parameters as list
 	input_params <- mget(names(formals()),sys.frame(sys.nframe()))
 
-	# Set named element with function name as string
-	input_params$fcn <- as.character(match.call()[[1]])
-
 	# Set type
 	input_params$type <- gsub('svg[.]', '', input_params$fcn)
 
@@ -30,12 +27,8 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 		input_params$src <- ''
 		if(length(file_strsplit) > 1) input_params$src <- paste0(paste0(file_strsplit[1:(length(file_strsplit)-1)], collapse='/'), '/')
 
-		# Add file
-		if(is.null(env$svgviewr_env$mesh)){
-			env$svgviewr_env$mesh <- list(input_params)
-		}else{
-			env$svgviewr_env$mesh[[length(svgviewr_env$mesh)+1]] <- input_params
-		}
+		# Add to meshes
+		env$svgviewr_env$mesh[[length(svgviewr_env$mesh)+1]] <- input_params
 		
 		# Add name of object
 		env$svgviewr_env$names <- c(env$svgviewr_env$names, name)
