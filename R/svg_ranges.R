@@ -42,6 +42,20 @@ svg_ranges <- function(x = NULL){
 						x <- rbind(x, vertex_ranges)
 					}
 				}
+
+				if(svg_obj_name == 'arrow'){
+				
+					for(arrow_num in 1:length(env$svgviewr_env[[svg_obj_name]])){
+
+						# Get arrow
+						arrow <- env$svgviewr_env[[svg_obj_name]][[arrow_num]]
+
+						# Get start and end point of arrow
+						arrow_ranges <- rbind(arrow$origin, arrow$origin + arrow$length*arrow$dir)
+
+						x <- rbind(x, arrow_ranges)
+					}
+				}
 			}
 
 			# Apply any transformations to ranges for each element
