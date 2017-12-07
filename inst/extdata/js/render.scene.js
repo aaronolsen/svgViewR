@@ -1,19 +1,24 @@
 // Start arrays for drawn objects
+var arrows = new Array( );
 var lines = new Array( );
 var meshes = new Array( );
+var spheres = new Array( );
 var sprites = new Array( );
-var arrows = new Array( );
 
 // Declare global variables
 var animation, animations, anim_pause_time, camera, controls, mesh_name, renderer, scene, stats;
+var update_obj = {
+    num: new Array(),
+    type: new Array()
+};
 
+var animate = false;						// Whether to animate - turned on if animation is loaded
 var screen_width = window.innerWidth;		// Set screen dimensions
 var screen_height = window.innerHeight;		// Set screen dimensions
 var anim_start = Date.now();				// Set animation start time
 var anim_pause = false;						// Start with animation paused
 var obj_add_ct = 0;							// Set initial object add count
-var canvas_text_res = 5;					// Set canvas text resolution (factor by which canvas is scaled up then down)
-var font_scale = 1.38*canvas_text_res;		// Set font scaling
+var font_scale = 1.25;						// Set font scaling
 var mesh_load_ct = 0;						// Set initial mesh load count
 var meshes_ready = false;					// Start with meshes not ready
 
@@ -86,37 +91,50 @@ function addMeshToScene( geometry, materials ) {
 
 function loadGeometries(){
 
-	var arrowHelper, canvas, context, dir, geometry, i, j, line, material, num_seg, origin;
+	var arrowHelper, canvas, context, dir, geometry, i, j, line, material, mesh, num_seg, origin;
 	var sprite, spriteMaterial, text, texture, text_length, text_size;
 	
 	//// Load lines
 	// Get number of line segments
-	var lines_length = svg_obj.lines.length;
+	var lines_length = svg_obj.line.length;
 
+//	alert(svg_obj.line[2].x);
 	// Create each line
 	for(i = 0; i < lines_length; i++){
 
 		// Set line material
 		material = new THREE.LineBasicMaterial({
-			color: svg_obj.lines[i].col,
-			linewidth: svg_obj.lines[i].lwd
+			color: svg_obj.line[i].col,
+			linewidth: svg_obj.line[i].lwd
 		});
 
 		// Set number of line segments
-		num_seg = svg_obj.lines[i].x.length / 3;
+		num_seg = svg_obj.line[i].x.length / 3;
+		svg_obj.line[i].nseg = num_seg;
 		
 		// Create new geometry
 		geometry = new THREE.Geometry();
 
 		// Add each segment
 		for(j = 0; j < num_seg*3; j = j + 3){
-			geometry.vertices.push(new THREE.Vector3( svg_obj.lines[i].x[j], svg_obj.lines[i].x[j+1], svg_obj.lines[i].x[j+2] ));
+			geometry.vertices.push(new THREE.Vector3( svg_obj.line[i].x[j], svg_obj.line[i].x[j+1], svg_obj.line[i].x[j+2] ));
 		}
 
 		// Create line
 		line = new THREE.Line( geometry, material );
 
-		// Set name
+		// Check if position over time is specified
+		if(svg_obj.line[i].x_tm != undefined){
+
+			// Add transformed position over time
+			line.x_tm = svg_obj.line[i].x_tm;
+
+			// Add type and number to 
+			update_obj.num.push(i);
+			update_obj.type.push('line');
+		}
+
+		// Set name and number of segments
 		line.name = 'line' + i;
 
 		// Add to meshes
@@ -129,6 +147,8 @@ function loadGeometries(){
 	//// Add text
 	// Get number of text elements
 	text_length = svg_obj.text.length;
+	
+	var canvas_text_res;
 
 	for(i = 0; i < text_length; i++){
 
@@ -138,13 +158,17 @@ function loadGeometries(){
 
 		// Set text
 		text = svg_obj.text[i].labels;
+		//text = 'X'
+		
+		// Set resolution depending on absolute text size (between 35 and 5, increases with smaller values)
+		canvas_text_res = (30 / (0.2*svg_obj.text[i].size + 1)) + 5
 		
 		// Set text size
-		text_size = font_scale*svg_obj.text[i].size;
+		text_size = font_scale*canvas_text_res*svg_obj.text[i].size;
 
 		// Make canvas size a bit larger than font size so there is enough room
-		canvas.height = 1.5*text_size;
-		canvas.width = 0.6*text.length*text_size;
+		canvas.height = nearestPow2(2*text_size);
+		canvas.width = nearestPow2(0.9*text.length*text_size);
 
 		context.font = text_size + "px Arial";
 		context.textAlign = "center";
@@ -155,13 +179,13 @@ function loadGeometries(){
 		texture.needsUpdate = true;
 	  
 		// Create sprite material from texture
-		spriteMaterial = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: false } );
+		spriteMaterial = new THREE.SpriteMaterial( { map: texture } );
 
 		// Create sprite
 		sprite = new THREE.Sprite( spriteMaterial );
 
 		// Set scale and position
-		sprite_scale = 2 / canvas.height
+		sprite_scale = 1 / (canvas_text_res);
 		sprite.scale.set(canvas.width*sprite_scale,canvas.height*sprite_scale,1);
 		sprite.position.set(svg_obj.text[i].x[0], svg_obj.text[i].x[1], svg_obj.text[i].x[2]);
 
@@ -175,34 +199,84 @@ function loadGeometries(){
 		scene.add( sprite );
 	}
 
-
 	//// Add arrows
 	// Get number of arrows
-	arrow_length = svg_obj.arrow.length;
+	if(svg_obj.arrow != undefined){
 
-	for(i = 0; i < arrow_length; i++){
+		arrow_length = svg_obj.arrow.length;
+
+		for(i = 0; i < arrow_length; i++){
 		
-		// Create direction vector
-		dir = new THREE.Vector3( svg_obj.arrow[i].dir[0], svg_obj.arrow[i].dir[1], svg_obj.arrow[i].dir[2]);
+			// Create direction vector
+			dir = new THREE.Vector3( svg_obj.arrow[i].dir[0], svg_obj.arrow[i].dir[1], svg_obj.arrow[i].dir[2]);
 
-		// Create origin vector
-		origin = new THREE.Vector3( svg_obj.arrow[i].origin[0], svg_obj.arrow[i].origin[1], svg_obj.arrow[i].origin[2]);
+			// Create origin vector
+			origin = new THREE.Vector3( svg_obj.arrow[i].origin[0], svg_obj.arrow[i].origin[1], svg_obj.arrow[i].origin[2]);
 	
-		// Create arrow
-		arrowHelper = new THREE.ArrowHelper( dir, origin, svg_obj.arrow[i].length, svg_obj.arrow[i].col, 
-			svg_obj.arrow[i].len, svg_obj.arrow[i].len*0.7);
+			// Create arrow
+			arrowHelper = new THREE.ArrowHelper( dir, origin, svg_obj.arrow[i].length, svg_obj.arrow[i].col, 
+				svg_obj.arrow[i].len, svg_obj.arrow[i].len*0.7);
 
-		// Set line width
-		arrowHelper.line.material.linewidth = svg_obj.arrow[i].lwd;
+			// Set line width
+			arrowHelper.line.material.linewidth = svg_obj.arrow[i].lwd;
 
-		// Set name
-		arrowHelper.name = 'arrow' + i;
+			// Set name
+			arrowHelper.name = 'arrow' + i;
+		
+			// Add initial rotation
+			arrowHelper.initPosition = new Array(arrowHelper.position.x, arrowHelper.position.y, arrowHelper.position.z);
+			arrowHelper.initRotation = new Array(arrowHelper.rotation.x, arrowHelper.rotation.y, arrowHelper.rotation.z);
 
-		// Add to arrows
-		arrows.push(arrowHelper)
+			// Add to arrows
+			arrows.push(arrowHelper)
 
-		// Add to scene
-		scene.add( arrowHelper );
+			// Add to scene
+			scene.add( arrowHelper );
+		}
+	}
+	
+	//// Add spheres
+	// Get number of arrows
+	if(svg_obj.sphere != undefined){
+		num_objects = svg_obj.sphere.length;
+
+		for(i = 0; i < num_objects; i++){
+		
+			// Create sphere
+			geometry = new THREE.SphereGeometry( radius=svg_obj.sphere[i].radius, widthSegments=svg_obj.sphere[i].wseg, heightSegments=svg_obj.sphere[i].hseg ) ;
+
+			// material describes the surface of the shape
+			material = new THREE.MeshLambertMaterial( {color: svg_obj.sphere[i].col} ) ;
+
+			// mesh maps the material onto the geometry to make an object  
+			mesh = new THREE.Mesh( geometry, material ) ;
+
+			// position the mesh in space
+			mesh.position.set( svg_obj.sphere[i].x[0], svg_obj.sphere[i].x[1], svg_obj.sphere[i].x[2] ) ;
+
+			// Check if position over time is specified
+			if(svg_obj.sphere[i].x_tm != undefined){
+
+				// Add transformed position over time
+				mesh.x_tm = svg_obj.sphere[i].x_tm;
+
+				// Add type and number to 
+				update_obj.num.push(i);
+				update_obj.type.push('sphere');
+			}
+
+			// Set name
+			mesh.name = 'sphere' + i;
+		
+			// add the mesh to the scene
+			scene.add( mesh ) ;
+
+			// Add to arrows
+			spheres.push(mesh)
+
+			// Add to scene
+			scene.add( mesh );
+		}
 	}
 }
 
@@ -218,6 +292,11 @@ function loadNextMesh(){
 	// Set mesh name
 	//mesh_name = mesh_names[mesh_load_ct];
 	mesh_name = svg_obj.mesh[obj_add_ct].name;
+}
+
+function nearestPow2( aSize ){
+	// https://bocoup.com/blog/find-the-closest-power-of-2-with-javascript
+	return Math.pow( 2, Math.round( Math.log( aSize ) / Math.log( 2 ) ) ); 
 }
 
 //
@@ -240,17 +319,52 @@ function onMeshesReady(){
 	var minX = minY = minZ = Infinity;
 	var maxX = maxY = maxZ = -Infinity;
 
-	//
-	var time_int = Math.round(animation.ntimes/5);
-	for(j = 0; j < animation.ntimes; j = j + time_int){
+	// If no animation, just iterate once through update
+	if(animation.ntimes == undefined){
+		var animation_ntimes = 1;
+		var time_int = 1;
+	}else{
+		var animation_ntimes = animation.ntimes;
+		var time_int = Math.round(animation.ntimes/5);
+	}
+
+	for(j = 0; j < animation_ntimes; j = j + time_int){
 
 		// Transform shapes to first animation index
 		updateShapes(j);
 
 		// Compute bounding box of transformed objects
-		for(i = 0; i <= mesh_load_ct; i++){
+		for(i = 0; i <= spheres.length-1; i++){
+
+			var bbox = new THREE.Box3().setFromObject( spheres[i] );
+
+			// Update min and max
+			minX = Math.min (minX, bbox.min.x);
+			minY = Math.min (minY, bbox.min.y);
+			minZ = Math.min (minZ, bbox.min.z);
+			maxX = Math.max (maxX, bbox.max.x);
+			maxY = Math.max (maxY, bbox.max.y);
+			maxZ = Math.max (maxZ, bbox.max.z);
+		}
+
+		// Compute bounding box of transformed objects
+		for(i = 0; i <= meshes.length-1; i++){
 
 			var bbox = new THREE.Box3().setFromObject( meshes[i] );
+
+			// Update min and max
+			minX = Math.min (minX, bbox.min.x);
+			minY = Math.min (minY, bbox.min.y);
+			minZ = Math.min (minZ, bbox.min.z);
+			maxX = Math.max (maxX, bbox.max.x);
+			maxY = Math.max (maxY, bbox.max.y);
+			maxZ = Math.max (maxZ, bbox.max.z);
+		}
+
+		// Compute bounding box of transformed objects
+		for(i = 0; i <= lines.length-1; i++){
+
+			var bbox = new THREE.Box3().setFromObject( lines[i] );
 
 			// Update min and max
 			minX = Math.min (minX, bbox.min.x);
@@ -287,7 +401,7 @@ function onMeshesReady(){
 	controls.update();
 
 	// Add lights
-	addLights(bbox_center, bbox_size, 1)
+	addLights(bbox_center, bbox_size, 1.5)
 }
 
 // Set frames per second for motion
@@ -367,32 +481,35 @@ var render = function () {
 
 	requestAnimationFrame(render);
 
-	if(anim_pause){
+	if(animate){
 
-		// Increase anim_start so that when animation is unpaused it starts where it "left off"
-		anim_start = anim_pause_start + (Date.now() - anim_pause_time);
+		if(anim_pause){
 
-	}else{
+			// Increase anim_start so that when animation is unpaused it starts where it "left off"
+			anim_start = anim_pause_start + (Date.now() - anim_pause_time);
 
-		// Get elapsed time in ms
-		var elapsed_ms = Date.now() - anim_start;
+		}else{
+
+			// Get elapsed time in ms
+			var elapsed_ms = Date.now() - anim_start;
 	
-		// If exceeds animation duration, reset clock
-		if(elapsed_ms > animation.duration){
-			anim_start = Date.now();
-			elapsed_ms = 0;
+			// If exceeds animation duration, reset clock
+			if(elapsed_ms > animation.duration){
+				anim_start = Date.now();
+				elapsed_ms = 0;
+			}
+
+			// Find closest time point in animation
+			time_index = nearestTimeIndex( elapsed_ms, animation.start, animation.end, animation.duration, animation.ntimes);
+
+			// Print clock
+			document.getElementById( "clock" ).innerHTML = Math.round(elapsed_ms / 100)*100 + " ms";
+			document.getElementById( "idx" ).innerHTML = time_index;
+			document.getElementById( "time" ).innerHTML = Math.round((elapsed_ms*play_speed) / 100)*100 + " ms";
+
+			// Update shapes
+			updateShapes(time_index);
 		}
-
-		// Find closest time point in animation
-		time_index = nearestTimeIndex( elapsed_ms, animation.start, animation.end, animation.duration, animation.ntimes);
-
-		// Print clock
-		document.getElementById( "clock" ).innerHTML = Math.round(elapsed_ms / 100)*100 + " ms";
-		document.getElementById( "idx" ).innerHTML = time_index;
-		document.getElementById( "time" ).innerHTML = Math.round((elapsed_ms*play_speed) / 100)*100 + " ms";
-
-		// Update shapes
-		updateShapes(time_index);
 	}
 	
 	stats.update();
@@ -402,17 +519,20 @@ var render = function () {
 
 function updateShapes(time_index){
 
-	var apply_idx, set_prop, set_val;
+	var num, type, i, j, k, set_prop, set_val, tracks_length;
 
+	//// Apply animation transformations
 	// Go through each track
-	var tracks_length = animation.tracks.length;
-	for (var i = 0; i < tracks_length; i++){
+	tracks_length = animation.tracks.length;
 
-		// Get name of element to apply animation to
-		apply_idx = animation.tracks[i].apply_idx;
+	for (i = 0; i < tracks_length; i++){
+
+		// Get indices of objects to apply animation to
+		num = animation.tracks[i].num;
+		type = animation.tracks[i].type;
 
 		// If mesh name in animation file not found, continue
-		if(apply_idx == undefined) continue;
+		if(num.length == 0) continue;
 
 		// Get property to set
 		set_prop = animation.tracks[i].set;
@@ -420,16 +540,48 @@ function updateShapes(time_index){
 		// Get value to set
 		set_val = animation.tracks[i].keys[time_index].value;
 
-		if(set_prop == 'position'){
-			meshes[apply_idx].position.x = set_val[0];
-			meshes[apply_idx].position.y = set_val[1];
-			meshes[apply_idx].position.z = set_val[2];
+		for (j = 0; j < num.length; j++){
+
+			if(type[j] == 'mesh'){
+
+				if(set_prop == 'position'){
+					meshes[num[j]].position.x = set_val[0];
+					meshes[num[j]].position.y = set_val[1];
+					meshes[num[j]].position.z = set_val[2];
+				}
+
+				if(set_prop == 'rotation'){
+					meshes[num[j]].rotation.x = set_val[0];
+					meshes[num[j]].rotation.y = set_val[1];
+					meshes[num[j]].rotation.z = set_val[2];
+				}
+			}
+		}
+	}
+
+	//// Apply object updates/transformations
+	var update_obj_length = update_obj.num.length;
+	//alert(update_obj_length);
+
+	for (i = 0; i < update_obj_length; i++){
+		
+		if(update_obj.type[i] == 'sphere'){
+			spheres[update_obj.num[i]].position.x = spheres[update_obj.num[i]].x_tm[time_index][0];
+			spheres[update_obj.num[i]].position.y = spheres[update_obj.num[i]].x_tm[time_index][1];
+			spheres[update_obj.num[i]].position.z = spheres[update_obj.num[i]].x_tm[time_index][2];
 		}
 
-		if(set_prop == 'rotation'){
-			meshes[apply_idx].rotation.x = set_val[0];
-			meshes[apply_idx].rotation.y = set_val[1];
-			meshes[apply_idx].rotation.z = set_val[2];
+		if(update_obj.type[i] == 'line'){
+			// Update each segment
+			k = 0;
+			for(j = 0; j < svg_obj.line[i].nseg*3; j = j + 3){
+				lines[update_obj.num[i]].geometry.vertices[k].x = lines[update_obj.num[i]].x_tm[time_index][j];
+				lines[update_obj.num[i]].geometry.vertices[k].y = lines[update_obj.num[i]].x_tm[time_index][j+1];
+				lines[update_obj.num[i]].geometry.vertices[k].z = lines[update_obj.num[i]].x_tm[time_index][j+2];
+				k++;
+			}
+			// Update vertices
+			lines[update_obj.num[i]].geometry.verticesNeedUpdate = true;
 		}
 	}
 }
