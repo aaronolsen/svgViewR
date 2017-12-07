@@ -1,6 +1,6 @@
 svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axes = c(2,3,2), 
-	tick.labels = c(2,3,2), tick.lwd = 1, tick.num = 10, tick.label.size = 0.13, 
-	tick.label.opacity = 1, axis.label.opacity = 1, axis.label.size = 0.14, grid.opacity = 0.1, 
+	tick.labels = c(2,3,2), tick.lwd = 1, tick.num = 10, tick.label.size = 'auto', 
+	tick.label.opacity = 1, axis.label.opacity = 1, axis.label.size = 'auto', grid.opacity = 0.1, 
 	col = 'black', z.index=0, lim.exact=FALSE, file=NULL){
 
 	if('webgl' != getOption("svgviewr_glo_type")){
@@ -26,7 +26,8 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 	ylim <- ranges_list$ylim
 	zlim <- ranges_list$zlim
 	lim <- ranges_list$lim
-	max_range <- ranges_list$max_range
+	max_diff <- ranges_list$max_diff
+	med_diff <- ranges_list$med_diff
 	grid_by <- ranges_list$grid_by
 
 	# Create polygons
@@ -35,8 +36,19 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 	# Create grids
 	if(grid.lwd > 0) grids <- svg_axis_grids(polygons, grid_by)
 
+	# Set label sizes	
+	if('webgl' == getOption("svgviewr_glo_type")){
+
+		if(tick.label.size == 'auto') tick.label.size <- 0.02
+		if(axis.label.size == 'auto') axis.label.size <- 0.02
+
+	}else{
+		if(tick.label.size == 'auto') tick.label.size <- 0.13
+		if(axis.label.size == 'auto') axis.label.size <- 0.14
+	}
+
 	# Create ticks
-	tick_len <- max_range*0.03
+	tick_len <- max_diff*0.03
 	ticks <- svg_axis_ticks(xlim, ylim, zlim, grid_by, tick.label.size, tick_len, tick.axes, 
 		tick.labels)
 
@@ -48,22 +60,22 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 
 		# Add polygons
 		for(i in 1:length(polygons)){
-			env$svgviewr_env$lines[[length(svgviewr_env$lines)+1]] <- list('type'='line', 
-				'names'='frame.panel', 'x'=t(polygons[[i]]), col=webColor(col), lwd=grid.lwd)
+			env$svgviewr_env$line[[length(svgviewr_env$line)+1]] <- list('type'='line', 
+				'name'='frame.panel', 'x'=t(polygons[[i]]), col=webColor(col), lwd=grid.lwd)
 		}
 
 		# Add grid
 		if(grid.lwd > 0){
-			for(grid in grids) env$svgviewr_env$lines[[length(svgviewr_env$lines)+1]] <- 
-				list('type'='line', 'names'='frame.grid', 'x'=t(grid), 'col'=webColor(col), 
+			for(grid in grids) env$svgviewr_env$line[[length(svgviewr_env$line)+1]] <- 
+				list('type'='line', 'name'='frame.grid', 'x'=t(grid), 'col'=webColor(col), 
 				'lwd'=grid.lwd)
 		}
 
 		# Add ticks
 		if(tick.lwd > 0){
 			for(i in 1:length(ticks$ticks)){
-				env$svgviewr_env$lines[[length(svgviewr_env$lines)+1]] <- list('type'='line', 
-					'names'='frame.tick', 'x'=t(ticks$ticks[[i]]), 'col'=webColor(col), 
+				env$svgviewr_env$line[[length(svgviewr_env$line)+1]] <- list('type'='line', 
+					'name'='frame.tick', 'x'=t(ticks$ticks[[i]]), 'col'=webColor(col), 
 					'lwd'=grid.lwd)
 			}
 		}
@@ -72,9 +84,9 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 		if(tick.label.size > 0){
 			for(i in 1:length(ticks$ticklabels)){
 				env$svgviewr_env$text[[length(svgviewr_env$text)+1]] <- list('type'='text', 
-					'labels'=ticks$ticklabels[[i]], 'names'='frame.ticklabel', 
+					'labels'=ticks$ticklabels[[i]], 'name'='frame.ticklabel', 
 					'x'=ticks$ticklabelspos[[i]], 'col'=webColor(col), 
-					'size'=max_range*tick.label.size)
+					'size'=med_diff*tick.label.size)
 			}
 		}
 
@@ -82,9 +94,9 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 		if(axis.label.size > 0){
 			for(i in 1:length(ticks$axislabels)){
 				env$svgviewr_env$text[[length(svgviewr_env$text)+1]] <- list('type'='text', 
-					'labels'=ticks$axislabels[[i]], 'names'='frame.axislabel', 
+					'labels'=ticks$axislabels[[i]], 'name'='frame.axislabel', 
 					'x'=ticks$axislabelspos[[i]], 'col'=webColor(col), 
-					'size'=max_range*axis.label.size)
+					'size'=max_diff*axis.label.size)
 			}
 		}
 
@@ -111,7 +123,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 		if(tick.label.size > 0){
 			for(i in 1:length(ticks$ticklabels)){
 				svg.text(file=file, x=ticks$ticklabelspos[[i]], labels=ticks$ticklabels[[i]], col=col, 
-					opacity=tick.label.opacity, font.size=max_range*tick.label.size, layer='Tick labels', z.index=z.index)
+					opacity=tick.label.opacity, font.size=max_diff*tick.label.size, layer='Tick labels', z.index=z.index)
 			}
 		}
 
@@ -119,7 +131,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 		if(axis.label.size > 0){
 			for(i in 1:length(ticks$axislabels)){
 				svg.text(file=file, x=ticks$axislabelspos[[i]], labels=ticks$axislabels[[i]], col=col, 
-					opacity=axis.label.opacity, font.size=max_range*axis.label.size, layer='Axis labels', z.index=z.index)
+					opacity=axis.label.opacity, font.size=max_diff*axis.label.size, layer='Axis labels', z.index=z.index)
 			}
 		}
 
