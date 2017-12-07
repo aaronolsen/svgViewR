@@ -1,4 +1,5 @@
-svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit(file, '/')[[1]], 1))){
+svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit(file, '/')[[1]], 1)), 
+	get.lim = TRUE){
 
 	# Make sure that type is webgl
 	if('webgl' != getOption("svgviewr_glo_type")) stop("Mesh drawing is currently only available with webgl svgViewR output.")
@@ -28,14 +29,44 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 		if(length(file_strsplit) > 1) input_params$src <- paste0(paste0(file_strsplit[1:(length(file_strsplit)-1)], collapse='/'), '/')
 
 		# Add to meshes
-		env$svgviewr_env$mesh[[length(svgviewr_env$mesh)+1]] <- input_params
-		
-		# Add name of object
-		env$svgviewr_env$names <- c(env$svgviewr_env$names, name)
+		add_at <- length(svgviewr_env$mesh)+1
+		env$svgviewr_env$mesh[[add_at]] <- input_params
+
+		# Read source file
+		if(get.lim) obj_json <- fromJSON(paste(suppressWarnings(readLines(file)), collapse=""))
+
+		# Add object reference data
+		env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)
+		env$svgviewr_env$ref$num <- c(env$svgviewr_env$ref$num, add_at)
+		env$svgviewr_env$ref$type <- c(env$svgviewr_env$ref$type, 'mesh')
 
 	}else{
 		
 		# 
 		stop("Mesh import without source file input is not yet supported.")
 	}
+
+	# Get xyz limits of mesh		
+	if(get.lim){
+
+		# Get number of vertices
+		num_vertices <- length(obj_json$vertices)
+
+		# Get xyz limits
+		obj_ranges <- cbind(range(obj_json$vertices[seq(1, num_vertices-2, by=3)], na.rm=TRUE),
+			range(obj_json$vertices[seq(2, num_vertices-1, by=3)], na.rm=TRUE),
+			range(obj_json$vertices[seq(3, num_vertices, by=3)], na.rm=TRUE))
+		colnames(obj_ranges) <- c('x', 'y', 'z')
+		
+		# Set corners
+		corners <- lim2corners(obj_ranges)
+		
+		# Add limits to object
+		env$svgviewr_env$mesh[[add_at]][['lim']] <- obj_ranges
+		env$svgviewr_env$mesh[[add_at]][['corners']] <- corners
+
+		return(list('lim'=obj_ranges, 'corners'=corners))
+	}
+	
+	NULL
 }
