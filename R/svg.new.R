@@ -76,6 +76,9 @@ svg.new <- function(file = NULL, window.title="SVG Viewer", animate.duration = 1
 		env$svgviewr_env$js_var[['play_speed']] <- animate.speed
 		env$svgviewr_env$js_var[['time_units']] <- paste0('\"', time.units, '\"')
 
+		# Create name reference
+		env$svgviewr_env$ref <- list()
+
 	}else{
 
 		## Create a file
