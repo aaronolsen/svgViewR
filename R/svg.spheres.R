@@ -7,14 +7,15 @@ svg.spheres <- function(x, radius = 1, col = 'black', name = 'sphere', wseg = 16
 	env <- as.environment(getOption("svgviewr_glo_env"))
 
 	# If vector, make into matrix
-	if(is.vector(x)) x <- matrix(x, nrow=1, ncol=length(x))
+	if(is.vector(x)) x <- matrix(x, nrow=1)
 
 	# Add object
 	for(i in 1:nrow(x)){
 
 		add_at <- length(svgviewr_env$sphere)+1
 		env$svgviewr_env$sphere[[add_at]] <- list('type'='sphere', 'name'=name, 'x'=setNames(x[i,], NULL), 
-			'radius'=radius, 'col'=webColor(col), 'wseg'=16, 'hseg'=16)
+			'radius'=radius, 'col'=webColor(col),  
+			'wseg'=16, 'hseg'=16)
 
 		# Add object reference data
 		env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)
