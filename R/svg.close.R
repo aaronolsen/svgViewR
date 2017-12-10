@@ -19,20 +19,24 @@ svg.close <- function(){
 			}
 		}
 
-		# Get unique source directories
-		unique_srcs <- unique(srcs)
-		unique_srcs <- unique_srcs[!is.na(unique_srcs)]
-		
-		# Assign matching source directory index (javascript, first index 0)
-		for(src_obj in src_objs){
-			for(i in 1:length(env$svgviewr_env[[src_obj]])){
-				if(is.null(env$svgviewr_env[[src_obj]][[i]]$src) || env$svgviewr_env[[src_obj]][[i]]$src == '') next
-				env$svgviewr_env[[src_obj]][[i]]$src_idx <- which(unique_srcs == srcs[i]) - 1
-			}
-		}
+		unique_srcs <- NULL
+		if(!is.null(srcs)){
 
-		# Add directories to app
-		for(i in 1:length(unique_srcs)) R.server$add(app = File$new(unique_srcs[i]), name = paste0("app_dir", i))
+			# Get unique source directories
+			unique_srcs <- unique(srcs)
+			unique_srcs <- unique_srcs[!is.na(unique_srcs)]
+
+			# Assign matching source directory index (javascript, first index 0)
+			for(src_obj in src_objs){
+				for(i in 1:length(env$svgviewr_env[[src_obj]])){
+					if(is.null(env$svgviewr_env[[src_obj]][[i]]$src) || env$svgviewr_env[[src_obj]][[i]]$src == '') next
+					env$svgviewr_env[[src_obj]][[i]]$src_idx <- which(unique_srcs == srcs[i]) - 1
+				}
+			}
+
+			# Add directories to app
+			for(i in 1:length(unique_srcs)) R.server$add(app = File$new(unique_srcs[i]), name = paste0("app_dir", i))
+		}
 
 		# Get transformations from environment
 		tm <- env$svgviewr_env$tm
@@ -86,7 +90,9 @@ svg.close <- function(){
 			
 			# Write app directories
 			page_html <- paste0(page_html, '\t\t\tvar app_dir = [\n')
-			for(i in 1:length(unique_srcs)) page_html <- paste0(page_html, '\t\t\t\t"', server$full_url(paste0('app_dir', i)), '",\n')
+			if(!is.null(unique_srcs)){
+				for(i in 1:length(unique_srcs)) page_html <- paste0(page_html, '\t\t\t\t"', server$full_url(paste0('app_dir', i)), '",\n')
+			}
 			page_html <- paste0(page_html, '\t\t\t]\n')
 			page_html <- paste0(page_html, '\t\t\tvar svg_obj = JSON.parse(\'', svg_json, '\');\n')
 			page_html <- paste0(page_html, '\t\t\tvar tm_str = \'', tm_json, '\';\n')
