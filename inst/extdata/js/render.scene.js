@@ -13,12 +13,9 @@ var update_obj = {
 };
 
 var animate = false;						// Whether to animate - turned on if animation is loaded
-var screen_width = window.innerWidth;		// Set screen dimensions
-var screen_height = window.innerHeight;		// Set screen dimensions
 var anim_start = Date.now();				// Set animation start time
 var anim_pause = false;						// Start with animation paused
 var obj_add_ct = 0;							// Set initial object add count
-var font_scale = 1.25;						// Set font scaling
 var mesh_load_ct = 0;						// Set initial mesh load count
 var meshes_ready = false;					// Start with meshes not ready
 
@@ -54,9 +51,14 @@ function addLights(scene_center, distance, intensity){
 }
 
 function addMeshToScene( geometry, materials ) {
-
-	//var material = new THREE.MeshFaceMaterial(materials);
-	var material = new THREE.MeshLambertMaterial( { color: 0xF5F5F5 } );
+	
+	var material;
+	
+	if(materials == undefined){
+		material = new THREE.MeshLambertMaterial( { color: 0xF5F5F5 } );
+	}else{
+		material = materials;
+	}
 
 	// Create mesh
 	var model = new THREE.Mesh( geometry, material );
@@ -83,10 +85,25 @@ function addMeshToScene( geometry, materials ) {
 
 		// Confirm that meshes are ready
 		meshes_ready = true;
-	
-		// Run any script after meshes are loaded
-		onMeshesReady();
 	}
+}
+
+function indexOfMax(arr) {
+    if (arr.length === 0) {
+        return -1;
+    }
+
+    var max = arr[0];
+    var maxIndex = 0;
+
+    for (var i = 1; i < arr.length; i++) {
+        if (arr[i] > max) {
+            maxIndex = i;
+            max = arr[i];
+        }
+    }
+
+    return maxIndex;
 }
 
 function loadGeometries(){
@@ -95,108 +112,114 @@ function loadGeometries(){
 	var sprite, spriteMaterial, text, texture, text_length, text_size;
 	
 	//// Load lines
-	// Get number of line segments
-	var lines_length = svg_obj.line.length;
+	if(svg_obj.line != undefined){
 
-//	alert(svg_obj.line[2].x);
-	// Create each line
-	for(i = 0; i < lines_length; i++){
+		// Get number of line segments
+		var lines_length = svg_obj.line.length;
 
-		// Set line material
-		material = new THREE.LineBasicMaterial({
-			color: svg_obj.line[i].col,
-			linewidth: svg_obj.line[i].lwd
-		});
+	//	alert(svg_obj.line[2].x);
+		// Create each line
+		for(i = 0; i < lines_length; i++){
 
-		// Set number of line segments
-		num_seg = svg_obj.line[i].x.length / 3;
-		svg_obj.line[i].nseg = num_seg;
+			// Set line material
+			material = new THREE.LineBasicMaterial({
+				color: svg_obj.line[i].col,
+				linewidth: svg_obj.line[i].lwd
+			});
+
+			// Set number of line segments
+			num_seg = svg_obj.line[i].x.length / 3;
+			svg_obj.line[i].nseg = num_seg;
 		
-		// Create new geometry
-		geometry = new THREE.Geometry();
+			// Create new geometry
+			geometry = new THREE.Geometry();
 
-		// Add each segment
-		for(j = 0; j < num_seg*3; j = j + 3){
-			geometry.vertices.push(new THREE.Vector3( svg_obj.line[i].x[j], svg_obj.line[i].x[j+1], svg_obj.line[i].x[j+2] ));
+			// Add each segment
+			for(j = 0; j < num_seg*3; j = j + 3){
+				geometry.vertices.push(new THREE.Vector3( svg_obj.line[i].x[j], svg_obj.line[i].x[j+1], svg_obj.line[i].x[j+2] ));
+			}
+
+			// Create line
+			line = new THREE.Line( geometry, material );
+
+			// Check if position over time is specified
+			if(svg_obj.line[i].x_tm != undefined){
+
+				// Add transformed position over time
+				line.x_tm = svg_obj.line[i].x_tm;
+
+				// Add type and number to 
+				update_obj.num.push(i);
+				update_obj.type.push('line');
+			}
+
+			// Set name and number of segments
+			line.name = 'line' + i;
+
+			// Add to meshes
+			lines.push(line)
+
+			// Add to scene
+			scene.add( lines[i] );
 		}
-
-		// Create line
-		line = new THREE.Line( geometry, material );
-
-		// Check if position over time is specified
-		if(svg_obj.line[i].x_tm != undefined){
-
-			// Add transformed position over time
-			line.x_tm = svg_obj.line[i].x_tm;
-
-			// Add type and number to 
-			update_obj.num.push(i);
-			update_obj.type.push('line');
-		}
-
-		// Set name and number of segments
-		line.name = 'line' + i;
-
-		// Add to meshes
-		lines.push(line)
-
-		// Add to scene
-		scene.add( lines[i] );
 	}
 
 	//// Add text
-	// Get number of text elements
-	text_length = svg_obj.text.length;
+	if(svg_obj.text != undefined){
+
+		// Get number of text elements
+		text_length = svg_obj.text.length;
 	
-	var canvas_text_res;
+		var canvas_text_res;
 
-	for(i = 0; i < text_length; i++){
+		for(i = 0; i < text_length; i++){
 
-		// create a canvas element
-		canvas = document.createElement('canvas');
-		context = canvas.getContext('2d');
+			// create a canvas element
+			canvas = document.createElement('canvas');
+			context = canvas.getContext('2d');
 
-		// Set text
-		text = svg_obj.text[i].labels;
-		//text = 'X'
+			// Set text
+			text = svg_obj.text[i].labels;
 		
-		// Set resolution depending on absolute text size (between 35 and 5, increases with smaller values)
-		canvas_text_res = (30 / (0.2*svg_obj.text[i].size + 1)) + 5
-		
-		// Set text size
-		text_size = font_scale*canvas_text_res*svg_obj.text[i].size;
+			// Set resolution depending on absolute text size (between 35 and 5, increases with smaller values)
+			canvas_text_res = 200;
 
-		// Make canvas size a bit larger than font size so there is enough room
-		canvas.height = nearestPow2(2*text_size);
-		canvas.width = nearestPow2(0.9*text.length*text_size);
+			// Set text size
+			text_size = 1.35*canvas_text_res;
 
-		context.font = text_size + "px Arial";
-		context.textAlign = "center";
-		context.fillText(text, canvas.width/2, canvas.height/2); 
+			// Make canvas size a bit larger than font size so there is enough room
+			canvas.height = nearestPow2(2*text_size);
+			canvas.width = nearestPow2(0.9*text.length*text_size);
 
-		// Create text from canvas
-		texture = new THREE.Texture(canvas) 
-		texture.needsUpdate = true;
+			context.font = text_size + "px Arial";
+			context.textAlign = "center";
+			context.fillStyle = svg_obj.text[i].col;
+			context.fillText(text, canvas.width/2, canvas.height/2); 
+
+			// Create text from canvas
+			texture = new THREE.Texture(canvas) 
+			texture.needsUpdate = true;
 	  
-		// Create sprite material from texture
-		spriteMaterial = new THREE.SpriteMaterial( { map: texture } );
+			// Create sprite material from texture
+			spriteMaterial = new THREE.SpriteMaterial( { map: texture } );
 
-		// Create sprite
-		sprite = new THREE.Sprite( spriteMaterial );
+			// Create sprite
+			sprite = new THREE.Sprite( spriteMaterial );
 
-		// Set scale and position
-		sprite_scale = 1 / (canvas_text_res);
-		sprite.scale.set(canvas.width*sprite_scale,canvas.height*sprite_scale,1);
-		sprite.position.set(svg_obj.text[i].x[0], svg_obj.text[i].x[1], svg_obj.text[i].x[2]);
+			// Set scale and position
+			sprite_scale = svg_obj.text[i].size*(1/canvas_text_res)
+			sprite.scale.set(canvas.width*sprite_scale,canvas.height*sprite_scale,1);
+			sprite.position.set(svg_obj.text[i].x[0], svg_obj.text[i].x[1], svg_obj.text[i].x[2]);
 
-		// Set name
-		sprite.name = 'sprite' + i;
+			// Set name
+			sprite.name = 'sprite' + i;
 
-		// Add to sprites
-		sprites.push(sprite)
+			// Add to sprites
+			sprites.push(sprite)
 
-		// Add to scene
-		scene.add( sprite );
+			// Add to scene
+			scene.add( sprite );
+		}
 	}
 
 	//// Add arrows
@@ -236,7 +259,6 @@ function loadGeometries(){
 	}
 	
 	//// Add spheres
-	// Get number of arrows
 	if(svg_obj.sphere != undefined){
 		num_objects = svg_obj.sphere.length;
 
@@ -246,7 +268,13 @@ function loadGeometries(){
 			geometry = new THREE.SphereGeometry( radius=svg_obj.sphere[i].radius, widthSegments=svg_obj.sphere[i].wseg, heightSegments=svg_obj.sphere[i].hseg ) ;
 
 			// material describes the surface of the shape
-			material = new THREE.MeshLambertMaterial( {color: svg_obj.sphere[i].col} ) ;
+			//material = new THREE.MeshLambertMaterial( {color: svg_obj.sphere[i].col} ) ;
+			material = new THREE.MeshPhongMaterial( {
+						color: svg_obj.sphere[i].col,
+						emissive: '#082636'
+						//flatShading: true
+						//side: THREE.DoubleSide,
+					} )
 
 			// mesh maps the material onto the geometry to make an object  
 			mesh = new THREE.Mesh( geometry, material ) ;
@@ -282,16 +310,59 @@ function loadGeometries(){
 
 function loadNextMesh(){
 
-	// JSONLoader (buffer Geometry loader was not getting the indices right...)
-	// Send next mesh after previous mesh is loaded so that names correspond
-	// Couldn't figure out how to send name and other information to addMeshToScene in 
-	// a way that ensures correspondence
-	var loader = new THREE.JSONLoader();
-	loader.load( app_dir[svg_obj.mesh[mesh_load_ct].src_idx] + '/' + svg_obj.mesh[mesh_load_ct].fname, addMeshToScene);
+	if(svg_obj.mesh == undefined){
+		meshes_ready = true;
+		return;
+	}
+
+	if(svg_obj.mesh[mesh_load_ct].src_idx == undefined){
+		
+		var geometry, i, material, mesh, num_faces, num_vertices;
+		
+		// Get mesh object
+		mesh = svg_obj.mesh[mesh_load_ct];
+		
+		// Create geometry
+		geometry = new THREE.Geometry();
+		
+		// Get number of vertices
+		num_vertices = mesh.vertices.length;
+		num_faces = mesh.faces.length;
+		
+		// Add vertices
+		for(i = 0; i < num_vertices; i = i + 3){
+			geometry.vertices.push(new THREE.Vector3(mesh.vertices[i], mesh.vertices[i+1], mesh.vertices[i+2]));
+		}
+		
+		// Add faces
+		for(i = 0; i < num_faces; i = i + 3){
+			geometry.faces.push( new THREE.Face3( mesh.faces[i], mesh.faces[i+1], mesh.faces[i+2] ) );
+		}
+		geometry.computeFaceNormals();
+		
+		material = new THREE.MeshPhongMaterial( {
+					color: mesh.col,
+					emissive: mesh.emissive,
+					side: THREE.DoubleSide,
+					//flatShading: true
+				} )
+		
+		// Add mesh
+		addMeshToScene(geometry, material);
+
+	}else{
+
+		// JSONLoader (buffer Geometry loader was not getting the indices right...)
+		// Send next mesh after previous mesh is loaded so that names correspond
+		// Couldn't figure out how to send name and other information to addMeshToScene in 
+		// a way that ensures correspondence
+		var loader = new THREE.JSONLoader();
+		loader.load( app_dir[svg_obj.mesh[mesh_load_ct].src_idx] + '/' + svg_obj.mesh[mesh_load_ct].fname, addMeshToScene);
 	
-	// Set mesh name
-	//mesh_name = mesh_names[mesh_load_ct];
-	mesh_name = svg_obj.mesh[obj_add_ct].name;
+		// Set mesh name
+		//mesh_name = mesh_names[mesh_load_ct];
+		mesh_name = svg_obj.mesh[obj_add_ct].name;
+	}
 }
 
 function nearestPow2( aSize ){
@@ -300,15 +371,80 @@ function nearestPow2( aSize ){
 }
 
 //
-function onMeshesReady(){
+function onObjectsReady(){
 	
 	var i, j;
-	
-	if(false){
-		anim_pause_time = Date.now();
-		anim_pause_start = anim_start;
-		anim_pause = true; 
+
+	// Set bounding box
+	setBoundingBox();
+
+	// Setup the camera
+	camera = new THREE.PerspectiveCamera( fov=30, aspect=window.innerWidth / window.innerHeight, near=0.1, far=bbox_size*20 );
+
+	// Add camera controls
+	controls = new THREE.OrbitControls( camera );
+
+	// Set camera to include all shapes
+	updateCameraPosition();
+
+	// Add lights
+	addLights(bbox_center, bbox_size, 1.5)
+}
+
+// Set frames per second for motion
+function onReady(){
+
+	// Key events
+	document.body.onkeyup = function(e){
+
+		// Spacebar event
+		if(e.keyCode == 32){
+			if(anim_pause) { 
+				anim_pause = false; 
+			}else{ 
+				anim_pause_time = Date.now();
+				anim_pause_start = anim_start;
+				anim_pause = true; 
+			}
+		}
 	}
+
+	// Setup a new scene
+	scene = new THREE.Scene();
+	
+	//
+	scene.background = new THREE.Color( bg_col );
+
+	// Get container
+	var container = document.getElementById( "container" );
+
+	// Add stats box in top left corner
+	stats = new Stats();
+	container.appendChild( stats.dom );
+
+	// Setup the renderer
+	renderer = new THREE.WebGLRenderer( {antialias: true } );
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	document.body.appendChild(renderer.domElement);
+
+	// Start mesh loading
+	loadNextMesh();
+	
+	// Load coordinate objects
+	loadGeometries();
+	
+	// Load animation from file
+	//var loader = new THREE.FileLoader();
+	//loader.load( mod_dir + '/' + anim_file, load_animation);
+
+	// Load animation from string
+	load_animation(tm_str);
+
+	// Try rendering every 10 msec until all objects are finished loaded
+	try_render_int = setInterval(tryRender, 10);
+}
+
+function setBoundingBox () {
 
 	// Geometry is the same as when read in - not updated with position/rotation
 	// Compute bounding box (fills 'boundingBox' property, which is null by default)
@@ -320,7 +456,7 @@ function onMeshesReady(){
 	var maxX = maxY = maxZ = -Infinity;
 
 	// If no animation, just iterate once through update
-	if(animation.ntimes == undefined){
+	if(animation == undefined || animation.ntimes == undefined){
 		var animation_ntimes = 1;
 		var time_int = 1;
 	}else{
@@ -374,93 +510,39 @@ function onMeshesReady(){
 			maxY = Math.max (maxY, bbox.max.y);
 			maxZ = Math.max (maxZ, bbox.max.z);
 		}
-	}
 
-	// Get bounding box dimensions, size, and center
-    var bbox_min = new THREE.Vector3 (minX, minY, minZ);
-    var bbox_max = new THREE.Vector3 (maxX, maxY, maxZ);
-    var bbox_new = new THREE.Box3 (bbox_min, bbox_max);
-	var bbox_scale = [ bbox_new.max.x-bbox_new.min.x, bbox_new.max.y-bbox_new.min.y, bbox_new.max.z-bbox_new.min.z ];
-	var bbox_center = [ bbox_scale[0]/2 + bbox_new.min.x, bbox_scale[1]/2 + bbox_new.min.y, bbox_scale[2]/2 + bbox_new.min.z ];
-	var bbox_size = (bbox_scale[0] + bbox_scale[1] + bbox_scale[2]) / 3;
-	
-	// Draw bounding box as wireframe
-	var geometry = new THREE.BoxGeometry( bbox_scale[0], bbox_scale[1], bbox_scale[2] );
-	var geo = new THREE.EdgesGeometry( geometry ); // or WireframeGeometry( geometry )
-	var mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 1 } );
-	var wireframe = new THREE.LineSegments( geo, mat );
-	wireframe.position.set( bbox_center[0], bbox_center[1], bbox_center[2] );
-	//scene.add( wireframe );
+		// Compute bounding box of transformed objects
+		for(i = 0; i <= sprites.length-1; i++){
 
-	// Set camera position
-	camera_dist = 3*bbox_size;
-	camera.position.set(bbox_center[0]+camera_dist/2, bbox_center[1]+camera_dist/2, bbox_center[2]);
-	
-	// Set where the camera is targeted
-	controls.target.set( bbox_center[0], bbox_center[1], bbox_center[2] );
-	controls.update();
+			var bbox = new THREE.Box3().setFromObject( sprites[i] );
 
-	// Add lights
-	addLights(bbox_center, bbox_size, 1.5)
-}
-
-// Set frames per second for motion
-function onReady(){
-
-	// Key events
-	document.body.onkeyup = function(e){
-
-		// Spacebar event
-		if(e.keyCode == 32){
-			if(anim_pause) { 
-				anim_pause = false; 
-			}else{ 
-				anim_pause_time = Date.now();
-				anim_pause_start = anim_start;
-				anim_pause = true; 
-			}
+			// Update min and max
+			minX = Math.min (minX, bbox.min.x);
+			minY = Math.min (minY, bbox.min.y);
+			minZ = Math.min (minZ, bbox.min.z);
+			maxX = Math.max (maxX, bbox.max.x);
+			maxY = Math.max (maxY, bbox.max.y);
+			maxZ = Math.max (maxZ, bbox.max.z);
 		}
 	}
 
-	// Setup a new scene
-	scene = new THREE.Scene();
+	// Get bounding box dimensions, size, and center
+	var bbox_min = new THREE.Vector3 (minX, minY, minZ);
+    var bbox_max = new THREE.Vector3 (maxX, maxY, maxZ);
+    var bbox_new = new THREE.Box3 (bbox_min, bbox_max);
+	bbox_scale = [ bbox_new.max.x-bbox_new.min.x, bbox_new.max.y-bbox_new.min.y, bbox_new.max.z-bbox_new.min.z ];
+	bbox_center = [ bbox_scale[0]/2 + bbox_new.min.x, bbox_scale[1]/2 + bbox_new.min.y, bbox_scale[2]/2 + bbox_new.min.z ];
+	bbox_size = (bbox_scale[0] + bbox_scale[1] + bbox_scale[2]) / 3;
 	
-	//
-	scene.background = new THREE.Color( bg_col );
-
-	// Setup the camera
-	camera = new THREE.PerspectiveCamera( 30, screen_width / screen_height, 1, 10000 );
-
-	// Add camera controls
-	controls = new THREE.OrbitControls( camera );
-
-	// Get container
-	var container = document.getElementById( "container" );
-
-	// Add stats box in top left corner
-	stats = new Stats();
-	container.appendChild( stats.dom );
-
-	// Setup the renderer
-	renderer = new THREE.WebGLRenderer( {antialias: true } );
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	document.body.appendChild(renderer.domElement);
-
-	// Start mesh loading
-	loadNextMesh();
-	
-	// Load coordinate objects
-	loadGeometries();
-	
-	// Load animation from file
-	//var loader = new THREE.FileLoader();
-	//loader.load( mod_dir + '/' + anim_file, load_animation);
-
-	// Load animation from string
-	load_animation(tm_str);
-
-	// Try rendering every 10 msec until all objects are finished loaded
-	try_render_int = setInterval(tryRender, 10);
+	// Draw bounding box as wireframe
+	if(false){
+		var geometry = new THREE.BoxGeometry( bbox_scale[0], bbox_scale[1], bbox_scale[2] );
+		var geo = new THREE.EdgesGeometry( geometry ); // or WireframeGeometry( geometry )
+		var mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 1 } );
+		var wireframe = new THREE.LineSegments( geo, mat );
+		wireframe.position.set( bbox_center[0], bbox_center[1], bbox_center[2] );
+		//scene.add( wireframe );
+	}
 }
 
 function tryRender () {
@@ -471,6 +553,9 @@ function tryRender () {
 
 	// Stop running tryRender
 	clearInterval(try_render_int);
+
+	// Set viewing frame, camera and lights
+	onObjectsReady();
 
 	// Render scene
 	render();
@@ -511,78 +596,160 @@ var render = function () {
 			updateShapes(time_index);
 		}
 	}
-	
+
 	stats.update();
 	
 	renderer.render(scene, camera);
 };
+
+function updateCameraPosition(){
+
+	// Get screen dimensions
+	var screen_width = window.innerWidth;
+	var screen_height = window.innerHeight;
+
+	// Set initial camera distance and interval
+	var camera_dist = bbox_scale[2]+bbox_size*0.01;
+	var camera_dist_int = bbox_size*0.2;
+	var margin = 50;
+	var n = 0;
+	var n_limit = 30;
+
+	// Set initial camera
+	// Projection will not use updated camera position without rendering
+	camera.aspect = screen_width / screen_height;
+	camera.updateProjectionMatrix();
+	renderer.setSize( screen_width, screen_height );
+	camera.position.set(bbox_center[0], bbox_center[1], bbox_center[2]+camera_dist);
+	renderer.render(scene, camera);
+	
+	// Corners 3d position
+	var corner1 = {x:bbox_center[0] + bbox_scale[0]/2, y:bbox_center[1] + bbox_scale[1]/2, z:bbox_center[2] + bbox_scale[2]/2};
+	var corner4 = {x:bbox_center[0] - bbox_scale[0]/2, y:bbox_center[1] - bbox_scale[1]/2, z:bbox_center[2] + bbox_scale[2]/2};
+
+	var widthHalf = screen_width / 2, heightHalf = screen_height / 2;
+	var box_width, box_height;
+
+	while(n < n_limit){
+		
+		// Project corners
+		var corner1_proj = new THREE.Vector3(corner1.x, corner1.y, corner1.z).project(camera);
+		var corner4_proj = new THREE.Vector3(corner4.x, corner4.y, corner4.z).project(camera);
+
+		corner1_proj.x = ( corner1_proj.x * widthHalf ) + widthHalf;
+		corner1_proj.y = - ( corner1_proj.y * heightHalf ) + heightHalf;
+		corner4_proj.x = ( corner4_proj.x * widthHalf ) + widthHalf;
+		corner4_proj.y = - ( corner4_proj.y * heightHalf ) + heightHalf;
+
+		box_width = Math.abs(corner4_proj.x-corner1_proj.x);
+		box_height = Math.abs(corner1_proj.y-corner4_proj.y);
+		
+		// 
+		if(box_width > (screen_width-margin) || box_height > (screen_height-margin)){
+
+			// Shape exceeds boundaries, move camera further away
+			camera_dist = camera_dist + camera_dist_int;
+
+			// Update camera
+			camera.position.set(bbox_center[0], bbox_center[1], bbox_center[2]+camera_dist);
+			renderer.render(scene, camera);
+
+		}else{
+		
+			// If last run and is within boundaries, stop
+			if(n == n_limit - 1) break;
+			
+			// Replace camera to previous distance
+			camera_dist = camera_dist - camera_dist_int;
+			
+			// Shape is within boundaries, try moving camera further away at smaller interval
+			camera_dist_int = camera_dist_int / 2;
+
+			// Update camera
+			camera.position.set(bbox_center[0], bbox_center[1], bbox_center[2]+camera_dist);
+			renderer.render(scene, camera);
+		}
+
+		n++;
+	}
+
+	//alert(box_width + ' (' + screen_width + '),' + box_height + ' (' + screen_height + ') ' + n);
+
+	// Set where the camera is targeted
+	controls.target.set( bbox_center[0], bbox_center[1], bbox_center[2]);
+	controls.update();
+}
 
 function updateShapes(time_index){
 
 	var num, type, i, j, k, set_prop, set_val, tracks_length;
 
 	//// Apply animation transformations
-	// Go through each track
-	tracks_length = animation.tracks.length;
+	if(animation != undefined){
 
-	for (i = 0; i < tracks_length; i++){
+		// Go through each track
+		tracks_length = animation.tracks.length;
 
-		// Get indices of objects to apply animation to
-		num = animation.tracks[i].num;
-		type = animation.tracks[i].type;
+		for (i = 0; i < tracks_length; i++){
 
-		// If mesh name in animation file not found, continue
-		if(num.length == 0) continue;
+			// Get indices of objects to apply animation to
+			num = animation.tracks[i].num;
+			type = animation.tracks[i].type;
 
-		// Get property to set
-		set_prop = animation.tracks[i].set;
+			// If mesh name in animation file not found, continue
+			if(num.length == 0) continue;
 
-		// Get value to set
-		set_val = animation.tracks[i].keys[time_index].value;
+			// Get property to set
+			set_prop = animation.tracks[i].set;
 
-		for (j = 0; j < num.length; j++){
+			// Get value to set
+			set_val = animation.tracks[i].keys[time_index].value;
 
-			if(type[j] == 'mesh'){
+			for (j = 0; j < num.length; j++){
 
-				if(set_prop == 'position'){
-					meshes[num[j]].position.x = set_val[0];
-					meshes[num[j]].position.y = set_val[1];
-					meshes[num[j]].position.z = set_val[2];
-				}
+				if(type[j] == 'mesh'){
 
-				if(set_prop == 'rotation'){
-					meshes[num[j]].rotation.x = set_val[0];
-					meshes[num[j]].rotation.y = set_val[1];
-					meshes[num[j]].rotation.z = set_val[2];
+					if(set_prop == 'position'){
+						meshes[num[j]].position.x = set_val[0];
+						meshes[num[j]].position.y = set_val[1];
+						meshes[num[j]].position.z = set_val[2];
+					}
+
+					if(set_prop == 'rotation'){
+						meshes[num[j]].rotation.x = set_val[0];
+						meshes[num[j]].rotation.y = set_val[1];
+						meshes[num[j]].rotation.z = set_val[2];
+					}
 				}
 			}
 		}
-	}
 
-	//// Apply object updates/transformations
-	var update_obj_length = update_obj.num.length;
-	//alert(update_obj_length);
+		//// Apply object updates/transformations
+		var update_obj_length = update_obj.num.length;
+		//alert(update_obj_length);
 
-	for (i = 0; i < update_obj_length; i++){
+		for (i = 0; i < update_obj_length; i++){
 		
-		if(update_obj.type[i] == 'sphere'){
-			spheres[update_obj.num[i]].position.x = spheres[update_obj.num[i]].x_tm[time_index][0];
-			spheres[update_obj.num[i]].position.y = spheres[update_obj.num[i]].x_tm[time_index][1];
-			spheres[update_obj.num[i]].position.z = spheres[update_obj.num[i]].x_tm[time_index][2];
+			if(update_obj.type[i] == 'sphere'){
+				spheres[update_obj.num[i]].position.x = spheres[update_obj.num[i]].x_tm[time_index][0];
+				spheres[update_obj.num[i]].position.y = spheres[update_obj.num[i]].x_tm[time_index][1];
+				spheres[update_obj.num[i]].position.z = spheres[update_obj.num[i]].x_tm[time_index][2];
+			}
+
+			if(update_obj.type[i] == 'line'){
+				// Update each segment
+				k = 0;
+				for(j = 0; j < svg_obj.line[i].nseg*3; j = j + 3){
+					lines[update_obj.num[i]].geometry.vertices[k].x = lines[update_obj.num[i]].x_tm[time_index][j];
+					lines[update_obj.num[i]].geometry.vertices[k].y = lines[update_obj.num[i]].x_tm[time_index][j+1];
+					lines[update_obj.num[i]].geometry.vertices[k].z = lines[update_obj.num[i]].x_tm[time_index][j+2];
+					k++;
+				}
+				// Update vertices
+				lines[update_obj.num[i]].geometry.verticesNeedUpdate = true;
+			}
 		}
 
-		if(update_obj.type[i] == 'line'){
-			// Update each segment
-			k = 0;
-			for(j = 0; j < svg_obj.line[i].nseg*3; j = j + 3){
-				lines[update_obj.num[i]].geometry.vertices[k].x = lines[update_obj.num[i]].x_tm[time_index][j];
-				lines[update_obj.num[i]].geometry.vertices[k].y = lines[update_obj.num[i]].x_tm[time_index][j+1];
-				lines[update_obj.num[i]].geometry.vertices[k].z = lines[update_obj.num[i]].x_tm[time_index][j+2];
-				k++;
-			}
-			// Update vertices
-			lines[update_obj.num[i]].geometry.verticesNeedUpdate = true;
-		}
 	}
 }
 
