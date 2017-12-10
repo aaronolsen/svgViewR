@@ -122,6 +122,10 @@ svg_ranges <- function(x = NULL){
 			## Find range of drawn objects
 			stop("NULL 'x' input is not yet supported for non-WebGL output.")
 		}
+
+	}else{
+		
+		ranges <- x
 	}
 
 	# Find ranges (should work for matrices and arrays)
