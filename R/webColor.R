@@ -12,6 +12,7 @@ webColor <- function(col, format=c('#hex', '0xhex', '0', '0x')){
 		return(paste(webColor(col_split, format=format), collapse=','))
 	}
 	
+	if(col == 'none') return('none')
 	if(substr(col, 1, 1) == '#' && nchar(col) > 7) col <- paste0('rgb(', paste(c(col2rgb(col)), collapse=','), ')')
 	if(substr(col, 1, 1) != '#' && is.character(col)){
 		col_2_rgb <- col2rgb(col) / 255
