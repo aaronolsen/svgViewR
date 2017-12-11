@@ -91,10 +91,10 @@ svgviewr.new <- function(file, window.title="SVG Viewer", animate.duration = 1,
 
 		# Copy in css files
 		if(debug){
-			for(css_file in list.files(paste0(fdir, 'css/')))
+			for(css_file in c('stylesheet.css'))
 				n <- c(n, paste0("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"", paste0(fdir, 'css/', css_file), "\" >"))
 		}else{
-			for(css_file in list.files(paste0(fdir, 'css/')))
+			for(css_file in c('stylesheet.css'))
 				n <- c(n, paste0("<style>\n\t", paste(readLines(paste0(fdir, 'css/', css_file)), collapse="\n\t"), "\n</style>\n"))
 		}
 
