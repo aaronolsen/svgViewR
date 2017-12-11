@@ -3,7 +3,7 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 	emissive=rgb(0.03, 0.15, 0.21), name='cylinder'){
 
 	# Make sure that type is webgl
-	#if('webgl' != getOption("svgviewr_glo_type")) stop("Mesh drawing is currently only available with webgl svgViewR output.")
+	if('webgl' != getOption("svgviewr_glo_type")) stop("Cylinder drawing is currently only available with webgl svgViewR output.")
 
 	## Create mesh
 	# If ends is single point, use axis to find other end point
@@ -11,6 +11,9 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 	
 		# Check that vector and length are specified
 		if(is.null(axis) || is.null(length)) stop("If 'ends' is a single point then 'axis' and 'length' must both be non-NULL.")
+
+		# Convert from array
+		if(length(dim(axis)) == 3) axis <- axis[,,1]
 
 		# Make sure vector is unit length
 		axis <- uvector_svg(axis)
@@ -21,7 +24,13 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 	}else{
 		
 		# Find axis, make unit
-		axis <- uvector_svg(ends[2,]-ends[1,])
+		axis <- ends[2,]-ends[1,]
+		
+		# Get length
+		length <- sqrt(sum((axis)^2))
+
+		# Make unit
+		axis <- uvector_svg(axis)
 	}
 	
 	# Add one to segments for easier vertex creation
@@ -35,16 +44,16 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 
 	# Create matrix for end points
 	ends_circle <- matrix(NA, nrow=rseg, ncol=3)
-	
+
 	# Get points on circumference of cylinder end circle
-	for(i in 1:rseg) ends_circle[i, ] <- o_axis %*% tMatrixEP_svg(axis, thetas[i])
+	for(i in 1:rseg) ends_circle[i, ] <- uvector_svg(o_axis %*% tMatrixEP_svg(axis, thetas[i]))
 
 	# Draw vertices at lengths
 	at_lengths <- seq(from=0, to=length, length=2+hseg-1)
 
 	# Create vertices matrix
 	vertices <- matrix(NA, rseg*(hseg+1) + 2, ncol=3)
-	
+
 	# Add vertices
 	vertices[1, ] <- ends[1,]
 	vertices[nrow(vertices), ] <- ends[2,]
@@ -107,6 +116,7 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 		add_at <- length(svgviewr_env$mesh)+1
 
 		# Add vertices
+		env$svgviewr_env$mesh[[add_at]] <- list()
 		env$svgviewr_env$mesh[[add_at]]$vertices <- t(vertices)
 		env$svgviewr_env$mesh[[add_at]]$faces <- t(faces)
 		env$svgviewr_env$mesh[[add_at]]$col <- webColor(col)
