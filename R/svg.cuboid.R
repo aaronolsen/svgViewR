@@ -109,6 +109,7 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 		env$svgviewr_env$mesh[[add_at]]$faces <- t(faces)
 		env$svgviewr_env$mesh[[add_at]]$col <- webColor(col)
 		env$svgviewr_env$mesh[[add_at]]$emissive <- webColor(emissive)
+		env$svgviewr_env$mesh[[add_at]]$computeVN <- FALSE
 
 		# Add object reference data
 		env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)

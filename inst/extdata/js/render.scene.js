@@ -339,6 +339,7 @@ function loadNextMesh(){
 			geometry.faces.push( new THREE.Face3( mesh.faces[i], mesh.faces[i+1], mesh.faces[i+2] ) );
 		}
 		geometry.computeFaceNormals();
+		if(svg_obj.mesh[mesh_load_ct].computeVN == true) geometry.computeVertexNormals();
 		
 		material = new THREE.MeshPhongMaterial( {
 					color: mesh.col,
