@@ -38,18 +38,49 @@ svg.close <- function(){
 			for(i in 1:length(unique_srcs)) R.server$add(app = File$new(unique_srcs[i]), name = paste0("app_dir", i))
 		}
 
-		# Get transformations from environment
-		tm <- env$svgviewr_env$tm
-		
-		# Convert to json string
-		tm_json <- tm2JSON(tm, time.units=gsub('\"', '', env$svgviewr_env$js_var[['time_units']]))
-		
+		# If there is an animation, process animation parameters
+		if(!is.null(env$svgviewr_env$animate$times)){
+
+			# Get time units
+			time_units <- env$svgviewr_env$js_var[['time_units']]
+			
+			# Standardize time units
+			if(grepl('^(seconds|s)$', time_units)) time_units <- 'sec'
+			if(grepl('millisecond[s]?', time_units)) time_units <- 'msec'
+
+			# Convert to msec
+			if(time_units == 'sec'){
+				env$svgviewr_env$js_var[['time_units']] <- 'msec'
+				env$svgviewr_env$animate$times <- env$svgviewr_env$animate$times*1000
+			}
+			
+			# Apply play speed factor
+			env$svgviewr_env$animate$times <- env$svgviewr_env$animate$times*(1/env$svgviewr_env$js_var[['play_speed']])
+			
+			# Set js variables
+			env$svgviewr_env$js_var[['animation_start']] <- min(env$svgviewr_env$animate$times)
+			env$svgviewr_env$js_var[['animation_end']] <- max(env$svgviewr_env$animate$times)
+			env$svgviewr_env$js_var[['animation_ntimes']] <- length(env$svgviewr_env$animate$times)
+			env$svgviewr_env$js_var[['animation_duration']] <- env$svgviewr_env$js_var[['animation_end']] - 
+				env$svgviewr_env$js_var[['animation_start']]
+		}
+
 		# Get js variables
 		js_var <- env$svgviewr_env$js_var
 
 		# Set elements to NULL that aren't written to json
 		env$svgviewr_env$tm <- NULL
 		env$svgviewr_env$js_var <- NULL
+
+		# Set tmat element within objects to NULL (no need to write to JSON)
+		for(name1 in names(env$svgviewr_env)){
+			if(is.null(env$svgviewr_env[[name1]])) next
+			if(!is.null(names(env$svgviewr_env[[name1]]))) next
+			if(length(env$svgviewr_env[[name1]]) == 0) next
+			for(num in 1:length(env$svgviewr_env[[name1]])){
+				if('tmat' %in% names(env$svgviewr_env[[name1]][[num]])) env$svgviewr_env[[name1]][[num]][['tmat']] <- NULL
+			}
+		}
 
 		# Convert svg objects to json
 		svg_json <- rjson::toJSON(x = as.list(env$svgviewr_env))
@@ -95,9 +126,12 @@ svg.close <- function(){
 			}
 			page_html <- paste0(page_html, '\t\t\t]\n')
 			page_html <- paste0(page_html, '\t\t\tvar svg_obj = JSON.parse(\'', svg_json, '\');\n')
-			page_html <- paste0(page_html, '\t\t\tvar tm_str = \'', tm_json, '\';\n')
 			for(i in 1:length(js_var)){
-				page_html <- paste0(page_html, '\t\t\tvar ', names(js_var)[i], ' = ', js_var[[i]], ';\n')
+				if(grepl('^0x', js_var[[i]]) || is.numeric(js_var[[i]])){
+					page_html <- paste0(page_html, '\t\t\tvar ', names(js_var)[i], ' = ', js_var[[i]], ';\n')
+				}else{
+					page_html <- paste0(page_html, '\t\t\tvar ', names(js_var)[i], ' = \"', js_var[[i]], '\";\n')
+				}
 			}
 			
 			page_html <- paste0(page_html, '\t\t</script>\n\n')
