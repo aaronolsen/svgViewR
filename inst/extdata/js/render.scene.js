@@ -6,7 +6,7 @@ var spheres = new Array( );
 var sprites = new Array( );
 
 // Declare global variables
-var animation, animations, anim_pause_time, camera, controls, mesh_name, renderer, scene, stats;
+var animation_times, animations, anim_pause_time, camera, controls, mesh_name, renderer, scene, stats;
 var update_obj = {
     num: new Array(),
     type: new Array()
@@ -104,6 +104,20 @@ function indexOfMax(arr) {
     }
 
     return maxIndex;
+}
+
+function loadAnimation() {
+
+	if(svg_obj.animate == ''){
+		animate = false;
+		return;
+	}
+
+	// Set animate on
+	animate = true;
+
+	// Set animation times
+	animation_times = svg_obj.animate.times;
 }
 
 function loadGeometries(){
@@ -322,6 +336,14 @@ function loadNextMesh(){
 		// Get mesh object
 		mesh = svg_obj.mesh[mesh_load_ct];
 		
+		// Check if position over time is specified
+		if(svg_obj.mesh[mesh_load_ct].position != undefined){
+
+			// Add type and number to 
+			update_obj.num.push(mesh_load_ct);
+			update_obj.type.push('mesh');
+		}
+
 		// Create geometry
 		geometry = new THREE.Geometry();
 		
@@ -371,9 +393,27 @@ function nearestPow2( aSize ){
 	return Math.pow( 2, Math.round( Math.log( aSize ) / Math.log( 2 ) ) ); 
 }
 
+function nearestTimeIndex( time, start, end, duration, nTimes ){
+	
+	//
+	if(time < start) return(0);
+	if(time > end) return(nTimes-1);
+	
+	// Find normalized time (0 to 1)
+	var time_norm = (time-start) / duration;
+	
+	// Scale to -0.5, times-0.5
+	var time_idx = Math.round(time_norm*(nTimes)-0.5);
+	if(time_idx >= nTimes) time_idx = time_idx - 1;
+	
+	//document.getElementById("js_out").innerHTML += time_norm*(nTimes)-0.5 + '<br>';
+	
+	return(time_idx);
+}
+
 //
 function onObjectsReady(){
-	
+
 	var i, j;
 
 	// Set bounding box
@@ -413,7 +453,7 @@ function onReady(){
 	// Setup a new scene
 	scene = new THREE.Scene();
 	
-	//
+	// Set background
 	scene.background = new THREE.Color( bg_col );
 
 	// Get container
@@ -434,12 +474,8 @@ function onReady(){
 	// Load coordinate objects
 	loadGeometries();
 	
-	// Load animation from file
-	//var loader = new THREE.FileLoader();
-	//loader.load( mod_dir + '/' + anim_file, load_animation);
-
 	// Load animation from string
-	load_animation(tm_str);
+	loadAnimation();
 
 	// Try rendering every 10 msec until all objects are finished loaded
 	try_render_int = setInterval(tryRender, 10);
@@ -457,15 +493,15 @@ function setBoundingBox () {
 	var maxX = maxY = maxZ = -Infinity;
 
 	// If no animation, just iterate once through update
-	if(animation == undefined || animation.ntimes == undefined){
-		var animation_ntimes = 1;
+	if(animate == false){
+		var anim_ntimes = 1;
 		var time_int = 1;
 	}else{
-		var animation_ntimes = animation.ntimes;
-		var time_int = Math.round(animation.ntimes/5);
+		var anim_ntimes = animation_ntimes;
+		var time_int = Math.round(animation_ntimes/5);
 	}
 
-	for(j = 0; j < animation_ntimes; j = j + time_int){
+	for(j = 0; j < anim_ntimes; j = j + time_int){
 
 		// Transform shapes to first animation index
 		updateShapes(j);
@@ -549,7 +585,6 @@ function setBoundingBox () {
 function tryRender () {
 	
 	// If these are not loaded, do not render
-	if(animation == undefined) return;
 	if(meshes_ready == false) return;
 
 	// Stop running tryRender
@@ -580,13 +615,13 @@ var render = function () {
 			var elapsed_ms = Date.now() - anim_start;
 	
 			// If exceeds animation duration, reset clock
-			if(elapsed_ms > animation.duration){
+			if(elapsed_ms > animation_duration){
 				anim_start = Date.now();
 				elapsed_ms = 0;
 			}
 
 			// Find closest time point in animation
-			time_index = nearestTimeIndex( elapsed_ms, animation.start, animation.end, animation.duration, animation.ntimes);
+			time_index = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
 
 			// Print clock
 			document.getElementById( "clock" ).innerHTML = Math.round(elapsed_ms / 100)*100 + " ms";
@@ -686,51 +721,23 @@ function updateShapes(time_index){
 	var num, type, i, j, k, set_prop, set_val, tracks_length;
 
 	//// Apply animation transformations
-	if(animation != undefined){
-
-		// Go through each track
-		tracks_length = animation.tracks.length;
-
-		for (i = 0; i < tracks_length; i++){
-
-			// Get indices of objects to apply animation to
-			num = animation.tracks[i].num;
-			type = animation.tracks[i].type;
-
-			// If mesh name in animation file not found, continue
-			if(num.length == 0) continue;
-
-			// Get property to set
-			set_prop = animation.tracks[i].set;
-
-			// Get value to set
-			set_val = animation.tracks[i].keys[time_index].value;
-
-			for (j = 0; j < num.length; j++){
-
-				if(type[j] == 'mesh'){
-
-					if(set_prop == 'position'){
-						meshes[num[j]].position.x = set_val[0];
-						meshes[num[j]].position.y = set_val[1];
-						meshes[num[j]].position.z = set_val[2];
-					}
-
-					if(set_prop == 'rotation'){
-						meshes[num[j]].rotation.x = set_val[0];
-						meshes[num[j]].rotation.y = set_val[1];
-						meshes[num[j]].rotation.z = set_val[2];
-					}
-				}
-			}
-		}
+	if(animate == true){
 
 		//// Apply object updates/transformations
 		var update_obj_length = update_obj.num.length;
-		//alert(update_obj_length);
 
 		for (i = 0; i < update_obj_length; i++){
 		
+			if(update_obj.type[i] == 'mesh'){
+				meshes[update_obj.num[i]].position.x = svg_obj.mesh[update_obj.num[i]].position[time_index][0];
+				meshes[update_obj.num[i]].position.y = svg_obj.mesh[update_obj.num[i]].position[time_index][1];
+				meshes[update_obj.num[i]].position.z = svg_obj.mesh[update_obj.num[i]].position[time_index][2];
+
+				meshes[update_obj.num[i]].rotation.x = svg_obj.mesh[update_obj.num[i]].rotation[time_index][0];
+				meshes[update_obj.num[i]].rotation.y = svg_obj.mesh[update_obj.num[i]].rotation[time_index][1];
+				meshes[update_obj.num[i]].rotation.z = svg_obj.mesh[update_obj.num[i]].rotation[time_index][2];
+			}
+
 			if(update_obj.type[i] == 'sphere'){
 				spheres[update_obj.num[i]].position.x = spheres[update_obj.num[i]].x_tm[time_index][0];
 				spheres[update_obj.num[i]].position.y = spheres[update_obj.num[i]].x_tm[time_index][1];
