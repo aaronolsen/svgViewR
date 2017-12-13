@@ -4,8 +4,8 @@ svg_box_lim <- function(ranges, tick.num, lim.exact=FALSE){
 		# Trying exact - tick labels may not be correct yet
 		rangesr <- ranges
 	}else{
-		# Round to 1-2 significant digits
-		rangesr <- round(ranges, -log(abs(ranges), base=10)+1)
+		# Round to 3 significant digits
+		rangesr <- signif(ranges, digits=3)
 	}
 	
 	# Make variables for limits
