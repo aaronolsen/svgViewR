@@ -3,6 +3,8 @@ svg.new <- function(file = NULL, window.title="SVG Viewer", animate.duration = 1
 	time.units = 'sec', show.control = TRUE, start.rotate = TRUE, layers = NULL, connection = TRUE, 
 	fdir = NULL, debug = FALSE){
 
+	digits <- 6
+
 	if(is.null(file)){
 
 		## Create server connection to plot WebGL graphics
@@ -72,12 +74,15 @@ svg.new <- function(file = NULL, window.title="SVG Viewer", animate.duration = 1
 		
 		# Set background color
 		env$svgviewr_env$js_var[['bg_col']] <- webColor(col, format='0')
-
 		env$svgviewr_env$js_var[['play_speed']] <- animate.speed
-		env$svgviewr_env$js_var[['time_units']] <- paste0('\"', time.units, '\"')
+		env$svgviewr_env$js_var[['time_units']] <- time.units
+		env$svgviewr_env$js_var[['signif_digits']] <- digits
 
 		# Create name reference
 		env$svgviewr_env$ref <- list()
+
+		# Create animation reference
+		env$svgviewr_env$animate <- list()
 
 	}else{
 
