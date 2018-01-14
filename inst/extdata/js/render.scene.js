@@ -6,7 +6,7 @@ var spheres = new Array( );
 var sprites = new Array( );
 
 // Declare global variables
-var animation_times, animations, anim_pause_time, camera, controls, mesh_name, renderer, scene, stats;
+var animation_times, animations, anim_pause_time, camera, controls, mesh_name, mesh_opacity, renderer, scene, stats;
 var update_obj = {
     num: new Array(),
     type: new Array()
@@ -27,16 +27,18 @@ function addLights(scene_center, distance, intensity){
 	
 	for(i = 0; i <= 3; i++){
 	
-		if(i == 0) off = Array(distance, distance, distance);
-		if(i == 1) off = Array(-distance, distance, distance);
-		if(i == 2) off = Array(-distance, -distance, -distance);
-		if(i == 3) off = Array(distance, -distance, -distance);
+		var flip = 1;
+	
+		if(i == 0) off = Array(distance, distance, flip*distance, 1);
+		if(i == 1) off = Array(-distance, distance, flip*distance, 1);
+		if(i == 2) off = Array(-distance, -distance, flip*-distance, 1);
+		if(i == 3) off = Array(distance, -distance, flip*-distance, 1);
 
 		// Set light source
 		source = [scene_center[0]+off[0], scene_center[1]+off[1], scene_center[2]+off[2]]
 
 		// Add lights lights
-		var light = new THREE.PointLight( 0xFFFFDD , intensity, ldistance);
+		var light = new THREE.PointLight( 0xFFFFDD , 1*intensity, ldistance);
 		light.position.set(source[0], source[1], source[2]);
 		scene.add( light );
 
@@ -53,11 +55,17 @@ function addLights(scene_center, distance, intensity){
 function addMeshToScene( geometry, materials ) {
 	
 	var material;
-	
+
 	if(materials == undefined){
 		material = new THREE.MeshLambertMaterial( { color: 0xF5F5F5 } );
 	}else{
 		material = materials;
+	}
+
+	// Set model opacity
+	if(mesh_opacity < 1){
+		material.transparent = true;
+		material.opacity = mesh_opacity;
 	}
 
 	// Create mesh
@@ -65,7 +73,7 @@ function addMeshToScene( geometry, materials ) {
 
 	// Set model name
 	model.name = mesh_name;
-
+	
 	// Add to meshes
 	meshes.push(model)
 
@@ -122,7 +130,7 @@ function loadAnimation() {
 
 function loadGeometries(){
 
-	var arrowHelper, canvas, context, dir, geometry, i, j, line, material, mesh, num_seg, origin;
+	var arrowHelper, canvas, context, dir, geometry, i, j, n, line, material, mesh, num_seg, origin;
 	var sprite, spriteMaterial, text, texture, text_length, text_size;
 	
 	//// Load lines
@@ -274,10 +282,15 @@ function loadGeometries(){
 	
 	//// Add spheres
 	if(svg_obj.sphere != undefined){
+
 		num_objects = svg_obj.sphere.length;
 
+		n = 0;
 		for(i = 0; i < num_objects; i++){
 		
+			// If position is NA, skip
+			if(svg_obj.sphere[i].x[0] == 'NA') continue;
+
 			// Create sphere
 			geometry = new THREE.SphereGeometry( radius=svg_obj.sphere[i].radius, widthSegments=svg_obj.sphere[i].wseg, heightSegments=svg_obj.sphere[i].hseg ) ;
 
@@ -285,7 +298,7 @@ function loadGeometries(){
 			//material = new THREE.MeshLambertMaterial( {color: svg_obj.sphere[i].col} ) ;
 			material = new THREE.MeshPhongMaterial( {
 						color: svg_obj.sphere[i].col,
-						emissive: '#082636'
+						emissive: svg_obj.sphere[i].emissive
 						//flatShading: true
 						//side: THREE.DoubleSide,
 					} )
@@ -303,12 +316,12 @@ function loadGeometries(){
 				mesh.x_tm = svg_obj.sphere[i].x_tm;
 
 				// Add type and number to 
-				update_obj.num.push(i);
+				update_obj.num.push(n);
 				update_obj.type.push('sphere');
 			}
 
 			// Set name
-			mesh.name = 'sphere' + i;
+			mesh.name = 'sphere' + n;
 		
 			// add the mesh to the scene
 			scene.add( mesh ) ;
@@ -318,6 +331,8 @@ function loadGeometries(){
 
 			// Add to scene
 			scene.add( mesh );
+			
+			n++;
 		}
 	}
 }
@@ -346,23 +361,16 @@ function loadNextMesh(){
 
 		// Create geometry
 		geometry = new THREE.Geometry();
-		
-		// Get number of vertices
-		num_vertices = mesh.vertices.length;
-		num_faces = mesh.faces.length;
-		
-		// Add vertices
-		for(i = 0; i < num_vertices; i = i + 3){
-			geometry.vertices.push(new THREE.Vector3(mesh.vertices[i], mesh.vertices[i+1], mesh.vertices[i+2]));
+
+		geometry = parseModel( mesh, geometry );
+
+		if(mesh.normals == undefined){
+			geometry.computeFaceNormals();
+			if(svg_obj.mesh[mesh_load_ct].computeVN == true) geometry.computeVertexNormals();
 		}
-		
-		// Add faces
-		for(i = 0; i < num_faces; i = i + 3){
-			geometry.faces.push( new THREE.Face3( mesh.faces[i], mesh.faces[i+1], mesh.faces[i+2] ) );
-		}
-		geometry.computeFaceNormals();
-		if(svg_obj.mesh[mesh_load_ct].computeVN == true) geometry.computeVertexNormals();
-		
+
+		//material = new THREE.MeshLambertMaterial( { color: 0xF5F5F5 } );
+
 		material = new THREE.MeshPhongMaterial( {
 					color: mesh.col,
 					emissive: mesh.emissive,
@@ -371,7 +379,7 @@ function loadNextMesh(){
 				} )
 		
 		// Add mesh
-		addMeshToScene(geometry, material);
+		addMeshToScene(geometry, undefined);
 
 	}else{
 
@@ -383,8 +391,18 @@ function loadNextMesh(){
 		loader.load( app_dir[svg_obj.mesh[mesh_load_ct].src_idx] + '/' + svg_obj.mesh[mesh_load_ct].fname, addMeshToScene);
 	
 		// Set mesh name
-		//mesh_name = mesh_names[mesh_load_ct];
-		mesh_name = svg_obj.mesh[obj_add_ct].name;
+		mesh_name = svg_obj.mesh[mesh_load_ct].name;
+		mesh_opacity = svg_obj.mesh[mesh_load_ct].opacity;
+
+//alert(svg_obj.mesh[mesh_load_ct].src_idx + ' ' + svg_obj.mesh[mesh_load_ct].fname)
+
+		// Check if position over time is specified
+		if(svg_obj.mesh[mesh_load_ct].position != undefined){
+
+			// Add type and number to 
+			update_obj.num.push(mesh_load_ct);
+			update_obj.type.push('mesh');
+		}
 	}
 }
 
@@ -429,7 +447,7 @@ function onObjectsReady(){
 	updateCameraPosition();
 
 	// Add lights
-	addLights(bbox_center, bbox_size, 1.5)
+	addLights(bbox_center, bbox_size, 1.5*0.95)
 }
 
 // Set frames per second for motion
@@ -460,8 +478,8 @@ function onReady(){
 	var container = document.getElementById( "container" );
 
 	// Add stats box in top left corner
-	stats = new Stats();
-	container.appendChild( stats.dom );
+	//stats = new Stats();
+	//container.appendChild( stats.dom );
 
 	// Setup the renderer
 	renderer = new THREE.WebGLRenderer( {antialias: true } );
@@ -470,7 +488,7 @@ function onReady(){
 
 	// Start mesh loading
 	loadNextMesh();
-	
+
 	// Load coordinate objects
 	loadGeometries();
 	
@@ -479,6 +497,306 @@ function onReady(){
 
 	// Try rendering every 10 msec until all objects are finished loaded
 	try_render_int = setInterval(tryRender, 10);
+}
+
+function parseModel( json, geometry ) {
+
+	function isBitSet( value, position ) {
+
+		return value & ( 1 << position );
+
+	}
+
+	var i, j, fi,
+
+		offset, zLength,
+
+		colorIndex, normalIndex, uvIndex, materialIndex,
+
+		type,
+		isQuad,
+		hasMaterial,
+		hasFaceVertexUv,
+		hasFaceNormal, hasFaceVertexNormal,
+		hasFaceColor, hasFaceVertexColor,
+
+		vertex, face, faceA, faceB, hex, normal,
+
+		uvLayer, uv, u, v,
+
+		faces = json.faces,
+		vertices = json.vertices,
+		normals = json.normals,
+		colors = json.colors,
+
+		scale = json.scale,
+
+		nUvLayers = 0;
+
+
+	if ( json.uvs !== undefined ) {
+
+		// disregard empty arrays
+
+		for ( i = 0; i < json.uvs.length; i ++ ) {
+
+			if ( json.uvs[ i ].length ) nUvLayers ++;
+
+		}
+
+		for ( i = 0; i < nUvLayers; i ++ ) {
+
+			geometry.faceVertexUvs[ i ] = [];
+
+		}
+
+	}
+
+	offset = 0;
+	zLength = vertices.length;
+
+	while ( offset < zLength ) {
+
+		vertex = new THREE.Vector3();
+
+		vertex.x = vertices[ offset ++ ] * scale;
+		vertex.y = vertices[ offset ++ ] * scale;
+		vertex.z = vertices[ offset ++ ] * scale;
+
+		geometry.vertices.push( vertex );
+
+	}
+
+	offset = 0;
+	zLength = faces.length;
+
+	while ( offset < zLength ) {
+
+		type = faces[ offset ++ ];
+
+		isQuad = isBitSet( type, 0 );
+		hasMaterial = isBitSet( type, 1 );
+		hasFaceVertexUv = isBitSet( type, 3 );
+		hasFaceNormal = isBitSet( type, 4 );
+		hasFaceVertexNormal = isBitSet( type, 5 );
+		hasFaceColor = isBitSet( type, 6 );
+		hasFaceVertexColor = isBitSet( type, 7 );
+
+		// console.log("type", type, "bits", isQuad, hasMaterial, hasFaceVertexUv, hasFaceNormal, hasFaceVertexNormal, hasFaceColor, hasFaceVertexColor);
+		if ( isQuad ) {
+
+			faceA = new THREE.Face3();
+			faceA.a = faces[ offset ];
+			faceA.b = faces[ offset + 1 ];
+			faceA.c = faces[ offset + 3 ];
+
+			faceB = new THREE.Face3();
+			faceB.a = faces[ offset + 1 ];
+			faceB.b = faces[ offset + 2 ];
+			faceB.c = faces[ offset + 3 ];
+
+			offset += 4;
+
+			if ( hasMaterial ) {
+
+				materialIndex = faces[ offset ++ ];
+				faceA.materialIndex = materialIndex;
+				faceB.materialIndex = materialIndex;
+
+			}
+
+			// to get face <=> uv index correspondence
+
+			fi = geometry.faces.length;
+
+			if ( hasFaceVertexUv ) {
+
+				for ( i = 0; i < nUvLayers; i ++ ) {
+
+					uvLayer = json.uvs[ i ];
+
+					geometry.faceVertexUvs[ i ][ fi ] = [];
+					geometry.faceVertexUvs[ i ][ fi + 1 ] = [];
+
+					for ( j = 0; j < 4; j ++ ) {
+
+						uvIndex = faces[ offset ++ ];
+
+						u = uvLayer[ uvIndex * 2 ];
+						v = uvLayer[ uvIndex * 2 + 1 ];
+
+						uv = new THREE.Vector2( u, v );
+
+						if ( j !== 2 ) geometry.faceVertexUvs[ i ][ fi ].push( uv );
+						if ( j !== 0 ) geometry.faceVertexUvs[ i ][ fi + 1 ].push( uv );
+
+					}
+
+				}
+
+			}
+
+			if ( hasFaceNormal ) {
+
+				normalIndex = faces[ offset ++ ] * 3;
+
+				faceA.normal.set(
+					normals[ normalIndex ++ ],
+					normals[ normalIndex ++ ],
+					normals[ normalIndex ]
+				);
+
+				faceB.normal.copy( faceA.normal );
+
+			}
+
+			if ( hasFaceVertexNormal ) {
+
+				for ( i = 0; i < 4; i ++ ) {
+
+					normalIndex = faces[ offset ++ ] * 3;
+
+					normal = new THREE.Vector3(
+						normals[ normalIndex ++ ],
+						normals[ normalIndex ++ ],
+						normals[ normalIndex ]
+					);
+
+
+					if ( i !== 2 ) faceA.vertexNormals.push( normal );
+					if ( i !== 0 ) faceB.vertexNormals.push( normal );
+
+				}
+
+			}
+
+
+			if ( hasFaceColor ) {
+
+				colorIndex = faces[ offset ++ ];
+				hex = colors[ colorIndex ];
+
+				faceA.color.setHex( hex );
+				faceB.color.setHex( hex );
+
+			}
+
+
+			if ( hasFaceVertexColor ) {
+
+				for ( i = 0; i < 4; i ++ ) {
+
+					colorIndex = faces[ offset ++ ];
+					hex = colors[ colorIndex ];
+
+					if ( i !== 2 ) faceA.vertexColors.push( new THREE.Color( hex ) );
+					if ( i !== 0 ) faceB.vertexColors.push( new THREE.Color( hex ) );
+
+				}
+
+			}
+
+			geometry.faces.push( faceA );
+			geometry.faces.push( faceB );
+
+		} else {
+
+			face = new THREE.Face3();
+			face.a = faces[ offset ++ ];
+			face.b = faces[ offset ++ ];
+			face.c = faces[ offset ++ ];
+
+			if ( hasMaterial ) {
+
+				materialIndex = faces[ offset ++ ];
+				face.materialIndex = materialIndex;
+
+			}
+
+			// to get face <=> uv index correspondence
+
+			fi = geometry.faces.length;
+
+			if ( hasFaceVertexUv ) {
+
+				for ( i = 0; i < nUvLayers; i ++ ) {
+
+					uvLayer = json.uvs[ i ];
+
+					geometry.faceVertexUvs[ i ][ fi ] = [];
+
+					for ( j = 0; j < 3; j ++ ) {
+
+						uvIndex = faces[ offset ++ ];
+
+						u = uvLayer[ uvIndex * 2 ];
+						v = uvLayer[ uvIndex * 2 + 1 ];
+
+						uv = new THREE.Vector2( u, v );
+
+						geometry.faceVertexUvs[ i ][ fi ].push( uv );
+
+					}
+
+				}
+
+			}
+
+			if ( hasFaceNormal ) {
+
+				normalIndex = faces[ offset ++ ] * 3;
+
+				face.normal.set(
+					normals[ normalIndex ++ ],
+					normals[ normalIndex ++ ],
+					normals[ normalIndex ]
+				);
+
+			}
+
+			if ( hasFaceVertexNormal ) {
+
+				for ( i = 0; i < 3; i ++ ) {
+
+					normalIndex = faces[ offset ++ ] * 3;
+
+					normal = new THREE.Vector3(
+						normals[ normalIndex ++ ],
+						normals[ normalIndex ++ ],
+						normals[ normalIndex ]
+					);
+
+					face.vertexNormals.push( normal );
+
+				}
+
+			}
+
+
+			if ( hasFaceColor ) {
+
+				colorIndex = faces[ offset ++ ];
+				face.color.setHex( colors[ colorIndex ] );
+
+			}
+
+
+			if ( hasFaceVertexColor ) {
+
+				for ( i = 0; i < 3; i ++ ) {
+
+					colorIndex = faces[ offset ++ ];
+					face.vertexColors.push( new THREE.Color( colors[ colorIndex ] ) );
+
+				}
+
+			}
+
+			geometry.faces.push( face );
+		}
+	}
+	
+	return geometry;
 }
 
 function setBoundingBox () {
@@ -570,7 +888,10 @@ function setBoundingBox () {
 	bbox_scale = [ bbox_new.max.x-bbox_new.min.x, bbox_new.max.y-bbox_new.min.y, bbox_new.max.z-bbox_new.min.z ];
 	bbox_center = [ bbox_scale[0]/2 + bbox_new.min.x, bbox_scale[1]/2 + bbox_new.min.y, bbox_scale[2]/2 + bbox_new.min.z ];
 	bbox_size = (bbox_scale[0] + bbox_scale[1] + bbox_scale[2]) / 3;
-	
+
+//alert(minX + ',' + minY + ',' + minZ)
+//alert(maxX + ',' + maxY + ',' + maxZ)
+
 	// Draw bounding box as wireframe
 	if(false){
 		var geometry = new THREE.BoxGeometry( bbox_scale[0], bbox_scale[1], bbox_scale[2] );
@@ -624,16 +945,18 @@ var render = function () {
 			time_index = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
 
 			// Print clock
-			document.getElementById( "clock" ).innerHTML = Math.round(elapsed_ms / 100)*100 + " ms";
-			document.getElementById( "idx" ).innerHTML = time_index;
-			document.getElementById( "time" ).innerHTML = Math.round((elapsed_ms*play_speed) / 100)*100 + " ms";
+			if(show_clock){
+				document.getElementById( "clock" ).innerHTML = Math.round(elapsed_ms / 100)*100 + " ms";
+				document.getElementById( "idx" ).innerHTML = time_index;
+				document.getElementById( "time" ).innerHTML = Math.round((elapsed_ms*play_speed) / 100)*100 + " ms";
+			}
 
 			// Update shapes
 			updateShapes(time_index);
 		}
 	}
 
-	stats.update();
+	//stats.update();
 	
 	renderer.render(scene, camera);
 };
@@ -757,7 +1080,6 @@ function updateShapes(time_index){
 				lines[update_obj.num[i]].geometry.verticesNeedUpdate = true;
 			}
 		}
-
 	}
 }
 
