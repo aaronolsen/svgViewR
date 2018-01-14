@@ -1,8 +1,8 @@
 svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit(file, '/')[[1]], 1)), 
-	get.lim = TRUE){
+	opacity = 1, get.lim = TRUE){
 
 	# Make sure that type is webgl
-	if('webgl' != getOption("svgviewr_glo_type")) stop("Mesh drawing is currently only available with webgl svgViewR output.")
+	if('svg' == getOption("svgviewr_glo_type")) stop("Mesh drawing is currently only available with webgl svgViewR output.")
 
 	# Get viewer environment
 	env <- as.environment(getOption("svgviewr_glo_env"))
@@ -15,25 +15,44 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 
 	if(!is.null(file)){
 	
-		# Get absolute file path (rook app doesn't work with relative paths)
-		file <- normalizePath(path=file)
+		# Set opacity
+		input_params[['opacity']] <- opacity
 
-		# Separate directory and filename
-		file_strsplit <- strsplit(file, '/')[[1]]
+		# Set where to add object
+		add_at <- length(svgviewr_env$mesh)+1
 
-		# Set filename
-		input_params$fname <- tail(file_strsplit, 1)
-	
-		# Set directory path
-		input_params$src <- ''
-		if(length(file_strsplit) > 1) input_params$src <- paste0(paste0(file_strsplit[1:(length(file_strsplit)-1)], collapse='/'), '/')
+		#
+		if('html' == getOption("svgviewr_glo_type")){
+			
+			# Read mesh file
+			obj_json <- fromJSON(paste(suppressWarnings(readLines(file)), collapse=""))
+			
+			# Add mesh properties to input parameters
+			input_params[['vertices']] <- obj_json$vertices
+			input_params[['faces']] <- obj_json$faces
+			input_params[['normals']] <- obj_json$normals
+
+		}else{
+
+			# Get absolute file path (rook app doesn't work with relative paths)
+			file <- normalizePath(path=file)
+
+			# Separate directory and filename
+			file_strsplit <- strsplit(file, '/')[[1]]
+
+			# Set filename
+			input_params$fname <- tail(file_strsplit, 1)
+
+			# Read source file
+			if(get.lim) obj_json <- fromJSON(paste(suppressWarnings(readLines(file)), collapse=""))
+
+			# Set directory path
+			input_params$src <- ''
+			if(length(file_strsplit) > 1) input_params$src <- paste0(paste0(file_strsplit[1:(length(file_strsplit)-1)], collapse='/'), '/')
+		}
 
 		# Add to meshes
-		add_at <- length(svgviewr_env$mesh)+1
 		env$svgviewr_env$mesh[[add_at]] <- input_params
-
-		# Read source file
-		if(get.lim) obj_json <- fromJSON(paste(suppressWarnings(readLines(file)), collapse=""))
 
 		# Add object reference data
 		env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)

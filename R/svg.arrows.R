@@ -5,7 +5,7 @@ svg.arrows <- function(x, y=NULL, name="arrow", col="black", z.index=0, layer=""
 	#print(names(svg_glo$con))
 	#cat('--------\n')
 	
-	if('webgl' != getOption("svgviewr_glo_type")){
+	if('live' != getOption("svgviewr_glo_type")){
 
 		# If file is null, set current connection
 		if(is.null(file)){
@@ -24,7 +24,7 @@ svg.arrows <- function(x, y=NULL, name="arrow", col="black", z.index=0, layer=""
 		if(is.array(x) && length(dim(x)) > 2) len <- max(sqrt(colSums((x[1, , ]-x[dim(x)[1], , ])^2)))*0.05
 	}
 
-	if('webgl' == getOption("svgviewr_glo_type")){
+	if('live' == getOption("svgviewr_glo_type")){
 
 		## Add objects to svgViewR environment
 		# Get viewer environment

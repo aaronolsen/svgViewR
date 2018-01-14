@@ -2,12 +2,19 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 	col='blue', emissive=rgb(0.03, 0.15, 0.21), name='cuboid'){
 
 	# Make sure that type is webgl
-	#if('webgl' != getOption("svgviewr_glo_type")) stop("Cuboid drawing is currently only available with webgl svgViewR output.")
+	#if('live' != getOption("svgviewr_glo_type")) stop("Cuboid drawing is currently only available with webgl svgViewR output.")
 
 	# If ends is single point, use axis to find other end point
 	if(is.null(center)){
 
 		if(is.vector(ends) || nrow(ends) == 1){
+
+			if(is.null(axes) || is.null(length) && !is.null(width)){
+				if(length(width) == 3){
+					length <- width[1]
+					width <- width[2:3]
+				}
+			}
 	
 			# Check that vector and length are specified
 			if(is.null(axes) || is.null(length)) stop("If 'ends' is a single point then 'axes' and 'length' must both be non-NULL.")
@@ -95,7 +102,7 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 	
 	faces <- faces[!is.na(faces[,1]), ]
 
-	if('webgl' == getOption("svgviewr_glo_type")){
+	if('live' == getOption("svgviewr_glo_type")){
 
 		# Get viewer environment
 		env <- as.environment(getOption("svgviewr_glo_env"))

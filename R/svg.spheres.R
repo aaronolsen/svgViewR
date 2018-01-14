@@ -1,23 +1,22 @@
-svg.spheres <- function(x, radius = 1, col = 'black', name = 'sphere', wseg = 16, hseg = 16){
+svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(.27,.27,.27), name = 'sphere', wseg = 16, hseg = 16){
 
 	# Make sure that type is webgl
-	if('webgl' != getOption("svgviewr_glo_type")) stop("Sphere drawing is currently only available with webgl svgViewR output.")
+	if('svg' == getOption("svgviewr_glo_type")) stop("Sphere drawing is currently only available with webgl svgViewR output.")
 
-	if('webgl' == getOption("svgviewr_glo_type")){
+	# Get viewer environment
+	env <- as.environment(getOption("svgviewr_glo_env"))
 
-		# Get viewer environment
-		env <- as.environment(getOption("svgviewr_glo_env"))
+	# If vector, make into matrix
+	if(is.vector(x)) x <- matrix(x, nrow=1)
 
-		# If vector, make into matrix
-		if(is.vector(x)) x <- matrix(x, nrow=1)
+	if(length(dim(x)) == 2){
 
 		# Add object
 		for(i in 1:nrow(x)){
 
 			add_at <- length(svgviewr_env$sphere)+1
 			env$svgviewr_env$sphere[[add_at]] <- list('type'='sphere', 'name'=name, 'x'=setNames(x[i,], NULL), 
-				'radius'=radius, 'col'=webColor(col),  
-				'wseg'=16, 'hseg'=16)
+				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=16, 'hseg'=16)
 
 			# Add object reference data
 			env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)
@@ -26,7 +25,22 @@ svg.spheres <- function(x, radius = 1, col = 'black', name = 'sphere', wseg = 16
 		}
 
 	}else{
+
+		for(i in 1:dim(x)[1]){
 		
+			# Add object
+			add_at <- length(svgviewr_env$sphere)+1
+			env$svgviewr_env$sphere[[add_at]] <- list('type'='sphere', 'name'=name, 'x'=setNames(x[i,,1], NULL), 
+				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=16, 'hseg'=16)
+
+			# Add object reference data
+			env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)
+			env$svgviewr_env$ref$num <- c(env$svgviewr_env$ref$num, add_at)
+			env$svgviewr_env$ref$type <- c(env$svgviewr_env$ref$type, 'sphere')
+
+			# Add animation
+			env$svgviewr_env[['sphere']][[add_at]][['x_tm']] <- lapply(seq_len(dim(x)[3]), function(iter) x[i,,iter])
+		}
 	}
 
 	# Suppress return of value in console

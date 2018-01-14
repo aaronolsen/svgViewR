@@ -1,135 +1,99 @@
-svg.transform <- function(tmarr, applyto = '', time = 1:dim(tmarr)[3], add = FALSE, regexp = FALSE){
-
-	# For now only allow one animation name - eventually make it so that different animations 
-	# can be applied to the same objects (e.g. different trials)
-	name <- 'animation'
+svg.transform <- function(tmarr, applyto = '', times = 1:dim(tmarr)[3], add = FALSE, regexp = FALSE){
 
 	# Make sure that type is webgl
-	if('webgl' != getOption("svgviewr_glo_type")) stop("Transform is currently only available with webgl svgViewR output.")
+	if('live' != getOption("svgviewr_glo_type")) stop("Transform is currently only available with webgl svgViewR output.")
 	
+	if(length(dim(tmarr)) == 4){
+
+		# Check that applyto length matches tmarr if applyto names in tmarr are NULL
+		if(is.null(dimnames(tmarr)[[3]]) && length(applyto) != dim(tmarr)[3]) 
+			stop(paste0("If dimnames(tmarr)[[3]] is NULL then names of what to apply transformation to should be given through applyto. length(applyto) does not equal dim(tmarr)[3]."))
+
+		# Set applyto through tmarr dimnames
+		if(!is.null(dimnames(tmarr)[[3]])) applyto <- dimnames(tmarr)[[3]]
+
+		# Apply each body transform in array
+		for(i in 1:dim(tmarr)[3]) svg.transform(tmarr=tmarr[, , i, ], 
+			applyto=applyto[i], times=times, add=add, regexp=regexp)
+
+		return(NULL)
+	}
+
 	# Make sure number of times matches the number of iterations in transformation array
-	if(length(time) != dim(tmarr)[3]) stop(paste0("The number of times in 'time' (", length(time), ") does not match the number of iterations in 'tmarr' (", dim(tmarr)[3], ")."))
+	if(length(times) != dim(tmarr)[3]) stop(paste0("The number of times in 'times' (", length(times), ") does not match the number of iterations in 'tmarr' (", dim(tmarr)[3], ")."))
 
 	# Get viewer environment
 	env <- as.environment(getOption("svgviewr_glo_env"))
 
-	# Get all current object names
-	obj_names <- env$svgviewr_env$ref$names
+	# Get reference objects
+	ref_names <- env$svgviewr_env$ref$names
+	ref_types <- env$svgviewr_env$ref$type
+	ref_nums <- env$svgviewr_env$ref$num
 
 	# Get matching names
 	if(!regexp){
 
 		# Use exact matching
-		applyto_which <- which(obj_names %in% applyto)
+		applyto_which <- which(ref_names %in% applyto)
 
 	}else{
 
 		# Use regular expression matching
 		applyto_which <- c()
-		for(i in 1:length(applyto)) applyto_which <- c(applyto_which, which(grepl(applyto[i], obj_names)))
+		for(i in 1:length(applyto)) applyto_which <- c(applyto_which, which(grepl(applyto[i], ref_names)))
 	}
 
 	# Make sure name was found
-	if(length(applyto_which) == 0) stop(paste0("No objects matching the name(s) '", paste0(applyto, collapse="','"), "' have been created."))
+	if(length(applyto_which) == 0){
+		warning(paste0("No objects matching the name(s) '", paste0(applyto, collapse="','"), "' have been created."))
+		return(NULL)
+	}
 
-	# Get reference objects
-	ref_type <- env$svgviewr_env$ref$type
-	ref_num <- env$svgviewr_env$ref$num
+	# Add transformations to animate
+	env$svgviewr_env$animate$names <- c(env$svgviewr_env$animate$names, ref_names[applyto_which])
+	env$svgviewr_env$animate$type <- c(env$svgviewr_env$animate$type, ref_types[applyto_which])
+	env$svgviewr_env$animate$num <- c(env$svgviewr_env$animate$num, ref_nums[applyto_which])
 
-	# For some objects (mesh from file) use transform, for others add transform into object position
-	applyto_w_tm <- applyto_which[which(env$svgviewr_env$ref$type[applyto_which] %in% c('mesh'))]
-	applyto_w_ob <- applyto_which[!applyto_which %in% applyto_w_tm]
+	# Define number of animation iterations and times if not already defined
+	if(is.null(env$svgviewr_env$animate$times)) env$svgviewr_env$animate$times <- times
 
-	# Get names for transform
-	applyto_tm_names <- env$svgviewr_env$ref$names[unique(applyto_w_tm)]
+	# For each object for which position will become 
+	for(idx in applyto_which){
 
-	####
-	# ***** Place times in general animation object so that it can be accessed whether 
-	# animation is through tm or x_tm, etc.
+		if(ref_types[idx] == 'mesh'){
 
-	# Add transformation
-	if(length(applyto_tm_names) > 0){
-	
-		for(idx in applyto_w_tm) env$svgviewr_env[[ref_type[idx]]][[ref_num[idx]]][['tm']] <- TRUE
+			# Set position
+			position <- lapply(seq_len(dim(tmarr)[3]), function(i) t(signif(tmarr[1:3, 4, i], digits=env[['svgviewr_env']][['js_var']][['signif_digits']])))
+			env$svgviewr_env[[ref_types[idx]]][[ref_nums[idx]]][['position']] <- position
 
-		# Check if transformation array has already been created
-		if(is.null(env$svgviewr_env$tm)){
+			# Set rotation
+			rotation <- lapply(seq_len(dim(tmarr)[3]), function(i) -rev(signif(rm2euler(t(tmarr[1:3, 1:3, i]))[[1]], digits=env[['svgviewr_env']][['js_var']][['signif_digits']])))
+			env$svgviewr_env[[ref_types[idx]]][[ref_nums[idx]]][['rotation']] <- rotation
 
-			# If no, create new transformation list
-			tm <- list()
-			tm[[name]] <- list()
+			# Save transformation
+			env$svgviewr_env[[ref_types[idx]]][[ref_nums[idx]]][['tmat']] <- tmarr
+		}
 
-			# Add transformations to each named object
-			for(applyto_name in applyto_tm_names){
-				tm[[name]][[applyto_name]] <- list(
-					'time'=time,
-					'tmat'=tmarr
-				)
-			}
+		if(ref_types[idx] == 'sphere'){
+		
+			# Apply transformation to coordinate
+			x_tm <- apply_transform_svg(to=env$svgviewr_env[[ref_types[idx]]][[ref_nums[idx]]][['x']], 
+				tmat=tmarr)
 
-			# Add to environment
-			env$svgviewr_env$tm <- tm
+			# Transform center
+			env$svgviewr_env[[ref_types[idx]]][[ref_nums[idx]]][['x_tm']] <- lapply(seq_len(nrow(x_tm)), function(i) x_tm[i,])
+		}
 
-		}else{
-	
-			# Get from environment
-			tm <- env$svgviewr_env$tm
+		if(ref_types[idx] == 'line'){
 
-			# Add transformations to each named object
-			for(applyto_name in applyto_tm_names){
+			# Apply transformation to coordinates
+			x_tm <- apply_transform_svg(to=t(env$svgviewr_env[[ref_types[idx]]][[ref_nums[idx]]][['x']]), 
+				tmat=tmarr)
 
-				# Check if apply to already exists
-				if(applyto_name %in% names(env$svgviewr_env$tm[['animation']])){
-			
-					stop("Applying transformation to transformation is not yet supported.")
-
-					# If yes, and not adding to the end, check that dimensions match
-					if(!add){
-
-					}else{
-
-					}
-
-				}else{
-
-					tm[[name]][[applyto_name]] <- list(
-						'time'=time,
-						'tmat'=tmarr
-					)
-				}
-			}
-
-			# Add to environment
-			env$svgviewr_env$tm <- tm
+			# Transform center
+			env$svgviewr_env[[ref_types[idx]]][[ref_nums[idx]]][['x_tm']] <- lapply(seq_len(dim(x_tm)[3]), function(i) t(x_tm[, , i]))
 		}
 	}
 
-	if(length(applyto_w_ob) > 0){
-
-		# For each object for which position will become 
-		for(idx in applyto_w_ob){
-
-			if(ref_type[idx] == 'sphere'){
-			
-				x_tm <- apply_transform_svg(to=env$svgviewr_env[[ref_type[idx]]][[ref_num[idx]]][['x']], 
-					tmat=tmarr)
-
-				# Transform center
-				env$svgviewr_env[[ref_type[idx]]][[ref_num[idx]]][['x_tm']] <- lapply(seq_len(nrow(x_tm)), function(i) x_tm[i,])
-			}
-
-			if(ref_type[idx] == 'line'){
-
-				x_tm <- apply_transform_svg(to=t(env$svgviewr_env[[ref_type[idx]]][[ref_num[idx]]][['x']]), 
-					tmat=tmarr)
-
-				# Transform center
-				env$svgviewr_env[[ref_type[idx]]][[ref_num[idx]]][['x_tm']] <- lapply(seq_len(dim(x_tm)[3]), function(i) t(x_tm[, , i]))
-			}
-		}
-	}
-
-
-return(1)
-
+	NULL
 }

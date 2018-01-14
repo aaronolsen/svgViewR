@@ -3,7 +3,7 @@ svg.socket <- function(center = NULL, axes = NULL, outer.radius = 1, inner.radiu
 	name = 'socket', seg = 40, portion=0.5){
 
 	# Make sure that type is webgl
-	#if('webgl' != getOption("svgviewr_glo_type")) stop("Socket drawing is currently only available with webgl svgViewR output.")
+	#if('live' != getOption("svgviewr_glo_type")) stop("Socket drawing is currently only available with webgl svgViewR output.")
 
 	# Duplicate single segment value
 	if(length(seg) == 1) seg <- rep(seg, 2)
@@ -45,7 +45,7 @@ svg.socket <- function(center = NULL, axes = NULL, outer.radius = 1, inner.radiu
 	mesh_list[['ring']]$faces <- faces
 	mesh_list[['ring']]$col <- ring.col
 
-	if('webgl' == getOption("svgviewr_glo_type")){
+	if('live' == getOption("svgviewr_glo_type")){
 
 		# Get viewer environment
 		env <- as.environment(getOption("svgviewr_glo_env"))

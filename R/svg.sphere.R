@@ -2,7 +2,7 @@ svg.sphere <- function(center = NULL, ends = NULL, radius = NULL, width = NULL, 
 	col='blue', emissive=rgb(0.03, 0.15, 0.21), name = 'sphere', seg = 40){
 
 	# Make sure that type is webgl
-	#if('webgl' != getOption("svgviewr_glo_type")) stop("Sphere drawing is currently only available with webgl svgViewR output.")
+	#if('live' != getOption("svgviewr_glo_type")) stop("Sphere drawing is currently only available with webgl svgViewR output.")
 
 	# Types of input
 	#	sphere: center, radius
@@ -21,7 +21,7 @@ svg.sphere <- function(center = NULL, ends = NULL, radius = NULL, width = NULL, 
 	vertices <- sphere_mesh$vertices
 	faces <- sphere_mesh$faces
 
-	if('webgl' == getOption("svgviewr_glo_type")){
+	if('live' == getOption("svgviewr_glo_type")){
 
 		# Get viewer environment
 		env <- as.environment(getOption("svgviewr_glo_env"))

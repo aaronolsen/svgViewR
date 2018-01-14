@@ -1,7 +1,7 @@
 svg.lines <- function(x, y=NULL, col="black", z.index=0, layer="", name="line", 
 	label="", lwd=1, opacity=1, file=NULL){
 
-	if('webgl' != getOption("svgviewr_glo_type")){
+	if('live' != getOption("svgviewr_glo_type")){
 
 		# If file is null, set current connection
 		if(is.null(file)){
@@ -14,7 +14,7 @@ svg.lines <- function(x, y=NULL, col="black", z.index=0, layer="", name="line",
 		}
 	}
 
-	if('webgl' == getOption("svgviewr_glo_type")){
+	if('live' == getOption("svgviewr_glo_type")){
 
 		## Add objects to svgViewR environment
 		# Get viewer environment

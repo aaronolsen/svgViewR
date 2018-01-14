@@ -3,7 +3,7 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 	emissive=rgb(0.03, 0.15, 0.21), name='cylinder'){
 
 	# Make sure that type is webgl
-	#if('webgl' != getOption("svgviewr_glo_type")) stop("Cylinder drawing is currently only available with webgl svgViewR output.")
+	#if('live' != getOption("svgviewr_glo_type")) stop("Cylinder drawing is currently only available with webgl svgViewR output.")
 
 	## Create mesh
 	# If ends is single point, use axis to find other end point
@@ -120,7 +120,7 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 		ends_faces <- NULL
 	}
 	
-	if('webgl' == getOption("svgviewr_glo_type")){
+	if('live' == getOption("svgviewr_glo_type")){
 
 		# Get viewer environment
 		env <- as.environment(getOption("svgviewr_glo_env"))
