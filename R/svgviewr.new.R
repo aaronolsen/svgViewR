@@ -1,6 +1,6 @@
 svgviewr.new <- function(file, window.title="SVG Viewer", animate.duration = 1, 
 	animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
-	show.control = TRUE, start.rotate = TRUE, layers = NULL, fdir = NULL, debug = FALSE, 
+	show.control = TRUE, start.rotate = TRUE, layers = NULL, debug = FALSE, 
 	conn.type = 'new'){
 
 	# IF CON IS NEW MAKE SURE FILE IS NOT NULL
@@ -13,6 +13,7 @@ svgviewr.new <- function(file, window.title="SVG Viewer", animate.duration = 1,
 	#  /Applications/XAMPP/xamppfiles/htdocs/data_analysis/r_package_development/svgViewR/inst/extdata/
 
 	# Set path to package
+	fdir <- NULL
 	if(is.null(fdir)){
 		fdir <- tryCatch({
 			fdir <- paste0(path.package("svgViewR"), "/extdata/")
