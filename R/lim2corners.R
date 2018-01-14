@@ -12,5 +12,9 @@ lim2corners <- function(lim){
 		c(lim[2,1], lim[1,2], lim[2,3])
 	)
 	
+	# Set any infinity values to NA
+	corners[corners == Inf] <- NA
+	corners[corners == -Inf] <- NA
+	
 	corners
 }
