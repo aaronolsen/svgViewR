@@ -53,7 +53,9 @@ function addLights(scene_center, distance, intensity){
 }
 
 function addMeshToScene( geometry, materials ) {
-	
+
+//alert(Object.getOwnPropertyNames(geometry));
+
 	var material;
 
 	if(materials == undefined){
@@ -441,7 +443,13 @@ function onObjectsReady(){
 	camera = new THREE.PerspectiveCamera( fov=30, aspect=window.innerWidth / window.innerHeight, near=0.1, far=bbox_size*20 );
 
 	// Add camera controls
-	controls = new THREE.OrbitControls( camera );
+	controls = new THREE.TrackballControls( camera );
+
+	//controls.addEventListener( 'change', render );
+
+	controls.rotateSpeed = 1.0;
+	controls.zoomSpeed = 1.2;
+	controls.panSpeed = 0.2;
 
 	// Set camera to include all shapes
 	updateCameraPosition();
@@ -957,7 +965,8 @@ var render = function () {
 	}
 
 	//stats.update();
-	
+	controls.update();
+
 	renderer.render(scene, camera);
 };
 
@@ -1086,5 +1095,6 @@ function updateShapes(time_index){
 window.onresize = function () {
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
+	controls.handleResize();
 	renderer.setSize( window.innerWidth, window.innerHeight );
 };
