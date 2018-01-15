@@ -1,7 +1,7 @@
 write_HTML <- function(srcs, json, js.var, server = NULL){
 
 	# Set javascript source files
-	js_src <- c('render.scene.js', 'three.js', 'OrbitControls.js', 'Detector.js', 'jquery-1.6.4.js', 'jquery.mousewheel.js')
+	js_src <- c('render.scene.js', 'three.min.js', 'TrackballControls.min.js', 'Detector.js', 'jquery-3.2.1.min.js', 'jquery.mousewheel.js')
 	
 	if(js.var[['show_stats']]) js_src <- c(js_src, 'stats.min.js')
 
@@ -89,6 +89,8 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 		<div class="idx" >\n\t\t\tIndex: <span id="idx" ></span>\n\t\t</div>
 		<div class="time" >\n\t\t\tTime: <span id="time" ></span>\n\t\t</div>')
 				}
+
+	page_html <- paste0(page_html, '<div class="alert" ><span id="alert" ></span></div>')
 
 	page_html <- paste0(page_html, '
 	</body>\n</html>')
