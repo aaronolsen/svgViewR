@@ -15,9 +15,6 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 
 	if(!is.null(file)){
 	
-		# Set opacity
-		input_params[['opacity']] <- opacity
-
 		# Set where to add object
 		add_at <- length(svgviewr_env$mesh)+1
 
@@ -28,9 +25,9 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 			obj_json <- fromJSON(paste(suppressWarnings(readLines(file)), collapse=""))
 			
 			# Add mesh properties to input parameters
-			input_params[['vertices']] <- obj_json$vertices
-			input_params[['faces']] <- obj_json$faces
-			input_params[['normals']] <- obj_json$normals
+			for(obj_name in names(obj_json)) input_params[[obj_name]] <- obj_json[[obj_name]]
+
+			input_params[['scale']] <- 1
 
 		}else{
 
@@ -50,6 +47,9 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 			input_params$src <- ''
 			if(length(file_strsplit) > 1) input_params$src <- paste0(paste0(file_strsplit[1:(length(file_strsplit)-1)], collapse='/'), '/')
 		}
+
+		# Set opacity
+		input_params[['opacity']] <- opacity
 
 		# Add to meshes
 		env$svgviewr_env$mesh[[add_at]] <- input_params
