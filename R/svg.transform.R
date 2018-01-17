@@ -1,7 +1,7 @@
 svg.transform <- function(tmarr, applyto = '', times = 1:dim(tmarr)[3], add = FALSE, regexp = FALSE){
 
 	# Make sure that type is webgl
-	if('live' != getOption("svgviewr_glo_type")) stop("Transform is currently only available with webgl svgViewR output.")
+	if('svg' == getOption("svgviewr_glo_type")) stop("Transform is currently only available with webgl svgViewR output.")
 	
 	if(length(dim(tmarr)) == 4){
 
