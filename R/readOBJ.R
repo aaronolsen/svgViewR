@@ -1,4 +1,4 @@
-readOBJ <- function(file){
+readOBJ <- function(file, scaling = 1){
 
 	# Shapes to remove
 	shape.rm <- c('l')
@@ -11,6 +11,9 @@ readOBJ <- function(file){
 	
 	# Convert to matrix
 	vertices <- matrix(as.numeric(unlist(lapply(strsplit(x=vertices, split=' '), tail, 3))), nrow=length(vertices), ncol=3, byrow=TRUE)
+	
+	# Apply scaling
+	vertices <- vertices * scaling
 
 	# Get vertex normals
 	normals <- read_lines[grepl('^vn ', read_lines)]
