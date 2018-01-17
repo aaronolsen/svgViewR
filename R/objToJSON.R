@@ -1,23 +1,48 @@
-objToJSON <- function(obj){
+objToJSON <- function(obj, file = NULL){
 
-	obj$vertices <- t(obj$vertices)
-	obj$normals <- t(obj$normals)
-	faces <- matrix(NA, nrow=nrow(obj$faces), ncol=7)
-	faces[, 1] <- 32
-	faces[, 2:4] <- obj$faces - 1
-	faces[, 5:7] <- obj$faces - 1
-	obj$faces <- t(faces)
+	if(is.vector(obj)) obj <- readOBJ(file=obj)
 
-	to_json <- toJSON(obj)
+	if(class(obj) == 'obj'){
 
-	to_json <- gsub('"uvs":null', '"uvs":[]', to_json)
-	to_json <- gsub('"metadata":[{]', '"metadata":{\n\t\t', to_json)
-	to_json <- gsub('([0-9]),"', '\\1,\n\t\t"', to_json)
-	to_json <- gsub('[{]"', '{\n\t"', to_json)
-	to_json <- gsub('],', '],\n\t', to_json)
-	to_json <- gsub(']}', ']\n}', to_json)
-	to_json <- gsub('[}]{2}', '\n\t}\n}', to_json)
+		obj$vertices <- t(obj$vertices)
+		obj$normals <- t(obj$normals)
+		faces <- matrix(NA, nrow=nrow(obj$faces), ncol=7)
+		faces[, 1] <- 32
+		faces[, 2:4] <- obj$faces - 1
+		faces[, 5:7] <- obj$faces - 1
+		obj$faces <- t(faces)
 
-	
-	to_json
+		to_json <- toJSON(obj)
+	}
+
+	if(!is.null(file)){
+
+		to_json_str <- gsub('"uvs":null', '"uvs":[]', to_json)
+		to_json_str <- gsub('"metadata":[{]', '"metadata":{\n\t\t', to_json_str)
+		to_json_str <- gsub('([0-9]),"', '\\1,\n\t\t"', to_json_str)
+		to_json_str <- gsub('[{]"', '{\n\t"', to_json_str)
+		to_json_str <- gsub('],', '],\n\t', to_json_str)
+		to_json_str <- gsub(']}', ']\n}', to_json_str)
+		to_json_str <- gsub('[}]{2}', '\n\t}\n}', to_json_str)
+
+		write(x=to_json_str, file=file)
+
+	}else{
+		
+		# Convert to list
+		to_json_list <- list()
+		
+		for(name in names(obj)){
+			if(!is.list(obj[[name]])){
+				to_json_list[[name]] <- c(obj[[name]])
+			}else{
+				to_json_list[[name]] <- list()
+				for(sub_name in names(obj[[name]])){
+					to_json_list[[name]][[sub_name]] <- c(obj[[name]][[sub_name]])
+				}
+			}
+		}
+		
+		return(to_json_list)
+	}
 }
