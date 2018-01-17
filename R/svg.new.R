@@ -1,7 +1,8 @@
 svg.new <- function(file = NULL, window.title="SVG Viewer", animate.duration = 1, 
 	animate.speed = 1, animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
 	time.units = 'sec', clock = FALSE, stats = FALSE, show.control = TRUE, start.rotate = TRUE, 
-	layers = NULL, connection = TRUE, mode = 'svg', debug = FALSE){
+	rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, layers = NULL, connection = TRUE, 
+	mode = 'svg', debug = FALSE){
 
 	digits <- 6
 
@@ -61,6 +62,9 @@ svg.new <- function(file = NULL, window.title="SVG Viewer", animate.duration = 1
 		env$svgviewr_env$js_var[['signif_digits']] <- digits
 		env$svgviewr_env$js_var[['show_clock']] <- clock
 		env$svgviewr_env$js_var[['show_stats']] <- stats
+		env$svgviewr_env$js_var[['rotateSpeed']] <- rotate.speed
+		env$svgviewr_env$js_var[['zoomSpeed']] <- zoom.speed
+		env$svgviewr_env$js_var[['panSpeed']] <- pan.speed
 		env$svgviewr_env$js_var[['file']] <- file
 
 		# Create name reference

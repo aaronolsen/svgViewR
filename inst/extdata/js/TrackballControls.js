@@ -19,8 +19,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 	this.screen = { left: 0, top: 0, width: 0, height: 0 };
 
-	this.rotateSpeed = 1.0;
-	this.zoomSpeed = 1.2;
+	//this.rotateSpeed = rotateSpeed;
 	this.panSpeed = 0.3;
 
 	this.noRotate = false;
@@ -175,7 +174,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 				axis.crossVectors( moveDirection, _eye ).normalize();
 
-				angle *= _this.rotateSpeed;
+				angle *= rotateSpeed;
 				quaternion.setFromAxisAngle( axis, angle );
 
 				_eye.applyQuaternion( quaternion );
@@ -213,7 +212,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 		} else {
 
-			factor = 1.0 + ( _zoomEnd.y - _zoomStart.y ) * _this.zoomSpeed;
+			factor = 1.0 + ( _zoomEnd.y - _zoomStart.y ) * zoomSpeed;
 
 			if ( factor !== 1.0 && factor > 0.0 ) {
 
@@ -247,7 +246,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 			if ( mouseChange.lengthSq() ) {
 
-				mouseChange.multiplyScalar( _eye.length() * _this.panSpeed );
+				mouseChange.multiplyScalar( _eye.length() * panSpeed );
 
 				pan.copy( _eye ).cross( _this.object.up ).setLength( mouseChange.x );
 				pan.add( objectUp.copy( _this.object.up ).setLength( mouseChange.y ) );
@@ -398,8 +397,8 @@ THREE.TrackballControls = function ( object, domElement ) {
 			}
 
 			// Set pan end point relative to start
-			_panEnd.x = _panStart.x + direction_x * (1/_eye.length()) * _this.panSpeed * 1;
-			_panEnd.y = _panStart.y + direction_y * (1/_eye.length()) * _this.panSpeed * 1;
+			_panEnd.x = _panStart.x + direction_x * (1/_eye.length()) * panSpeed * 1;
+			_panEnd.y = _panStart.y + direction_y * (1/_eye.length()) * panSpeed * 1;
 
 			// Pan camera
 			_this.panCamera();
