@@ -21,29 +21,27 @@ var meshes_ready = false;					// Start with meshes not ready
 
 function addLights(scene_center, distance, intensity){
 
-	var ldistance = distance*3;
+	//
 	var i;
+	var num_lights = svg_obj.bboxLight.length;
 	var off = new Array(0, 0, 0);
-	
-	for(i = 0; i <= 3; i++){
-	
-		var flip = 1;
-	
-		if(i == 0) off = Array(distance, distance, flip*distance, 1);
-		if(i == 1) off = Array(-distance, distance, flip*distance, 1);
-		if(i == 2) off = Array(-distance, -distance, flip*-distance, 1);
-		if(i == 3) off = Array(distance, -distance, flip*-distance, 1);
+
+	for(i = 0; i < num_lights; i++){
+
+		// Set offset
+		off = Array(svg_obj.bboxLight[i].x[0]*distance, svg_obj.bboxLight[i].x[1]*distance, svg_obj.bboxLight[i].x[2]*distance);
 
 		// Set light source
 		source = [scene_center[0]+off[0], scene_center[1]+off[1], scene_center[2]+off[2]]
 
-		// Add lights lights
-		var light = new THREE.PointLight( 0xFFFFDD , 1*intensity, ldistance);
+		// Add light
+		var light = new THREE.PointLight( svg_obj.bboxLight[i].col , 1.1*svg_obj.bboxLight[i].intensity, svg_obj.bboxLight[i].distance*distance);
 		light.position.set(source[0], source[1], source[2]);
 		scene.add( light );
-
-		if(false){
-			var sphereGeometry = new THREE.SphereGeometry(distance/20,10,10);
+		
+		// Mark light position with sphere
+		if(svg_obj.bboxLight[i].hidden == false){
+			var sphereGeometry = new THREE.SphereGeometry(svg_obj.bboxLight[i].intensity*distance/20,10,10);
 			var sphereMaterial = new THREE.MeshBasicMaterial({color: 0xffff00,opacity:1});
 			var sphereMesh = new THREE.Mesh(sphereGeometry,sphereMaterial);
 			sphereMesh.position.set(source[0], source[1], source[2]);
@@ -367,7 +365,7 @@ function loadNextMesh(){
 		if(mesh.parseModel){
 
 			geometry = parseModel( mesh, geometry );
-			material = undefined;
+			material = new THREE.MeshLambertMaterial( { color:mesh.col, emissive: mesh.emissive } );
 
 		}else{
 
@@ -402,8 +400,6 @@ function loadNextMesh(){
 						//flatShading: true
 					} )
 		}
-
-		//material = new THREE.MeshLambertMaterial( { color: 0xF5F5F5 } );
 
 		// Add mesh
 		addMeshToScene(geometry, material);
