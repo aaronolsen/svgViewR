@@ -1,5 +1,5 @@
 svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit(file, '/')[[1]], 1)), 
-	opacity = 1, get.lim = TRUE){
+	col = '#F5F5F5', emissive = 'black', opacity = 1, get.lim = TRUE){
 
 	# Make sure that type is webgl
 	if('svg' == getOption("svgviewr_glo_type")) stop("Mesh drawing is currently only available with webgl svgViewR output.")
@@ -14,25 +14,56 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 	input_params$type <- gsub('svg[.]', '', input_params$fcn)
 
 	if(!is.null(file)){
-	
+
 		# Set where to add object
 		add_at <- length(svgviewr_env$mesh)+1
 
 		# Check that file exists
 		if(!file.exists(file)) stop(paste0('Input file "', file, '" not found.'))
+		
+		# Check that file is json format
+		if(!grepl('[.](json|obj)$', file)) stop(paste0('Input file "', file, '" is of unrecognized file type. Allowed file types are .obj and .json.'))
 
 		#
 		if('html' == getOption("svgviewr_glo_type")){
 
 			# Read mesh file
-			obj_json <- fromJSON(paste(suppressWarnings(readLines(file)), collapse=""))
-			
+			if(grepl('[.]json$', file)){
+				obj_json <- fromJSON(paste(suppressWarnings(readLines(file)), collapse=""))
+			}else{
+				obj_json <- objToJSON(obj=file)
+			}
+
 			# Add mesh properties to input parameters
 			for(obj_name in names(obj_json)) input_params[[obj_name]] <- obj_json[[obj_name]]
 
 			input_params[['scale']] <- 1
 
 		}else{
+
+			if(grepl('[.](obj)$', file)){
+				
+				# For server webgl visualization
+				json_file <- gsub('[.]obj$', '.json', file)
+				cat(paste0('For server ("live") visualization mesh file should be .json format. To convert an .obj file to .json, you can use the svgViewR function objToJSON(). For example:\n'))
+				cat(paste0('\tobjToJSON(obj=\'', file, '\', file=\'', gsub('[.]obj$', '.json', file), '\')\n'))
+				cat(paste0('\nThen replace the file input to this function with the \'.json\' file.\n\n'))
+				
+				response <- readline(prompt="Would you like to do this now? (y/n) : ");
+				if(tolower(response) %in% c('yes', 'y')){
+
+					response <- readline(prompt=paste0("Enter the file path of the converted .json file (to use '", json_file, "' simply press return): "))
+
+				}else{
+					stop('Please input a mesh in the .json format')
+				}
+				
+				if(response != '') json_file <- response
+
+				objToJSON(obj=file, file=json_file)
+				
+				file <- json_file
+			}
 
 			# Get absolute file path (rook app doesn't work with relative paths)
 			file <- normalizePath(path=file)
@@ -53,6 +84,8 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 
 		# Set opacity
 		input_params[['opacity']] <- opacity
+		input_params[['col']] <- webColor(col)
+		input_params[['emissive']] <- webColor(emissive)
 		input_params[['parseModel']] <- TRUE
 
 		# Add to meshes
