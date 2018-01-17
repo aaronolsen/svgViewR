@@ -7,6 +7,23 @@ svg.close <- function(){
 
 		# Get viewer environment
 		env <- as.environment(getOption("svgviewr_glo_env"))
+		
+		# If no lights have been added, add lights
+		if(is.null(env$svgviewr_env$bboxLight)){
+
+			# Set light color
+			light_col <- rgb(1,1,230/255)
+			
+			#
+			hidden <- TRUE
+
+			# Add high intensity lights
+			svg.bboxLight(x=rbind(c(1,1,1), c(-1,1,1), c(-1,-1,-1), c(1,-1,-1)), intensity=1, distance=3, col=light_col, hidden=hidden)
+
+			# Add low intensity lights
+			svg.bboxLight(x=rbind(c(1,-1,1), c(1,1,-1), c(-1,1,-1), c(-1,-1,1)), intensity=0.4, distance=3, col=light_col, hidden=hidden)
+		}
+
 
 		# Set svg objects with source directories
 		src_objs <- c('mesh')
