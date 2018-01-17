@@ -348,7 +348,7 @@ function loadNextMesh(){
 
 	if(svg_obj.mesh[mesh_load_ct].src_idx == undefined){
 		
-		var geometry, i, material, mesh, num_faces, num_vertices;
+		var geometry, i, material, mesh, num_faces, num_vertices, vertex, face;
 		
 		// Get mesh object
 		mesh = svg_obj.mesh[mesh_load_ct];
@@ -364,24 +364,49 @@ function loadNextMesh(){
 		// Create geometry
 		geometry = new THREE.Geometry();
 
-		geometry = parseModel( mesh, geometry );
+		if(mesh.parseModel){
 
-		if(mesh.normals == undefined){
+			geometry = parseModel( mesh, geometry );
+			material = undefined;
+
+		}else{
+
+			// Get vertices
+			num_vertices = mesh.vertices.length;
+			i = 0;
+			while ( i < num_vertices ) {
+				vertex = new THREE.Vector3();
+				vertex.x = mesh.vertices[ i++ ];
+				vertex.y = mesh.vertices[ i++ ];
+				vertex.z = mesh.vertices[ i++ ];
+				geometry.vertices.push(vertex);
+			}
+
+			num_faces = mesh.faces.length;
+			i = 0;
+			while ( i < num_faces ) {
+				face = new THREE.Face3();
+				face.a = mesh.faces[ i++ ];
+				face.b = mesh.faces[ i++ ];
+				face.c = mesh.faces[ i++ ];
+				geometry.faces.push(face);
+			}
+
 			geometry.computeFaceNormals();
 			if(svg_obj.mesh[mesh_load_ct].computeVN == true) geometry.computeVertexNormals();
+
+			material = new THREE.MeshPhongMaterial( {
+						color: mesh.col,
+						emissive: mesh.emissive,
+						side: THREE.DoubleSide,
+						//flatShading: true
+					} )
 		}
 
 		//material = new THREE.MeshLambertMaterial( { color: 0xF5F5F5 } );
 
-		material = new THREE.MeshPhongMaterial( {
-					color: mesh.col,
-					emissive: mesh.emissive,
-					side: THREE.DoubleSide,
-					//flatShading: true
-				} )
-		
 		// Add mesh
-		addMeshToScene(geometry, undefined);
+		addMeshToScene(geometry, material);
 
 	}else{
 
