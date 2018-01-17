@@ -11,7 +11,7 @@ svg.new <- function(file = NULL, window.title="SVG Viewer", animate.duration = 1
 	if(mode == 'svg') options("svgviewr_glo_type"='svg')
 
 	if(mode == 'webgl'){
-
+	
 		# Check whether package is loaded from source or library
 		app_dir <- tryCatch({
 			app_dir <- paste0(path.package("svgViewR"), "/extdata")

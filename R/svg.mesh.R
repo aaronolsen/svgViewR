@@ -18,9 +18,12 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 		# Set where to add object
 		add_at <- length(svgviewr_env$mesh)+1
 
+		# Check that file exists
+		if(!file.exists(file)) stop(paste0('Input file "', file, '" not found.'))
+
 		#
 		if('html' == getOption("svgviewr_glo_type")){
-			
+
 			# Read mesh file
 			obj_json <- fromJSON(paste(suppressWarnings(readLines(file)), collapse=""))
 			
@@ -50,6 +53,7 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 
 		# Set opacity
 		input_params[['opacity']] <- opacity
+		input_params[['parseModel']] <- TRUE
 
 		# Add to meshes
 		env$svgviewr_env$mesh[[add_at]] <- input_params

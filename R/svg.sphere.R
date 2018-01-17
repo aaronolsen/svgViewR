@@ -21,7 +21,21 @@ svg.sphere <- function(center = NULL, ends = NULL, radius = NULL, width = NULL, 
 	vertices <- sphere_mesh$vertices
 	faces <- sphere_mesh$faces
 
-	if('live' == getOption("svgviewr_glo_type")){
+	if('svg' == getOption("svgviewr_glo_type")){
+
+		svg.points(vertices[1,], col='red')
+		svg.points(vertices[2:(nrow(vertices)-1), ])
+		svg.points(vertices[nrow(vertices),], col='blue')
+		
+		#svg.text(vertices, labels=0:(nrow(vertices)-1), font.size=0.8)
+
+		# Draw faces
+		faces <- faces[!is.na(faces[,1]), ]
+		#print(faces)
+		faces <- cbind(faces, faces[,1])
+		svg.pathsC(lapply(seq_len(nrow(faces)), function(i) faces[i,]+1), col='black', opacity.fill=0.2)
+
+	}else{
 
 		# Get viewer environment
 		env <- as.environment(getOption("svgviewr_glo_env"))
@@ -36,6 +50,7 @@ svg.sphere <- function(center = NULL, ends = NULL, radius = NULL, width = NULL, 
 		env$svgviewr_env$mesh[[add_at]]$col <- webColor(col)
 		env$svgviewr_env$mesh[[add_at]]$emissive <- webColor(emissive)
 		env$svgviewr_env$mesh[[add_at]]$computeVN <- TRUE
+		env$svgviewr_env$mesh[[add_at]]$parseModel <- FALSE
 
 		# Add object reference data
 		env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)
@@ -51,20 +66,6 @@ svg.sphere <- function(center = NULL, ends = NULL, radius = NULL, width = NULL, 
 		# Add limits to object
 		env$svgviewr_env$mesh[[add_at]][['lim']] <- obj_ranges
 		env$svgviewr_env$mesh[[add_at]][['corners']] <- corners
-
-	}else{
-
-		svg.points(vertices[1,], col='red')
-		svg.points(vertices[2:(nrow(vertices)-1), ])
-		svg.points(vertices[nrow(vertices),], col='blue')
-		
-		#svg.text(vertices, labels=0:(nrow(vertices)-1), font.size=0.8)
-
-		# Draw faces
-		faces <- faces[!is.na(faces[,1]), ]
-		#print(faces)
-		faces <- cbind(faces, faces[,1])
-		svg.pathsC(lapply(seq_len(nrow(faces)), function(i) faces[i,]+1), col='black', opacity.fill=0.2)
 	}
 
 	# Suppress return of value in console

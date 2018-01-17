@@ -3,7 +3,7 @@ svg.text <- function(x, y = NULL, labels = NULL, layer="", name="text",
 	opacity = 1, font.style = "", font.weight = "", letter.spacing = 0, writing.mode = "", 
 	glyph.orientation.vertical = "", z.index=0, file=NULL){
 
-	if('live' != getOption("svgviewr_glo_type")){
+	if('svg' == getOption("svgviewr_glo_type")){
 
 		# If file is null, set current connection
 		if(is.null(file)){

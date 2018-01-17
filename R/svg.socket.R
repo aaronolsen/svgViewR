@@ -45,45 +45,7 @@ svg.socket <- function(center = NULL, axes = NULL, outer.radius = 1, inner.radiu
 	mesh_list[['ring']]$faces <- faces
 	mesh_list[['ring']]$col <- ring.col
 
-	if('live' == getOption("svgviewr_glo_type")){
-
-		# Get viewer environment
-		env <- as.environment(getOption("svgviewr_glo_env"))
-		
-		for(mesh_num in 1:length(mesh_list)){
-			
-			vertices <- mesh_list[[mesh_num]]$vertices
-			faces <- mesh_list[[mesh_num]]$faces
-			color <- mesh_list[[mesh_num]]$col
-
-			# Add to meshes
-			add_at <- length(svgviewr_env$mesh)+1
-
-			# Add vertices
-			env$svgviewr_env$mesh[[add_at]] <- list()
-			env$svgviewr_env$mesh[[add_at]]$vertices <- t(vertices)
-			env$svgviewr_env$mesh[[add_at]]$faces <- t(faces)
-			env$svgviewr_env$mesh[[add_at]]$col <- webColor(color)
-			env$svgviewr_env$mesh[[add_at]]$emissive <- webColor(emissive)
-			env$svgviewr_env$mesh[[add_at]]$computeVN <- TRUE
-
-			# Add object reference data
-			env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)
-			env$svgviewr_env$ref$num <- c(env$svgviewr_env$ref$num, add_at)
-			env$svgviewr_env$ref$type <- c(env$svgviewr_env$ref$type, 'mesh')
-
-			# Add limits
-			obj_ranges <- apply(vertices, 2, 'range', na.rm=TRUE)
-		
-			# Set corners
-			corners <- lim2corners(obj_ranges)
-		
-			# Add limits to object
-			env$svgviewr_env$mesh[[add_at]][['lim']] <- obj_ranges
-			env$svgviewr_env$mesh[[add_at]][['corners']] <- corners
-		}
-
-	}else{
+	if('svg' == getOption("svgviewr_glo_type")){
 
 		add <- 0
 		for(mesh_num in 1:length(mesh_list)){
@@ -105,6 +67,45 @@ svg.socket <- function(center = NULL, axes = NULL, outer.radius = 1, inner.radiu
 			svg.pathsC(lapply(seq_len(nrow(faces)), function(i) faces[i,]+1), col='black', opacity.fill=0.2)
 			
 			add <- add + nrow(vertices)
+		}
+
+	}else{
+
+		# Get viewer environment
+		env <- as.environment(getOption("svgviewr_glo_env"))
+		
+		for(mesh_num in 1:length(mesh_list)){
+			
+			vertices <- mesh_list[[mesh_num]]$vertices
+			faces <- mesh_list[[mesh_num]]$faces
+			color <- mesh_list[[mesh_num]]$col
+
+			# Add to meshes
+			add_at <- length(svgviewr_env$mesh)+1
+
+			# Add vertices
+			env$svgviewr_env$mesh[[add_at]] <- list()
+			env$svgviewr_env$mesh[[add_at]]$vertices <- t(vertices)
+			env$svgviewr_env$mesh[[add_at]]$faces <- t(faces)
+			env$svgviewr_env$mesh[[add_at]]$col <- webColor(color)
+			env$svgviewr_env$mesh[[add_at]]$emissive <- webColor(emissive)
+			env$svgviewr_env$mesh[[add_at]]$computeVN <- TRUE
+			env$svgviewr_env$mesh[[add_at]]$parseModel <- FALSE
+
+			# Add object reference data
+			env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)
+			env$svgviewr_env$ref$num <- c(env$svgviewr_env$ref$num, add_at)
+			env$svgviewr_env$ref$type <- c(env$svgviewr_env$ref$type, 'mesh')
+
+			# Add limits
+			obj_ranges <- apply(vertices, 2, 'range', na.rm=TRUE)
+		
+			# Set corners
+			corners <- lim2corners(obj_ranges)
+		
+			# Add limits to object
+			env$svgviewr_env$mesh[[add_at]][['lim']] <- obj_ranges
+			env$svgviewr_env$mesh[[add_at]][['corners']] <- corners
 		}
 	}
 

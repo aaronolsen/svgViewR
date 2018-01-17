@@ -120,7 +120,19 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 		ends_faces <- NULL
 	}
 	
-	if('live' == getOption("svgviewr_glo_type")){
+	if('svg' == getOption("svgviewr_glo_type")){
+
+		#svg.points(ends_vertices)
+		#svg.text(ends_vertices, labels=0:(nrow(ends_vertices)-1), font.size=0.8)
+		#ends_faces <- cbind(ends_faces, ends_faces[,1])
+		#svg.pathsC(lapply(seq_len(nrow(ends_faces)), function(i) ends_faces[i,]+1), col='black', opacity.fill=0.2)
+
+		svg.points(side_vertices)
+		svg.text(side_vertices, labels=0:(nrow(side_vertices)-1), font.size=0.8)
+		side_faces <- cbind(side_faces, side_faces[,1])
+		svg.pathsC(lapply(seq_len(nrow(side_faces)), function(i) side_faces[i,]+1), col='black', opacity.fill=0.2)
+
+	}else{
 
 		# Get viewer environment
 		env <- as.environment(getOption("svgviewr_glo_env"))
@@ -144,6 +156,7 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 			env$svgviewr_env$mesh[[add_at]]$col <- webColor(col)
 			env$svgviewr_env$mesh[[add_at]]$emissive <- webColor(emissive)
 			env$svgviewr_env$mesh[[add_at]]$computeVN <- TRUE
+			env$svgviewr_env$mesh[[add_at]]$parseModel <- FALSE
 
 			# Add object reference data
 			env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)
@@ -160,18 +173,6 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 			env$svgviewr_env$mesh[[add_at]][['lim']] <- obj_ranges
 			env$svgviewr_env$mesh[[add_at]][['corners']] <- corners
 		}
-
-	}else{
-
-		#svg.points(ends_vertices)
-		#svg.text(ends_vertices, labels=0:(nrow(ends_vertices)-1), font.size=0.8)
-		#ends_faces <- cbind(ends_faces, ends_faces[,1])
-		#svg.pathsC(lapply(seq_len(nrow(ends_faces)), function(i) ends_faces[i,]+1), col='black', opacity.fill=0.2)
-
-		svg.points(side_vertices)
-		svg.text(side_vertices, labels=0:(nrow(side_vertices)-1), font.size=0.8)
-		side_faces <- cbind(side_faces, side_faces[,1])
-		svg.pathsC(lapply(seq_len(nrow(side_faces)), function(i) side_faces[i,]+1), col='black', opacity.fill=0.2)
 	}
 
 	NULL

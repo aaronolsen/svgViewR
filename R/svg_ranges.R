@@ -3,7 +3,7 @@ svg_ranges <- function(x = NULL){
 	# If x is null
 	if(is.null(x)){
 
-		if('live' == getOption("svgviewr_glo_type")){
+		if(getOption("svgviewr_glo_type") %in% c('live', 'html')){
 
 			## Find range of all current svg objects
 			# Get viewer environment
@@ -108,7 +108,7 @@ svg_ranges <- function(x = NULL){
 		}else{
 
 			## Find range of drawn objects
-			stop("NULL 'x' input is not yet supported for non-WebGL output.")
+			#stop("NULL 'x' input is not yet supported for non-WebGL output.")
 		}
 
 	}else{

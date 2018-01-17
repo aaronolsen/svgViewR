@@ -4,7 +4,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 	axis.col = rgb(0.5,0.5,0.5), grid.col = rgb(0.8,0.8,0.8), text.col = 'black', z.index=0, 
 	lim.exact=FALSE, file=NULL){
 	
-	if('live' != getOption("svgviewr_glo_type")){
+	if('svg' == getOption("svgviewr_glo_type")){
 
 		# If file is null, set current connection
 		if(is.null(file)){
@@ -42,14 +42,16 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 	}
 
 	# Set label sizes	
-	if('live' == getOption("svgviewr_glo_type")){
+	if('svg' == getOption("svgviewr_glo_type")){
+
+		if(tick.label.size == 'auto') tick.label.size <- 0.13
+		if(axis.label.size == 'auto') axis.label.size <- 0.14
+
+	}else{
 
 		if(tick.label.size == 'auto') tick.label.size <- 0.02
 		if(axis.label.size == 'auto') axis.label.size <- 0.02
 
-	}else{
-		if(tick.label.size == 'auto') tick.label.size <- 0.13
-		if(axis.label.size == 'auto') axis.label.size <- 0.14
 	}
 
 	# Create ticks
@@ -57,7 +59,42 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 	ticks <- svg_axis_ticks(xlim, ylim, zlim, grid_by, tick.label.size, tick_len, tick.axes, 
 		tick.labels)
 
-	if('live' == getOption("svgviewr_glo_type")){
+	if(getOption("svgviewr_glo_type") == 'svg'){
+
+		# Draw polygons
+		for(i in 1:length(polygons)){
+			svg.pointsC(file=file, x=polygons[[i]], cex=0, opacity.stroke.C=0.4, 
+				col.fill.C='black', opacity.fill.C=0, lwd=1, z.index=z.index, z.index.C=z.index)
+		}
+
+		# Draw grid
+		if(grid.lwd > 0) for(grid in grids) svg.lines(file=file, x=grid, col='black', 
+			lwd=grid.lwd, opacity=grid.opacity, layer='Grid', z.index=z.index)
+
+		# Draw ticks
+		if(tick.lwd > 0){
+			for(i in 1:length(ticks$ticks)){
+				svg.lines(file=file, x=ticks$ticks[[i]], col='black', opacity=0.5, layer='Ticks', z.index=z.index)
+			}
+		}
+
+		# Draw tick labels
+		if(tick.label.size > 0){
+			for(i in 1:length(ticks$ticklabels)){
+				svg.text(file=file, x=ticks$ticklabelspos[[i]], labels=ticks$ticklabels[[i]], col=text.col, 
+					opacity=tick.label.opacity, font.size=max_diff*tick.label.size, layer='Tick labels', z.index=z.index)
+			}
+		}
+
+		# Draw axis labels
+		if(axis.label.size > 0){
+			for(i in 1:length(ticks$axislabels)){
+				svg.text(file=file, x=ticks$axislabelspos[[i]], labels=ticks$axislabels[[i]], col=text.col, 
+					opacity=axis.label.opacity, font.size=max_diff*axis.label.size, layer='Axis labels', z.index=z.index)
+			}
+		}
+
+	}else{
 
 		## Add objects to svgViewR environment
 		# Get viewer environment
@@ -101,42 +138,6 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 					col=webColor(text.col), size=max_diff*axis.label.size)
 			}
 		}
-
-	}else{
-
-		# Draw polygons
-		for(i in 1:length(polygons)){
-			svg.pointsC(file=file, x=polygons[[i]], cex=0, opacity.stroke.C=0.4, 
-				col.fill.C='black', opacity.fill.C=0, lwd=1, z.index=z.index, z.index.C=z.index)
-		}
-
-		# Draw grid
-		if(grid.lwd > 0) for(grid in grids) svg.lines(file=file, x=grid, col='black', 
-			lwd=grid.lwd, opacity=grid.opacity, layer='Grid', z.index=z.index)
-
-		# Draw ticks
-		if(tick.lwd > 0){
-			for(i in 1:length(ticks$ticks)){
-				svg.lines(file=file, x=ticks$ticks[[i]], col='black', opacity=0.5, layer='Ticks', z.index=z.index)
-			}
-		}
-
-		# Draw tick labels
-		if(tick.label.size > 0){
-			for(i in 1:length(ticks$ticklabels)){
-				svg.text(file=file, x=ticks$ticklabelspos[[i]], labels=ticks$ticklabels[[i]], col=text.col, 
-					opacity=tick.label.opacity, font.size=max_diff*tick.label.size, layer='Tick labels', z.index=z.index)
-			}
-		}
-
-		# Draw axis labels
-		if(axis.label.size > 0){
-			for(i in 1:length(ticks$axislabels)){
-				svg.text(file=file, x=ticks$axislabelspos[[i]], labels=ticks$axislabels[[i]], col=text.col, 
-					opacity=axis.label.opacity, font.size=max_diff*axis.label.size, layer='Axis labels', z.index=z.index)
-			}
-		}
-
 	}
 	
 	list('lim'=lim)

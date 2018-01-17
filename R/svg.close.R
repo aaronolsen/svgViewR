@@ -24,7 +24,7 @@ svg.close <- function(){
 		}
 		
 		unique_srcs <- NULL
-		if(!is.null(srcs)){
+		if(!is.null(srcs) && conn_type == 'live'){
 
 			# Get unique source directories
 			unique_srcs <- unique(srcs)
