@@ -1,9 +1,9 @@
 Package: svgViewR
-Date: 2016-09-24
+Date: 2018-01-21
 Type: Package
 Title: 3D Animated Interactive Visualizations Using SVG
 Description: Creates 3D animated, interactive visualizations in Scalable Vector Graphics (SVG) format that can be viewed in a web browser.
-Version: 1.2
+Version: 1.3
 Depends: R (>= 3.2.4)
 Author: Aaron Olsen
 Maintainer: Aaron Olsen <aarolsen@gmail.com>
