@@ -25,11 +25,12 @@ function addLights(scene_center, distance, intensity){
 	var i;
 	var num_lights = svg_obj.bboxLight.length;
 	var off = new Array(0, 0, 0);
+	var adjust = 1.1;
 
 	for(i = 0; i < num_lights; i++){
 
 		// Set offset
-		off = Array(svg_obj.bboxLight[i].x[0]*distance, svg_obj.bboxLight[i].x[1]*distance, svg_obj.bboxLight[i].x[2]*distance);
+		off = Array(adjust*svg_obj.bboxLight[i].x[0]*distance, adjust*svg_obj.bboxLight[i].x[1]*distance, adjust*svg_obj.bboxLight[i].x[2]*distance);
 
 		// Set light source
 		source = [scene_center[0]+off[0], scene_center[1]+off[1], scene_center[2]+off[2]]
