@@ -1,4 +1,5 @@
 \name{svgViewR-package}
+\alias{svgViewR}
 
 \alias{applyTransform_svg}
 \alias{applyTransformations}
