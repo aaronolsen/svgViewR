@@ -21,8 +21,8 @@ svg.lines <- function(x, y=NULL, col="black", z.index=0, layer="", name="line",
 		env <- as.environment(getOption("svgviewr_glo_env"))
 		
 		# Add arrow
-		add_at <- length(svgviewr_env$line)+1
-		env$svgviewr_env$line[[add_at]] <- list('type'='line', 
+		add_at <- length(svgviewr_env$svg$line)+1
+		env$svgviewr_env$svg$line[[add_at]] <- list('type'='line', 
 			'name'=name, x=t(x), 'col'=webColor(col), 'lwd'=lwd)
 
 		# Add object reference data

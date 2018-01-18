@@ -14,15 +14,15 @@ svg.bboxLight <- function(x = c(1,1,1), col = '#FFFFDD', intensity = 1, distance
 	for(i in 1:nrow(x)){
 
 		# Add to environment
-		add_at <- length(svgviewr_env$bboxLight)+1
+		add_at <- length(svgviewr_env$svg$bboxLight)+1
 
 		# Add vertices
-		env$svgviewr_env$bboxLight[[add_at]] <- list()
-		env$svgviewr_env$bboxLight[[add_at]]$x <- x[i,]
-		env$svgviewr_env$bboxLight[[add_at]]$col <- webColor(col)
-		env$svgviewr_env$bboxLight[[add_at]]$intensity <- intensity
-		env$svgviewr_env$bboxLight[[add_at]]$distance <- distance
-		env$svgviewr_env$bboxLight[[add_at]]$hidden <- hidden
+		env$svgviewr_env$svg$bboxLight[[add_at]] <- list()
+		env$svgviewr_env$svg$bboxLight[[add_at]]$x <- x[i,]
+		env$svgviewr_env$svg$bboxLight[[add_at]]$col <- webColor(col)
+		env$svgviewr_env$svg$bboxLight[[add_at]]$intensity <- intensity
+		env$svgviewr_env$svg$bboxLight[[add_at]]$distance <- distance
+		env$svgviewr_env$svg$bboxLight[[add_at]]$hidden <- hidden
 	}
 
 	NULL

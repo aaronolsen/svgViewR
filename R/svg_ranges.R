@@ -15,7 +15,7 @@ svg_ranges <- function(x = NULL){
 			for(oi in 1:length(env$svgviewr_env$ref$type)){
 				
 				# Get object
-				obj <- env$svgviewr_env[[env$svgviewr_env$ref$type[oi]]][[env$svgviewr_env$ref$num[oi]]]
+				obj <- env$svgviewr_env[['svg']][[env$svgviewr_env$ref$type[oi]]][[env$svgviewr_env$ref$num[oi]]]
 				
 				corners <- NULL
 				
@@ -35,11 +35,11 @@ svg_ranges <- function(x = NULL){
 							range(obj_json$vertices[seq(3, num_vertices, by=3)], na.rm=TRUE))
 						
 						# Get corners
-						corners <- limits2corners(obj_ranges)
+						corners <- lim2corners(obj_ranges)
 
 						# Add to object
-						env$svgviewr_env[[env$svgviewr_env$ref$type[oi]]][[env$svgviewr_env$ref$num[oi]]][['lim']] <- obj_ranges
-						env$svgviewr_env[[env$svgviewr_env$ref$type[oi]]][[env$svgviewr_env$ref$num[oi]]][['corners']] <- corners
+						env$svgviewr_env[['svg']][[env$svgviewr_env$ref$type[oi]]][[env$svgviewr_env$ref$num[oi]]][['lim']] <- obj_ranges
+						env$svgviewr_env[['svg']][[env$svgviewr_env$ref$type[oi]]][[env$svgviewr_env$ref$num[oi]]][['corners']] <- corners
 
 					}else{
 

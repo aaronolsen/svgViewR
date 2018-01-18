@@ -14,8 +14,8 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(.27,.27,.27),
 		# Add object
 		for(i in 1:nrow(x)){
 
-			add_at <- length(svgviewr_env$sphere)+1
-			env$svgviewr_env$sphere[[add_at]] <- list('type'='sphere', 'name'=name, 'x'=setNames(x[i,], NULL), 
+			add_at <- length(svgviewr_env$svg$sphere)+1
+			env$svgviewr_env$svg$sphere[[add_at]] <- list('type'='sphere', 'name'=name, 'x'=setNames(x[i,], NULL), 
 				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=16, 'hseg'=16)
 
 			# Add object reference data
@@ -29,8 +29,8 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(.27,.27,.27),
 		for(i in 1:dim(x)[1]){
 		
 			# Add object
-			add_at <- length(svgviewr_env$sphere)+1
-			env$svgviewr_env$sphere[[add_at]] <- list('type'='sphere', 'name'=name, 'x'=setNames(x[i,,1], NULL), 
+			add_at <- length(svgviewr_env$svg$sphere)+1
+			env$svgviewr_env$svg$sphere[[add_at]] <- list('type'='sphere', 'name'=name, 'x'=setNames(x[i,,1], NULL), 
 				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=16, 'hseg'=16)
 
 			# Add object reference data
@@ -39,7 +39,7 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(.27,.27,.27),
 			env$svgviewr_env$ref$type <- c(env$svgviewr_env$ref$type, 'sphere')
 
 			# Add animation
-			env$svgviewr_env[['sphere']][[add_at]][['x_tm']] <- lapply(seq_len(dim(x)[3]), function(iter) x[i,,iter])
+			env$svgviewr_env[['svg']][['sphere']][[add_at]][['x_tm']] <- lapply(seq_len(dim(x)[3]), function(iter) x[i,,iter])
 		}
 	}
 

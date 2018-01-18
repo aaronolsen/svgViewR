@@ -9,7 +9,7 @@ svg.close <- function(){
 		env <- as.environment(getOption("svgviewr_glo_env"))
 		
 		# If no lights have been added, add lights
-		if(is.null(env$svgviewr_env$bboxLight)){
+		if(is.null(env$svgviewr_env$svg$bboxLight)){
 
 			# Set light color
 			light_col <- rgb(1,1,230/255)
@@ -31,9 +31,9 @@ svg.close <- function(){
 		# Get unique source directories
 		srcs <- c()
 		for(src_obj in src_objs){
-			for(i in 1:length(env$svgviewr_env[[src_obj]])){
-				if(!is.null(env$svgviewr_env[[src_obj]][[i]]$src) && env$svgviewr_env[[src_obj]][[i]]$src != ''){
-					srcs <- c(srcs, env$svgviewr_env[[src_obj]][[i]]$src)
+			for(i in 1:length(env$svgviewr_env$svg[[src_obj]])){
+				if(!is.null(env$svgviewr_env$svg[[src_obj]][[i]]$src) && env$svgviewr_env$svg[[src_obj]][[i]]$src != ''){
+					srcs <- c(srcs, env$svgviewr_env$svg[[src_obj]][[i]]$src)
 				}else{
 					srcs <- c(srcs, NA)
 				}
@@ -49,18 +49,18 @@ svg.close <- function(){
 
 			# Assign matching source directory index (javascript, first index 0)
 			for(src_obj in src_objs){
-				for(i in 1:length(env$svgviewr_env[[src_obj]])){
-					if(is.null(env$svgviewr_env[[src_obj]][[i]]$src) || env$svgviewr_env[[src_obj]][[i]]$src == '') next
-					env$svgviewr_env[[src_obj]][[i]]$src_idx <- which(unique_srcs == srcs[i]) - 1
+				for(i in 1:length(env$svgviewr_env$svg[[src_obj]])){
+					if(is.null(env$svgviewr_env$svg[[src_obj]][[i]]$src) || env$svgviewr_env$svg[[src_obj]][[i]]$src == '') next
+					env$svgviewr_env$svg[[src_obj]][[i]]$src_idx <- which(unique_srcs == srcs[i]) - 1
 				}
 			}
 
 			# Add directories to app
-			for(i in 1:length(unique_srcs)) R.server$add(app = File$new(unique_srcs[i]), name = paste0("app_dir", i))
+			for(i in 1:length(unique_srcs)) env$svgviewr_env$R.server$add(app = File$new(unique_srcs[i]), name = paste0("app_dir", i))
 		}
 
 		# If there is an animation, process animation parameters
-		if(!is.null(env$svgviewr_env$animate$times)){
+		if(!is.null(env$svgviewr_env$svg$animate$times)){
 
 			# Get time units
 			time_units <- env$svgviewr_env$js_var[['time_units']]
@@ -72,52 +72,50 @@ svg.close <- function(){
 			# Convert to msec
 			if(time_units == 'sec'){
 				env$svgviewr_env$js_var[['time_units']] <- 'msec'
-				env$svgviewr_env$animate$times <- env$svgviewr_env$animate$times*1000
+				env$svgviewr_env$svg$animate$times <- env$svgviewr_env$svg$animate$times*1000
 			}
 			
 			# Apply play speed factor
-			env$svgviewr_env$animate$times <- env$svgviewr_env$animate$times*(1/env$svgviewr_env$js_var[['play_speed']])
+			env$svgviewr_env$svg$animate$times <- env$svgviewr_env$svg$animate$times*(1/env$svgviewr_env$js_var[['play_speed']])
 			
 			# Set js variables
-			env$svgviewr_env$js_var[['animation_start']] <- min(env$svgviewr_env$animate$times)
-			env$svgviewr_env$js_var[['animation_end']] <- max(env$svgviewr_env$animate$times)
-			env$svgviewr_env$js_var[['animation_ntimes']] <- length(env$svgviewr_env$animate$times)
-			env$svgviewr_env$js_var[['animation_duration']] <- env$svgviewr_env$js_var[['animation_end']] - 
-				env$svgviewr_env$js_var[['animation_start']]
+			env$svgviewr_env$js_var[['animation_start']] <- min(env$svgviewr_env$svg$animate$times)
+			env$svgviewr_env$js_var[['animation_end']] <- max(env$svgviewr_env$svg$animate$times)
+			env$svgviewr_env$js_var[['animation_ntimes']] <- length(env$svgviewr_env$svg$animate$times)
+			env$svgviewr_env$js_var[['animation_duration']] <- env$svgviewr_env$js_var[['animation_end']] - env$svgviewr_env$js_var[['animation_start']]
 		}
 
 		# Get js variables
 		js_var <- env$svgviewr_env$js_var
 
-		# Set elements to NULL that aren't written to json
-		env$svgviewr_env$tm <- NULL
-		env$svgviewr_env$js_var <- NULL
-
 		# Set tmat element within objects to NULL (no need to write to JSON)
-		for(name1 in names(env$svgviewr_env)){
-			if(is.null(env$svgviewr_env[[name1]])) next
-			if(!is.null(names(env$svgviewr_env[[name1]]))) next
-			if(length(env$svgviewr_env[[name1]]) == 0) next
-			for(num in 1:length(env$svgviewr_env[[name1]])){
-				if('tmat' %in% names(env$svgviewr_env[[name1]][[num]])) env$svgviewr_env[[name1]][[num]][['tmat']] <- NULL
+		for(name1 in names(env$svgviewr_env$svg)){
+			if(is.null(env$svgviewr_env$svg[[name1]])) next
+			if(!is.null(names(env$svgviewr_env$svg[[name1]]))) next
+			if(length(env$svgviewr_env$svg[[name1]]) == 0) next
+			for(num in 1:length(env$svgviewr_env$svg[[name1]])){
+				if('tmat' %in% names(env$svgviewr_env$svg[[name1]][[num]])) env$svgviewr_env$svg[[name1]][[num]][['tmat']] <- NULL
 			}
 		}
 
 		# Convert svg objects to json
-		svg_json <- rjson::toJSON(x = as.list(env$svgviewr_env))
+		svg_json <- rjson::toJSON(x = as.list(env$svgviewr_env$svg))
 
 		if(conn_type == 'live'){
 
+			# Try stopping server, if running
+			tryCatch({ env$svgviewr_env$R.server$stop() }, error = function(e) {}, warning = function(e) {})
+
 			# Start server
-			R.server$start(quiet=TRUE)
+			env$svgviewr_env$R.server$start(quiet=TRUE)
 
 			# Create app to handle requests and responses
-			Rook.app <- function(env) {
+			Rook.app <- function(rook_env) {
 
-				request <- Request$new(env)
+				request <- Request$new(rook_env)
 				response <- Response$new()
 
-				page_html <- write_HTML(srcs=unique_srcs, json=svg_json, js.var=js_var, server=R.server)
+				page_html <- write_HTML(srcs=unique_srcs, json=svg_json, js.var=js_var, server=env$svgviewr_env$R.server)
 				
 				response$write(page_html)
 
@@ -127,10 +125,10 @@ svg.close <- function(){
 			# Write html for page
 
 			# Add your Rook app to the Rhttp object
-			R.server$add(app = Rook.app, name = "svgViewR")
+			env$svgviewr_env$R.server$add(app = Rook.app, name = "svgViewR")
 
 			# view your web app in a browser
-			R.server$browse("svgViewR")
+			env$svgviewr_env$R.server$browse("svgViewR")
 
 		}else{
 

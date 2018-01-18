@@ -1,17 +1,18 @@
-svg.new <- function(file = NULL, window.title="SVG Viewer", animate.duration = 1, 
+svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1, 
 	animate.speed = 1, animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
 	time.units = 'sec', clock = FALSE, stats = FALSE, show.control = TRUE, start.rotate = TRUE, 
 	rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, layers = NULL, connection = TRUE, 
-	mode = 'svg', debug = FALSE){
+	mode = c('svg', 'webgl'), debug = FALSE){
 
 	digits <- 6
 
 	# Set connection type
-	if(mode == 'webgl' && is.null(file)) options("svgviewr_glo_type"='live')
-	if(mode == 'webgl' && !is.null(file)) options("svgviewr_glo_type"='html')
-	if(mode == 'svg') options("svgviewr_glo_type"='svg')
+	if(is.null(file)) mode[1] <- 'webgl'
+	if(mode[1] == 'webgl' && is.null(file)) options("svgviewr_glo_type"='live')
+	if(mode[1] == 'webgl' && !is.null(file)) options("svgviewr_glo_type"='html')
+	if(mode[1] == 'svg') options("svgviewr_glo_type"='svg')
 
-	if(mode == 'webgl'){
+	if(mode[1] == 'webgl'){
 	
 		# Check whether package is loaded from source or library
 		app_dir <- tryCatch({
@@ -66,21 +67,24 @@ svg.new <- function(file = NULL, window.title="SVG Viewer", animate.duration = 1
 		env$svgviewr_env$js_var[['zoomSpeed']] <- zoom.speed
 		env$svgviewr_env$js_var[['panSpeed']] <- pan.speed
 		env$svgviewr_env$js_var[['file']] <- file
-
+		
 		# Create name reference
 		env$svgviewr_env$ref <- list()
 
+		# Create svg list
+		env$svgviewr_env$svg <- list()
+
 		# Create animation reference
-		env$svgviewr_env$animate <- list()
+		env$svgviewr_env$svg$animate <- list()
 
 		## Create server connection to plot WebGL graphics
 		if(is.null(file)){
 
 			# Try stopping server, if running
-			tryCatch({ R.server$stop() }, error = function(e) {}, warning = function(e) {})
+			tryCatch({ env$svgviewr_env$R.server$stop() }, error = function(e) {}, warning = function(e) {})
 
 			# Remove R.server, if exists
-			tryCatch({ remove(R.server) }, error = function(e) {}, warning = function(e) {})
+			tryCatch({ remove(env$svgviewr_env$R.server) }, error = function(e) {}, warning = function(e) {})
 
 			# Try adding server to package environment instead of declaring as a global variable:
 			# 	https://stackoverflow.com/questions/12598242/global-variables-in-packages-in-r
@@ -88,12 +92,13 @@ svg.new <- function(file = NULL, window.title="SVG Viewer", animate.duration = 1
 			# pkg.env$times.changed <- 0
 
 			# Create new server
-			R.server <<- Rhttpd2$new()
+			#R.server <<- Rhttpd2$new()
+			env$svgviewr_env$R.server <- Rhttpd2$new()
 
 			# Add directories that will be accessible to server
-			R.server$add(app = File$new(app_dir), name = "extdata")
+			env$svgviewr_env$R.server$add(app = File$new(app_dir), name = "extdata")
 			#File$new(paste0(dirname(getwd()), '/json'))
-			#R.server$add(app = File$new('/Users/aaron/Documents/Research/R Package Tests/svgViewR/WebGL and three js/json'), name = "json_dir")
+			#env$svgviewr_env$R.server$add(app = File$new('/Users/aaron/Documents/Research/R Package Tests/svgViewR/WebGL and three js/json'), name = "json_dir")
 
 		}else{
 
@@ -125,3 +130,5 @@ svg.new <- function(file = NULL, window.title="SVG Viewer", animate.duration = 1
 
 	ret = NULL
 }
+
+svgviewr_env <- new.env(parent = emptyenv())

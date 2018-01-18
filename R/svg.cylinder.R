@@ -147,16 +147,16 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 			vertices <- mesh_list[[list_num]]$vertices
 
 			# Add to meshes
-			add_at <- length(svgviewr_env$mesh)+1
+			add_at <- length(svgviewr_env$svg$mesh)+1
 
 			# Add vertices
-			env$svgviewr_env$mesh[[add_at]] <- list()
-			env$svgviewr_env$mesh[[add_at]]$vertices <- t(vertices)
-			env$svgviewr_env$mesh[[add_at]]$faces <- t(faces)
-			env$svgviewr_env$mesh[[add_at]]$col <- webColor(col)
-			env$svgviewr_env$mesh[[add_at]]$emissive <- webColor(emissive)
-			env$svgviewr_env$mesh[[add_at]]$computeVN <- TRUE
-			env$svgviewr_env$mesh[[add_at]]$parseModel <- FALSE
+			env$svgviewr_env$svg$mesh[[add_at]] <- list()
+			env$svgviewr_env$svg$mesh[[add_at]]$vertices <- t(vertices)
+			env$svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
+			env$svgviewr_env$svg$mesh[[add_at]]$col <- webColor(col)
+			env$svgviewr_env$svg$mesh[[add_at]]$emissive <- webColor(emissive)
+			env$svgviewr_env$svg$mesh[[add_at]]$computeVN <- TRUE
+			env$svgviewr_env$svg$mesh[[add_at]]$parseModel <- FALSE
 
 			# Add object reference data
 			env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)
@@ -170,8 +170,8 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 			corners <- lim2corners(obj_ranges)
 		
 			# Add limits to object
-			env$svgviewr_env$mesh[[add_at]][['lim']] <- obj_ranges
-			env$svgviewr_env$mesh[[add_at]][['corners']] <- corners
+			env$svgviewr_env$svg$mesh[[add_at]][['lim']] <- obj_ranges
+			env$svgviewr_env$svg$mesh[[add_at]][['corners']] <- corners
 		}
 	}
 

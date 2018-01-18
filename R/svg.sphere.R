@@ -41,16 +41,16 @@ svg.sphere <- function(center = NULL, ends = NULL, radius = NULL, width = NULL, 
 		env <- as.environment(getOption("svgviewr_glo_env"))
 
 		# Add to meshes
-		add_at <- length(svgviewr_env$mesh)+1
+		add_at <- length(svgviewr_env$svg$mesh)+1
 
 		# Add vertices
-		env$svgviewr_env$mesh[[add_at]] <- list()
-		env$svgviewr_env$mesh[[add_at]]$vertices <- t(vertices)
-		env$svgviewr_env$mesh[[add_at]]$faces <- t(faces)
-		env$svgviewr_env$mesh[[add_at]]$col <- webColor(col)
-		env$svgviewr_env$mesh[[add_at]]$emissive <- webColor(emissive)
-		env$svgviewr_env$mesh[[add_at]]$computeVN <- TRUE
-		env$svgviewr_env$mesh[[add_at]]$parseModel <- FALSE
+		env$svgviewr_env$svg$mesh[[add_at]] <- list()
+		env$svgviewr_env$svg$mesh[[add_at]]$vertices <- t(vertices)
+		env$svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
+		env$svgviewr_env$svg$mesh[[add_at]]$col <- webColor(col)
+		env$svgviewr_env$svg$mesh[[add_at]]$emissive <- webColor(emissive)
+		env$svgviewr_env$svg$mesh[[add_at]]$computeVN <- TRUE
+		env$svgviewr_env$svg$mesh[[add_at]]$parseModel <- FALSE
 
 		# Add object reference data
 		env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)
@@ -64,8 +64,8 @@ svg.sphere <- function(center = NULL, ends = NULL, radius = NULL, width = NULL, 
 		corners <- lim2corners(obj_ranges)
 		
 		# Add limits to object
-		env$svgviewr_env$mesh[[add_at]][['lim']] <- obj_ranges
-		env$svgviewr_env$mesh[[add_at]][['corners']] <- corners
+		env$svgviewr_env$svg$mesh[[add_at]][['lim']] <- obj_ranges
+		env$svgviewr_env$svg$mesh[[add_at]][['corners']] <- corners
 	}
 
 	# Suppress return of value in console

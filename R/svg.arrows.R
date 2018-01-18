@@ -34,8 +34,8 @@ svg.arrows <- function(x, y=NULL, name="arrow", col="black", z.index=0, layer=""
 		arrow_len = sqrt(sum((x[2,]-x[1,])^2))
 
 		# Add arrow
-		add_at <- length(svgviewr_env$arrow)+1
-		env$svgviewr_env$arrow[[add_at]] <- list('type'='arrow', 
+		add_at <- length(svgviewr_env$svg$arrow)+1
+		env$svgviewr_env$svg$arrow[[add_at]] <- list('type'='arrow', 
 			'name'=name, 'origin'=x[1,], 'dir'=uvector_svg(x[2,]-x[1,]), 'length'=arrow_len, 
 			'len'=len*2.5, 'col'=webColor(col), 'lwd'=lwd)
 
