@@ -68,7 +68,7 @@ readOBJ <- function(file, scaling = 1){
 	obj
 }
 
-print.obj <- function(x){
+print.obj <- function(x, ...){
 	
 	rc <- ''
 
