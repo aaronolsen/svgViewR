@@ -1,3 +1,5 @@
+svgviewr_env <- new.env(parent = emptyenv())
+
 svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1, 
 	animate.speed = 1, animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
 	time.units = 'sec', clock = FALSE, stats = FALSE, show.control = TRUE, start.rotate = TRUE, 
@@ -29,7 +31,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 			}
 		}, finally = {
 		})
-	
+		
 		# Set package load source
 		if(app_dir == '/Users/aaron/Documents/Research/github/svgViewR/inst/extdata'){
 			pkg_load <- 'source'
@@ -49,42 +51,42 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 
 		# Get objects in parent environment
 		parent_env_ls <- ls(envir=env)
-	
+
 		# Remove any objects previously added to the svgviewr environment
 		if('svgviewr_env' %in% parent_env_ls) rm(list = ls(envir = svgviewr_env), envir = svgviewr_env)
 
 		#
-		env$svgviewr_env$js_var <- list()
+		svgviewr_env$js_var <- list()
 	
 		# Set javascript variables
-		env$svgviewr_env$js_var[['bg_col']] <- webColor(col, format='0')
-		env$svgviewr_env$js_var[['play_speed']] <- animate.speed
-		env$svgviewr_env$js_var[['time_units']] <- time.units
-		env$svgviewr_env$js_var[['signif_digits']] <- digits
-		env$svgviewr_env$js_var[['show_clock']] <- clock
-		env$svgviewr_env$js_var[['show_stats']] <- stats
-		env$svgviewr_env$js_var[['rotateSpeed']] <- rotate.speed
-		env$svgviewr_env$js_var[['zoomSpeed']] <- zoom.speed
-		env$svgviewr_env$js_var[['panSpeed']] <- pan.speed
-		env$svgviewr_env$js_var[['file']] <- file
+		svgviewr_env$js_var[['bg_col']] <- webColor(col, format='0')
+		svgviewr_env$js_var[['play_speed']] <- animate.speed
+		svgviewr_env$js_var[['time_units']] <- time.units
+		svgviewr_env$js_var[['signif_digits']] <- digits
+		svgviewr_env$js_var[['show_clock']] <- clock
+		svgviewr_env$js_var[['show_stats']] <- stats
+		svgviewr_env$js_var[['rotateSpeed']] <- rotate.speed
+		svgviewr_env$js_var[['zoomSpeed']] <- zoom.speed
+		svgviewr_env$js_var[['panSpeed']] <- pan.speed
+		svgviewr_env$js_var[['file']] <- file
 		
 		# Create name reference
-		env$svgviewr_env$ref <- list()
+		svgviewr_env$ref <- list()
 
 		# Create svg list
-		env$svgviewr_env$svg <- list()
+		svgviewr_env$svg <- list()
 
 		# Create animation reference
-		env$svgviewr_env$svg$animate <- list()
+		svgviewr_env$svg$animate <- list()
 
 		## Create server connection to plot WebGL graphics
 		if(is.null(file)){
 
 			# Try stopping server, if running
-			tryCatch({ env$svgviewr_env$R.server$stop() }, error = function(e) {}, warning = function(e) {})
+			tryCatch({ svgviewr_env$R.server$stop() }, error = function(e) {}, warning = function(e) {})
 
 			# Remove R.server, if exists
-			tryCatch({ remove(env$svgviewr_env$R.server) }, error = function(e) {}, warning = function(e) {})
+			tryCatch({ remove(svgviewr_env$R.server) }, error = function(e) {}, warning = function(e) {})
 
 			# Try adding server to package environment instead of declaring as a global variable:
 			# 	https://stackoverflow.com/questions/12598242/global-variables-in-packages-in-r
@@ -93,16 +95,16 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 
 			# Create new server
 			#R.server <<- Rhttpd2$new()
-			env$svgviewr_env$R.server <- Rhttpd2$new()
+			svgviewr_env$R.server <- Rhttpd2$new()
 
 			# Add directories that will be accessible to server
-			env$svgviewr_env$R.server$add(app = File$new(app_dir), name = "extdata")
+			svgviewr_env$R.server$add(app = File$new(app_dir), name = "extdata")
 			#File$new(paste0(dirname(getwd()), '/json'))
-			#env$svgviewr_env$R.server$add(app = File$new('/Users/aaron/Documents/Research/R Package Tests/svgViewR/WebGL and three js/json'), name = "json_dir")
+			#svgviewr_env$R.server$add(app = File$new('/Users/aaron/Documents/Research/R Package Tests/svgViewR/WebGL and three js/json'), name = "json_dir")
 
 		}else{
 
-			env$svgviewr_env$js_var[['app_dir']] <- app_dir
+			svgviewr_env$js_var[['app_dir']] <- app_dir
 		}
 
 	}else{
@@ -130,5 +132,3 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 
 	ret = NULL
 }
-
-svgviewr_env <- new.env(parent = emptyenv())

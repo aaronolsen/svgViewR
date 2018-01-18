@@ -89,12 +89,12 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 		input_params[['parseModel']] <- TRUE
 
 		# Add to meshes
-		env$svgviewr_env$svg$mesh[[add_at]] <- input_params
+		svgviewr_env$svg$mesh[[add_at]] <- input_params
 
 		# Add object reference data
-		env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)
-		env$svgviewr_env$ref$num <- c(env$svgviewr_env$ref$num, add_at)
-		env$svgviewr_env$ref$type <- c(env$svgviewr_env$ref$type, 'mesh')
+		svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
+		svgviewr_env$ref$num <- c(svgviewr_env$ref$num, add_at)
+		svgviewr_env$ref$type <- c(svgviewr_env$ref$type, 'mesh')
 
 	}else{
 		
@@ -118,8 +118,8 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 		corners <- lim2corners(obj_ranges)
 		
 		# Add limits to object
-		env$svgviewr_env$svg$mesh[[add_at]][['lim']] <- obj_ranges
-		env$svgviewr_env$svg$mesh[[add_at]][['corners']] <- corners
+		svgviewr_env$svg$mesh[[add_at]][['lim']] <- obj_ranges
+		svgviewr_env$svg$mesh[[add_at]][['corners']] <- corners
 
 		return(list('lim'=obj_ranges, 'corners'=corners))
 	}

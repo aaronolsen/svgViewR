@@ -35,13 +35,13 @@ svg.text <- function(x, y = NULL, labels = NULL, layer="", name="text",
 
 				# Add text to environment
 				add_at <- length(svgviewr_env$svg$text)+1
-				env$svgviewr_env$svg$text[[add_at]] <- list('type'='text', 'labels'=as.character(labels[i]), 
+				svgviewr_env$svg$text[[add_at]] <- list('type'='text', 'labels'=as.character(labels[i]), 
 					'name'=name, 'x'=x[i,], 'col'=webColor(col), 'size'=size)
 
 				# Add object reference data
-				env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)
-				env$svgviewr_env$ref$num <- c(env$svgviewr_env$ref$num, add_at)
-				env$svgviewr_env$ref$type <- c(env$svgviewr_env$ref$type, 'text')
+				svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
+				svgviewr_env$ref$num <- c(svgviewr_env$ref$num, add_at)
+				svgviewr_env$ref$type <- c(svgviewr_env$ref$type, 'text')
 			}
 		}
 	}

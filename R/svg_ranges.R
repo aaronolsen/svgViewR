@@ -12,14 +12,14 @@ svg_ranges <- function(x = NULL){
 			# Get static ranges
 			ranges <- matrix(NA, nrow=0, 3)
    			
-			for(oi in 1:length(env$svgviewr_env$ref$type)){
+			for(oi in 1:length(svgviewr_env$ref$type)){
 				
 				# Get object
-				obj <- env$svgviewr_env[['svg']][[env$svgviewr_env$ref$type[oi]]][[env$svgviewr_env$ref$num[oi]]]
+				obj <- svgviewr_env[['svg']][[svgviewr_env$ref$type[oi]]][[svgviewr_env$ref$num[oi]]]
 				
 				corners <- NULL
 				
-				if(env$svgviewr_env$ref$type[oi] == 'mesh'){
+				if(svgviewr_env$ref$type[oi] == 'mesh'){
 
 					if(is.null(obj[['lim']])){
 
@@ -38,8 +38,8 @@ svg_ranges <- function(x = NULL){
 						corners <- lim2corners(obj_ranges)
 
 						# Add to object
-						env$svgviewr_env[['svg']][[env$svgviewr_env$ref$type[oi]]][[env$svgviewr_env$ref$num[oi]]][['lim']] <- obj_ranges
-						env$svgviewr_env[['svg']][[env$svgviewr_env$ref$type[oi]]][[env$svgviewr_env$ref$num[oi]]][['corners']] <- corners
+						svgviewr_env[['svg']][[svgviewr_env$ref$type[oi]]][[svgviewr_env$ref$num[oi]]][['lim']] <- obj_ranges
+						svgviewr_env[['svg']][[svgviewr_env$ref$type[oi]]][[svgviewr_env$ref$num[oi]]][['corners']] <- corners
 
 					}else{
 
@@ -57,7 +57,7 @@ svg_ranges <- function(x = NULL){
 						corners <- apply(obj_tm, 2, 'range', na.rm=TRUE)
 					}
 
-				}else if(env$svgviewr_env$ref$type[oi] == 'sphere'){
+				}else if(svgviewr_env$ref$type[oi] == 'sphere'){
 
 					# Get limits
 					if(is.null(obj$x_tm)){
@@ -79,7 +79,7 @@ svg_ranges <- function(x = NULL){
 					# Get corners
 					corners <- lim2corners(lim)
 
-				}else if(env$svgviewr_env$ref$type[oi] == 'line'){
+				}else if(svgviewr_env$ref$type[oi] == 'line'){
 
 					# Get limits
 					if(is.null(obj$x_tm)){

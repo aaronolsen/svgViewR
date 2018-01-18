@@ -61,10 +61,12 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 
 	if(getOption("svgviewr_glo_type") == 'svg'){
 
-		# Draw polygons
+		# Draw polygons (using pointsC allows for filled polygons but messes up linkR v1.1.1 
+		#	drawlinkage because it adds points which then disrupts pathC indices)
 		for(i in 1:length(polygons)){
-			svg.pointsC(file=file, x=polygons[[i]], cex=0, opacity.stroke.C=0.4, 
-				col.fill.C='black', opacity.fill.C=0, lwd=1, z.index=z.index, z.index.C=z.index)
+			svg.lines(file=file, x=polygons[[i]], col='black', opacity=0.4, layer='Grid border', z.index=z.index)
+			#svg.pointsC(file=file, x=polygons[[i]], cex=0, opacity.stroke.C=0.4, 
+			#	col.fill.C='black', opacity.fill.C=0, lwd=1, z.index=z.index, z.index.C=z.index)
 		}
 
 		# Draw grid
@@ -103,7 +105,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 		# Add polygons
 		if(is.null(name)){ shape_name <- 'frame.panel' }else{ shape_name <- name }
 		for(i in 1:length(polygons)){
-			env$svgviewr_env$svg$line[[length(svgviewr_env$svg$line)+1]] <- list('type'='line', 
+			svgviewr_env$svg$line[[length(svgviewr_env$svg$line)+1]] <- list('type'='line', 
 				'name'=shape_name, 'x'=t(polygons[[i]]), col=webColor(axis.col), lwd=grid.lwd)
 		}
 
@@ -111,7 +113,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 		if(is.null(name)){ shape_name <- 'frame.grid' }else{ shape_name <- name }
 		if(grid.lwd > 0){
 			grids_in <- grids[grids_type == 'in']
-			for(grid in grids_in) env$svgviewr_env$svg$line[[length(svgviewr_env$svg$line)+1]] <- 
+			for(grid in grids_in) svgviewr_env$svg$line[[length(svgviewr_env$svg$line)+1]] <- 
 				list('type'='line', 'name'=shape_name, 'x'=t(grid), 'col'=webColor(grid.col), 
 				'lwd'=grid.lwd)
 		}
@@ -120,7 +122,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 		if(is.null(name)){ shape_name <- 'frame.tick' }else{ shape_name <- name }
 		if(tick.lwd > 0){
 			for(i in 1:length(ticks$ticks)){
-				env$svgviewr_env$svg$line[[length(svgviewr_env$svg$line)+1]] <- list('type'='line', 
+				svgviewr_env$svg$line[[length(svgviewr_env$svg$line)+1]] <- list('type'='line', 
 					'name'=shape_name, 'x'=t(ticks$ticks[[i]]), 'col'=webColor(axis.col), 
 					'lwd'=grid.lwd)
 			}

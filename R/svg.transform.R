@@ -26,9 +26,9 @@ svg.transform <- function(tmarr, applyto = '', times = 1:dim(tmarr)[3], add = FA
 	env <- as.environment(getOption("svgviewr_glo_env"))
 
 	# Get reference objects
-	ref_names <- env$svgviewr_env$ref$names
-	ref_types <- env$svgviewr_env$ref$type
-	ref_nums <- env$svgviewr_env$ref$num
+	ref_names <- svgviewr_env$ref$names
+	ref_types <- svgviewr_env$ref$type
+	ref_nums <- svgviewr_env$ref$num
 
 	# Get matching names
 	if(!regexp){
@@ -50,12 +50,12 @@ svg.transform <- function(tmarr, applyto = '', times = 1:dim(tmarr)[3], add = FA
 	}
 
 	# Add transformations to animate
-	env$svgviewr_env$svg$animate$names <- c(env$svgviewr_env$svg$animate$names, ref_names[applyto_which])
-	env$svgviewr_env$svg$animate$type <- c(env$svgviewr_env$svg$animate$type, ref_types[applyto_which])
-	env$svgviewr_env$svg$animate$num <- c(env$svgviewr_env$svg$animate$num, ref_nums[applyto_which])
+	svgviewr_env$svg$animate$names <- c(svgviewr_env$svg$animate$names, ref_names[applyto_which])
+	svgviewr_env$svg$animate$type <- c(svgviewr_env$svg$animate$type, ref_types[applyto_which])
+	svgviewr_env$svg$animate$num <- c(svgviewr_env$svg$animate$num, ref_nums[applyto_which])
 
 	# Define number of animation iterations and times if not already defined
-	if(is.null(env$svgviewr_env$svg$animate$times)) env$svgviewr_env$svg$animate$times <- times
+	if(is.null(svgviewr_env$svg$animate$times)) svgviewr_env$svg$animate$times <- times
 
 	# For each object for which position will become 
 	for(idx in applyto_which){
@@ -64,34 +64,34 @@ svg.transform <- function(tmarr, applyto = '', times = 1:dim(tmarr)[3], add = FA
 
 			# Set position
 			position <- lapply(seq_len(dim(tmarr)[3]), function(i) t(signif(tmarr[1:3, 4, i], digits=env[['svgviewr_env']][['js_var']][['signif_digits']])))
-			env$svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['position']] <- position
+			svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['position']] <- position
 
 			# Set rotation
 			rotation <- lapply(seq_len(dim(tmarr)[3]), function(i) -rev(signif(rm2euler(t(tmarr[1:3, 1:3, i]))[[1]], digits=env[['svgviewr_env']][['js_var']][['signif_digits']])))
-			env$svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['rotation']] <- rotation
+			svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['rotation']] <- rotation
 
 			# Save transformation
-			env$svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['tmat']] <- tmarr
+			svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['tmat']] <- tmarr
 		}
 
 		if(ref_types[idx] == 'sphere'){
 		
 			# Apply transformation to coordinate
-			x_tm <- apply_transform_svg(to=env$svgviewr_env$svg[[ref_types[idx]]][[ref_nums[idx]]][['x']], 
+			x_tm <- apply_transform_svg(to=svgviewr_env$svg[[ref_types[idx]]][[ref_nums[idx]]][['x']], 
 				tmat=tmarr)
 
 			# Transform center
-			env$svgviewr_env$svg[[ref_types[idx]]][[ref_nums[idx]]][['x_tm']] <- lapply(seq_len(nrow(x_tm)), function(i) x_tm[i,])
+			svgviewr_env$svg[[ref_types[idx]]][[ref_nums[idx]]][['x_tm']] <- lapply(seq_len(nrow(x_tm)), function(i) x_tm[i,])
 		}
 
 		if(ref_types[idx] == 'line'){
 
 			# Apply transformation to coordinates
-			x_tm <- apply_transform_svg(to=t(env$svgviewr_env$svg[[ref_types[idx]]][[ref_nums[idx]]][['x']]), 
+			x_tm <- apply_transform_svg(to=t(svgviewr_env$svg[[ref_types[idx]]][[ref_nums[idx]]][['x']]), 
 				tmat=tmarr)
 
 			# Transform center
-			env$svgviewr_env$svg[[ref_types[idx]]][[ref_nums[idx]]][['x_tm']] <- lapply(seq_len(dim(x_tm)[3]), function(i) t(x_tm[, , i]))
+			svgviewr_env$svg[[ref_types[idx]]][[ref_nums[idx]]][['x_tm']] <- lapply(seq_len(dim(x_tm)[3]), function(i) t(x_tm[, , i]))
 		}
 	}
 

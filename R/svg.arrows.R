@@ -35,14 +35,14 @@ svg.arrows <- function(x, y=NULL, name="arrow", col="black", z.index=0, layer=""
 
 		# Add arrow
 		add_at <- length(svgviewr_env$svg$arrow)+1
-		env$svgviewr_env$svg$arrow[[add_at]] <- list('type'='arrow', 
+		svgviewr_env$svg$arrow[[add_at]] <- list('type'='arrow', 
 			'name'=name, 'origin'=x[1,], 'dir'=uvector_svg(x[2,]-x[1,]), 'length'=arrow_len, 
 			'len'=len*2.5, 'col'=webColor(col), 'lwd'=lwd)
 
 		# Add object reference data
-		env$svgviewr_env$ref$names <- c(env$svgviewr_env$ref$names, name)
-		env$svgviewr_env$ref$num <- c(env$svgviewr_env$ref$num, add_at)
-		env$svgviewr_env$ref$type <- c(env$svgviewr_env$ref$type, 'arrow')
+		svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
+		svgviewr_env$ref$num <- c(svgviewr_env$ref$num, add_at)
+		svgviewr_env$ref$type <- c(svgviewr_env$ref$type, 'arrow')
 
 	}else{
 
