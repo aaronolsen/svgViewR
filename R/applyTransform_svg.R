@@ -1,4 +1,4 @@
-apply_transform_svg <- function(to, tmat, assoc = NULL){
+applyTransform_svg <- function(to, tmat, assoc = NULL){
 
 	# Default, set 'to' as points - will eventually work with various shapes so that many 
 	#	points do not have to be transformed to transform whole shape
@@ -17,11 +17,26 @@ apply_transform_svg <- function(to, tmat, assoc = NULL){
 	# Transformation matrix
 	if(length(dim(tmat)) == 2){
 	
-		if(length(dim(pts)) == 3){
-			
-			pcoor <- pts
-			for(i in 1:dim(pcoor)[3]) pcoor[,, i] <- mtransform_svg(pcoor[,, i], tmat)
-			return(pcoor)
+		if(length(dim(pts)) == 2){
+
+			# 2 t-mats
+			if(dim(pts)[2] == 4) return(tmat %*% pts)
+
+		}else if(length(dim(pts)) == 3){
+		
+			# XYZ coordinates
+			if(dim(pts)[2] == 3){
+
+				pcoor <- pts
+				for(i in 1:dim(pcoor)[3]) pcoor[,, i] <- mtransform_svg(pcoor[,, i], tmat)
+				return(pcoor)
+
+			# Transformation arrray
+			}else if(dim(pts)[2] == 4){
+
+				for(i in 1:dim(pts)[3]) pts[,, i] <- tmat %*% pts[,, i]
+				return(pts)
+			}
 		}
 	
 		# Get point coordinates as matrix for transformation - coerce to matrix if single point
@@ -38,7 +53,7 @@ apply_transform_svg <- function(to, tmat, assoc = NULL){
 	}else if(length(dim(tmat)) == 3){
 	
 		if(length(dim(pts)) == 2){
-
+		
 			if(is.null(dimnames(tmat)[[3]])){
 
 				## Single body
@@ -53,7 +68,7 @@ apply_transform_svg <- function(to, tmat, assoc = NULL){
 				tcoor <- apply(tmat, 3, '%*%', pcoor)
 
 				# Convert to array
-				tcoor_arr <- array(tcoor, dim=c(4, nrow(pts), dim(tmat)[3]))
+				tcoor_arr <- array(tcoor, dim=c(4, nrow(pts), dim(tmat)[3]), dimnames=list(NULL, rownames(pts), NULL))
 
 				# Swap first two dimensions (transpose each "matrix" within array) and remove 1s
 				if(dim(tcoor_arr)[2] == 1){
@@ -71,13 +86,13 @@ apply_transform_svg <- function(to, tmat, assoc = NULL){
 
 					# Find points associated with body
 					body_assoc <- which(assoc == body_name)
-	
+
 					# Skip if no points associated with body
 					if(length(body_assoc) == 0) next
 
 					pts[body_assoc, ] <- mtransform_svg(pts[body_assoc, ], tmat[, , body])
 				}
-			
+		
 				return(pts)
 
 			}
@@ -93,6 +108,17 @@ apply_transform_svg <- function(to, tmat, assoc = NULL){
 			#tmat <- matrix(tmat, nrow=4, ncol=4*dim(tmat)[3])
 			#rmat1 <- rbind(matrix(pts, nrow=3, ncol=dim(pts)[1]*dim(pts)[3]), rep(1, dim(pts)[1]*dim(pts)[3]))
 			#rmat2 <- matrix(rmat1, nrow=4*dim(pts)[3], ncol=dim(pts)[1])
+
+		}else if(length(dim(pts)) == 4){
+			
+			# Transform transformations
+			for(body in 1:dim(pts)[3]){
+				for(iter in 1:dim(pts)[4]){
+					pts[, , body, iter] <- tmat[, , iter] %*% pts[, , body, iter]
+				}
+			}
+
+			return(pts)
 		}
 
 	# Transformation 4-d array
