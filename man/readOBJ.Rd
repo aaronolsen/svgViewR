@@ -11,6 +11,8 @@ readOBJ(file, scaling = 1)
 \arguments{
   \item{file}{A filepath to a file of type '.obj'.}
   \item{scaling}{A scaling factor to be applied to the vertices.}
+  \item{x}{an object used to select a method.}
+  \item{...}{further arguments passed to or from other methods.}
 }
 \details{
 This function convert a Wavefront .obj file or OBJ object into a JSON (JavaScript Object Notation) object and optionally saves this JSON object as a .json file. This function only provides basic functionality, reading only vertices, normals, and faces. It has only been tested on the .obj files returned from the DICOM Medical Image Viewer Horos (formerly Osirix). This function was written in order directly convert CT scan meshes exported from Horos into the JSON format for web visualization, eliminating intermediate conversions in programs such as meshlab and Blender.
