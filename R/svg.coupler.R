@@ -18,5 +18,5 @@ svg.coupler <- function(end, axes, base.width, side.sep, side.length, name = 'co
 		axes=axes, width=c(side.length,base.width[2],side_width), name=name, col=col, 
 		emissive=emissive)
 
-	NULL
+	ret = NULL
 }

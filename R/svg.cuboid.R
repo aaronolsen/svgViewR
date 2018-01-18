@@ -145,5 +145,5 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 		svgviewr_env$svg$mesh[[add_at]][['corners']] <- corners
 	}
 
-	NULL
+	ret = NULL
 }

@@ -124,5 +124,5 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 		return(list('lim'=obj_ranges, 'corners'=corners))
 	}
 	
-	NULL
+	ret = NULL
 }

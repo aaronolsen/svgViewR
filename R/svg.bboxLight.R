@@ -25,5 +25,5 @@ svg.bboxLight <- function(x = c(1,1,1), col = '#FFFFDD', intensity = 1, distance
 		svgviewr_env$svg$bboxLight[[add_at]]$hidden <- hidden
 	}
 
-	NULL
+	ret = NULL
 }

@@ -175,7 +175,7 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 		}
 	}
 
-	NULL
+	ret = NULL
 }
 
 #var geometry = new THREE.CylinderGeometry( 5, 5, 20, 32 );
