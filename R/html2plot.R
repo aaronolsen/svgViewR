@@ -2,8 +2,7 @@ html2plot <- function(svg.file, plot.file, as = c('jpeg'), height = 'default', w
 	clear.plot.dir = FALSE, max.iter = NULL, margin = NULL, first.frame.only = FALSE){
 
 	## Converts an svg/html file to a plot/image or set of plots/images
-	
-	require(grid)
+	#require(grid)
 	
 	# Make sure as is lowercase
 	as <- tolower(as)
