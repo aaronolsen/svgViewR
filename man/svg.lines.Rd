@@ -4,7 +4,8 @@
 \description{A function taking coordinates given in various ways and joining the corresponding points with line segments in an SVG Viewer.}
 \usage{
 svg.lines(x, y=NULL, col="black", z.index=0, layer="", 
-               label="", lwd=1, opacity=1, file=NULL)
+               name="line", label="", lwd=1, opacity=1, 
+               file=NULL)
 }
 \arguments{
   \item{x}{A vector, matrix or array of 2D or 3D coordinates to be joined by a line or lines. Coordinates input as an array will be animated.}
@@ -12,6 +13,7 @@ svg.lines(x, y=NULL, col="black", z.index=0, layer="",
   \item{col}{The color of the line(s).}
   \item{z.index}{A number indicating the relative order in which the SVG object will be drawn in the viewer. Higher numbers correspond to closer to the front or top.}
   \item{layer}{A text string indicating the layer in which the SVG object belongs (not yet fully implemented).}
+  \item{name}{The name of the drawn object.}
   \item{label}{A label to be added to the SVG object in SVG tag.}
   \item{lwd}{The thickness of the line(s).}
   \item{opacity}{A number between \code{0} and \code{1} indicating the opacity of the line(s).}

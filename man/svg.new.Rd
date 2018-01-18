@@ -1,74 +1,89 @@
 \name{svg.new}
 \alias{svg.new}
-\title{Create new SVG Viewer file}
-\description{Creates a new SVG Viewer file as an HTML document to which SVG objects can be added, with optional specification of various animation parameters.}
+\title{Create new Viewer file}
+\description{Creates a new Viewer file as an HTML document to which objects can be added, with optional specification of various animation parameters.}
 \usage{
-svg.new(file, window.title="SVG Viewer", animate.duration = 1, 
-               animate.reverse = FALSE, animate.repeat = -1, 
-               margin = 20, col = "white", show.control = TRUE, 
-               start.rotate = TRUE, layers = NULL, connection = TRUE, 
-               fdir = NULL, debug = FALSE)
+svg.new(file = NULL, window.title="svgViewR", animate.duration = 1, 
+               animate.speed = 1, animate.reverse = FALSE, 
+               animate.repeat = -1, margin = 20, col = "white", 
+               time.units = 'sec', clock = FALSE, stats = FALSE, 
+               show.control = TRUE, start.rotate = TRUE, 
+               rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, 
+               layers = NULL, connection = TRUE, mode = c('svg', 'webgl'), 
+               debug = FALSE)
 }
 \arguments{
-  \item{file}{File path and name (having the extenstion ".html") where SVG Viewer will be created.}
-  \item{window.title}{An optional custom title of the SVG Viewer, visible at the top of the web browser window.}
-  \item{animate.duration}{The approximate duration in seconds of the animation. When the number of objects to be displayed is large, the actual duration might exceed this number.}
-  \item{animate.reverse}{A logical indicating whether the animation is to be played in reverse after each iteration.}
-  \item{animate.repeat}{An integer specifying the number of times the animation will repeat. A value of \code{-1} will cause the animation to repeat indefinitely.}
+  \item{file}{File path and name (having the extenstion ".html") where Viewer will be created. If file is \code{NULL} then the viewer will open over a local server in the default web browser and mode 'webgl' will be automatically selected.}
+  \item{window.title}{The Viewer title, visible at the top of the web browser window.}
+  \item{animate.duration}{Only used in 'svg' mode. The approximate duration in seconds of the animation. When the number of objects to be displayed is large, the actual duration might exceed this number.}
+  \item{animate.speed}{Only used in 'webgl' mode. The relative speed at which the animation will playback. For example, to play the animation at half the real speed, \code{animate.speed} would be 0.5.}
+  \item{animate.reverse}{A logical indicating whether the animation is to be played in reverse after each iteration. Only used in 'svg' mode.}
+  \item{animate.repeat}{An integer specifying the number of times the animation will repeat. A value of \code{-1} will cause the animation to repeat indefinitely. Only used in 'svg' mode.}
   \item{margin}{Margin when resizing visualization to fit the browser window.}
-  \item{col}{Viewer background.}
-  \item{show.control}{Whether control panel should be visible or not.}
-  \item{start.rotate}{Whether visualization should start with 'rotate' enabled or 'translate' enabled.}
+  \item{col}{Viewer background color.}
+  \item{time.units}{The units for the times specified in any transformation.}
+  \item{clock}{Whether a clock should be visible or not.}
+  \item{stats}{Whether processing stats should be visible or not.}
+  \item{show.control}{Whether control panel should be visible or not. Only used in 'svg' mode.}
+  \item{start.rotate}{Whether visualization should start with 'rotate' enabled or 'translate' enabled. Only used in 'svg' mode.}
+  \item{rotate.speed}{How much the camera rotates in response to mouse click and drag. Only used in 'webgl' mode.}
+  \item{zoom.speed}{How much the camera zooms in response to mouse click and drag. Only used in 'webgl' mode.}
+  \item{pan.speed}{How much the camera pans in response to mouse click and drag. Only used in 'webgl' mode.}
   \item{layers}{Not yet fully enabled.}
   \item{connection}{Whether to open a file connection or create a closed file.}
-  \item{fdir}{Used for debugging.}
+  \item{mode}{Whether to draw using the old mode ('svg') or the new mode ('webgl'). See details.}
   \item{debug}{Used for debugging.}
 }
 \details{
-This function is used to initialize a new SVG Viewer file. Before adding shapes to an SVG Viewer, this function is called to create the HTML document structure to which the SVG objects can be added. The SVG Viewer file can be opened with any compatible web browser (Safari, Firefox, Chrome, Opera). When the file is opened, the SVG shapes will be automatically scaled to fit the web browser. Re-sizing the browswer window will automatically re-size the shapes to fit the browser window. If the shapes are animated, the animation will begin immediately upon opening the window. The shapes and animation are interactive and can be controlled via the control panel in the top right of the window or via the keyboard/mouse commands listed below.
+This function is used to initialize a new Viewer. Before adding shapes to a Viewer, this function is called to create the HTML file to which the objects can be added. svgViewR is currently undergoing a significant overhaul. The previous plotting using SVG (scalable vector graphics) is being replaced with visualizations created using WebGL (the Web Graphics Library) and the javascript library three.js. All backward compatability with the svg format should be maintained. To use the new plotting mode, set the \code{mode} parameter to 'webgl'. Plotting in the 'webgl' mode is limited as I have only begun implementing it.
+
+The 'svg' (old) mode has a single visualization type: an .html file. The 'webgl' mode (new) has two visualization types: a local server based visualization (using the R package Rook) and an .html file. The .html file output is ideal if you want to create portable files that can be easily visualized anytime and shared without the need for hosting a server. The server output is ideal if you want to visualize many different tranformations of large mesh files; creating files for each visualization would take up a large amount of space because all of the mesh specifications (vertices, normals, faces) would have to be contained within each html file.
+
+For worked examples, please see \href{https://aaronolsen.github.io/tutorials/visualization3d.html}{3D visualization in R}. Here are common interactive commands between the two modes:
 
 	\itemize{
 		\item \bold{spacebar} : Pauses and plays the animation
 		\item \bold{browser refresh} : Returns shapes to state when browser was originally opened
 		\item \bold{scroll up/down} : Zoom in/out by moving the shapes into and out of the screen
-		\item \bold{'j'} : Zoom out by moving shapes into the screen
-		\item \bold{'k'} : Zoom in by moving shapes out of the screen
-		\item \bold{up/down/left/right arrow} : Move shapes up/down/left/right
-		\item \bold{hold 'shift' + Up/down/left/right arrow} : Move shapes up/down/left/right in larger steps
-		\item \bold{hold 'r' + click-and-drag} : Rotates shapes about y- and x- axes. Click-and-drag the mouse anywhere within the browser window. Clicking-and-dragging left and right will rotate the shapes about the y- (vertical) axis. Clicking-and-dragging up and down will rotate the shapes about the x- (horizontal) axis.
-		\item \bold{hold 'r' +  up/down arrow} : Rotate shapes about the x-axis in 10 degree increments
-		\item \bold{hold 'r' +  left/right arrow} : Rotate shapes about the y-axis in 10 degree increments
-		\item \bold{hold 'r' + 'k'} : Rotate shapes clockwise within the z-plane in 10 degree increments (screen)
-		\item \bold{hold 'r' + 'j'} : Rotate shapes counter-clockwise within the z-plane in 10 degree increments (screen)
-		\item \bold{hold 'shift' + hold 'r' + 'j'/'k'/up/down/left/right arrow} : Rotate shapes as stated above, but in 45 degree increments
 	}
+
+To rotate the camera in 'webgl' mode, left-click and drag the mouse. To pan the camera in 'webgl' mode, right-click and drag the mouse. For a key to the interactive commands in the 'svg' (old) mode, see \href{https://aaronolsen.github.io/software/svgviewr/interactive.html}{svgViewR Interactive Commands}.
 }
 \value{NULL}
 \author{Aaron Olsen}
 \seealso{
-\code{\link{svg.lines}}, 
-\code{\link{svg.pathsC}}, 
-\code{\link{svg.points}}
+\code{\link{svg.close}}
 }
 \examples{
 \dontrun{
-## Create animated sinusoid
-# Create new viewer
-svg.new(file='svgviewr.html', animate.duration=1)
+# Set number of points to draw
+n <- 300
 
-# Create points with varying sin phase
-n <- 100
-x <- array(NA, dim=c(40, 2, n))
-x_seq <- seq(-pi, pi, length=dim(x)[1])
-n_seq <- seq(0, 2*pi, length=n)
-for(i in 1:dim(x)[3]) x[, , i] <- cbind(x_seq, sin(x_seq + n_seq[i]))
+# Create a cloud of normally distributed 3D points
+points3d <- cbind(rnorm(n, sd=3), rnorm(n, sd=2), rnorm(n, sd=1))
 
-# Draw points
-svg.points(x, cex=2, lwd=1, col="blue")
+# Open a connection to .html file
+svg.new(file='plot_static_points.html')
 
-# Close viewer connection
+# Get distance of points from the center of point cloud
+pdist <- sqrt(rowSums((points3d - matrix(colMeans(points3d), n, 3, byrow=TRUE))^2))
+
+# Set color gradient between red and blue
+colfunc <- colorRampPalette(c('red', 'blue'))
+
+# Set desired number of colors along gradient
+col_grad <- colfunc(50)
+
+# Scale distances to indices and find corresponding color along gradient
+col <- col_grad[(length(col_grad)-1)*(pdist - min(pdist)) / diff(range(pdist))+1]
+
+# Add points to file
+svg.points(points3d, col=col)
+
+# Add a coordinate axis planes around the points
+svg_frame <- svg.frame(points3d)
+
+# Close the file connection
 svg.close()
-
-# Open svgviewr.html to visualize
 }
 }
