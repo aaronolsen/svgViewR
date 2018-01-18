@@ -3,12 +3,13 @@
 \title{Write mesh to Viewer}
 \description{Draws mesh in Viewer.}
 \usage{
-svg.mesh(file=NULL, name=gsub('[.][A-Za-z]+$', '', tail(strsplit(file, '/')[[1]], 1)), 
-	col='#F5F5F5', emissive='black', opacity=1, get.lim=TRUE)
+svg.mesh(file=NULL, 
+         name=gsub('[.][A-Za-z]+$', '', tail(strsplit(file, '/')[[1]], 1)), 
+         col='#F5F5F5', emissive='black', opacity=1, get.lim=TRUE)
 }
 \arguments{
   \item{file}{Preferably a mesh file in the .json format (see \code{\link{objToJSON}}). An .obj file can be input but this will take longer to run since the function will first convert the OBJ to JSON. If \code{\link{svg.new}} is called without a filename (loading the Viewer as a local server), you will be prompted to create a .json file since the server must read a .json file.}
-  \item{name}{The name of the mesh. By default, the filename is used (without the file extension). This is used in adding transformations.}
+  \item{name}{The name of the mesh. By default, the filename is used (without the file extension). This is used when applying transformations to drawn objects.}
   \item{col}{The mesh color.}
   \item{emissive}{The mesh emissive color.}
   \item{opacity}{The mesh opacity. A value of 1 (default) is fully opaque.}

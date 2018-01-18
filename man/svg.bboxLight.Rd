@@ -3,8 +3,7 @@
 \title{Adds light(s) to Viewer}
 \description{Adds point light(s) in Viewer at corners of bounding box.}
 \usage{
-svg.bboxLight(x=c(1,1,1), col='#FFFFDD', intensity=1, distance=3, 
-            hidden = TRUE)
+svg.bboxLight(x=c(1,1,1), col='#FFFFDD', intensity=1, distance=3, hidden = TRUE)
 }
 \arguments{
   \item{x}{The corner(s) where a light source (vector) or multiple light sources (matrix) should be added.}

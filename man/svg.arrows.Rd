@@ -3,9 +3,8 @@
 \title{Write arrows to Viewer}
 \description{Draws static and animated arrow(s) in Viewer.}
 \usage{
-svg.arrows(x, y=NULL, name="arrow", col="black", z.index=0, 
-               layer="", label="", lwd=1, len='auto', angle=0.4, 
-               opacity=1, file=NULL)
+svg.arrows(x, y=NULL, name="arrow", col="black", z.index=0, layer="", 
+           label="", lwd=1, len='auto', angle=0.4, opacity=1, file=NULL)
 }
 \arguments{
   \item{x}{For a single static arrow, a 2x3 matrix in which the rows are the start and end point in 3D. For a single animated arrow, a 2x3xi array in which the first two dimensions specify the start and end point of the arrow and i is the number of animation iterations. For multiple static arrows, a list of length n, each element being a 2x3 matrix, in which n is the number of arrows. For multiple animated arrows, a list of length n, each element being a 2x3xi array indicating the start and end points of each arrow over i iterations.}
@@ -34,10 +33,6 @@ This function accepts many different input types for \code{x} to plot four diffe
 \dontrun{
 ## Create arrow
 arrow <- rbind(rep(0,3), rep(1,3))
-arrow
-     [,1] [,2] [,3]
-[1,]    0    0    0
-[2,]    1    1    1
 
 # Open a connection to .html file
 svg.new(file='plot_static_arrow.html')

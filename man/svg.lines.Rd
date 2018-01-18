@@ -3,9 +3,8 @@
 \title{Add Connected Line Segments to SVG Viewer}
 \description{A function taking coordinates given in various ways and joining the corresponding points with line segments in an SVG Viewer.}
 \usage{
-svg.lines(x, y=NULL, col="black", z.index=0, layer="", 
-               name="line", label="", lwd=1, opacity=1, 
-               file=NULL)
+svg.lines(x, y=NULL, col="black", z.index=0, layer="", name="line", label="", 
+          lwd=1, opacity=1, file=NULL)
 }
 \arguments{
   \item{x}{A vector, matrix or array of 2D or 3D coordinates to be joined by a line or lines. Coordinates input as an array will be animated.}

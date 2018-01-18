@@ -4,13 +4,13 @@
 \description{Creates a new Viewer file as an HTML document to which objects can be added, with optional specification of various animation parameters.}
 \usage{
 svg.new(file = NULL, window.title="svgViewR", animate.duration = 1, 
-               animate.speed = 1, animate.reverse = FALSE, 
-               animate.repeat = -1, margin = 20, col = "white", 
-               time.units = 'sec', clock = FALSE, stats = FALSE, 
-               show.control = TRUE, start.rotate = TRUE, 
-               rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, 
-               layers = NULL, connection = TRUE, mode = c('svg', 'webgl'), 
-               debug = FALSE)
+        animate.speed = 1, animate.reverse = FALSE, 
+        animate.repeat = -1, margin = 20, col = "white", 
+        time.units = 'sec', clock = FALSE, stats = FALSE, 
+        show.control = TRUE, start.rotate = TRUE, 
+        rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, 
+        layers = NULL, connection = TRUE, mode = c('svg', 'webgl'), 
+        debug = FALSE)
 }
 \arguments{
   \item{file}{File path and name (having the extenstion ".html") where Viewer will be created. If file is \code{NULL} then the viewer will open over a local server in the default web browser and mode 'webgl' will be automatically selected.}
