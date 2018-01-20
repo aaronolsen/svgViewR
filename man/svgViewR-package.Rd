@@ -66,7 +66,7 @@
 Package: \tab svgViewR\cr
 Type: \tab Package\cr
 Version: \tab 1.3\cr
-Date: \tab 2018-01-21\cr
+Date: \tab 2018-01-19\cr
 License: \tab GPL (>= 2)\cr}}
 \author{
 Aaron Olsen
