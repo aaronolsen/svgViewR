@@ -1,7 +1,7 @@
 svgviewr.new <- function(file, window.title="SVG Viewer", animate.duration = 1, 
 	animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
 	show.control = TRUE, start.rotate = TRUE, layers = NULL, debug = FALSE, 
-	conn.type = 'new'){
+	fdir = NULL, conn.type = 'new'){
 
 	# IF CON IS NEW MAKE SURE FILE IS NOT NULL
 	#if(is.null(file) && conn.type == 'new') stop("Input file is NULL.")
