@@ -95,5 +95,5 @@ svg.transform <- function(tmarr, applyto = '', times = 1:dim(tmarr)[3], add = FA
 		}
 	}
 
-	NULL
+	ret = NULL
 }
