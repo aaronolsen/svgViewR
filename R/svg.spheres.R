@@ -1,4 +1,5 @@
-svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(.27,.27,.27), name = 'sphere', wseg = 16, hseg = 16){
+svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0.21), 
+	name = 'sphere', wseg = 16, hseg = 16){
 
 	# Make sure that type is webgl
 	if('svg' == getOption("svgviewr_glo_type")) stop("Sphere drawing is currently only available with webgl svgViewR output.")
@@ -16,7 +17,7 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(.27,.27,.27),
 
 			add_at <- length(svgviewr_env$svg$sphere)+1
 			svgviewr_env$svg$sphere[[add_at]] <- list('type'='sphere', 'name'=name, 'x'=setNames(x[i,], NULL), 
-				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=16, 'hseg'=16)
+				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=wseg, 'hseg'=hseg)
 
 			# Add object reference data
 			svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
@@ -31,7 +32,7 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(.27,.27,.27),
 			# Add object
 			add_at <- length(svgviewr_env$svg$sphere)+1
 			svgviewr_env$svg$sphere[[add_at]] <- list('type'='sphere', 'name'=name, 'x'=setNames(x[i,,1], NULL), 
-				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=16, 'hseg'=16)
+				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=wseg, 'hseg'=hseg)
 
 			# Add object reference data
 			svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
