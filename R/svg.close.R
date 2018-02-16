@@ -26,10 +26,11 @@ svg.close <- function(){
 
 
 		# Set svg objects with source directories
-		src_objs <- c('mesh')
+		src_objs <- c('mesh', 'image')
 		
 		# Get unique source directories
 		srcs <- c()
+		j <- 1
 		for(src_obj in src_objs){
 			for(i in 1:length(svgviewr_env$svg[[src_obj]])){
 				if(!is.null(svgviewr_env$svg[[src_obj]][[i]]$src) && svgviewr_env$svg[[src_obj]][[i]]$src != ''){
@@ -37,6 +38,7 @@ svg.close <- function(){
 				}else{
 					srcs <- c(srcs, NA)
 				}
+				j <- j + 1
 			}
 		}
 		
@@ -48,10 +50,12 @@ svg.close <- function(){
 			unique_srcs <- unique_srcs[!is.na(unique_srcs)]
 
 			# Assign matching source directory index (javascript, first index 0)
+			j <- 1
 			for(src_obj in src_objs){
 				for(i in 1:length(svgviewr_env$svg[[src_obj]])){
-					if(is.null(svgviewr_env$svg[[src_obj]][[i]]$src) || svgviewr_env$svg[[src_obj]][[i]]$src == '') next
-					svgviewr_env$svg[[src_obj]][[i]]$src_idx <- which(unique_srcs == srcs[i]) - 1
+					if(is.null(svgviewr_env$svg[[src_obj]][[i]]$src) || svgviewr_env$svg[[src_obj]][[i]]$src == '') { j <- j + 1; next }
+					svgviewr_env$svg[[src_obj]][[i]]$src_idx <- which(unique_srcs == srcs[j]) - 1
+					j <- j + 1
 				}
 			}
 

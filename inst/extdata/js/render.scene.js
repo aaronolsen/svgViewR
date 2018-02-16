@@ -2,11 +2,12 @@
 var arrows = new Array( );
 var lines = new Array( );
 var meshes = new Array( );
+var images = new Array( );
 var spheres = new Array( );
 var sprites = new Array( );
 
 // Declare global variables
-var animation_times, animations, anim_pause_time, camera, controls, mesh_name, mesh_opacity, renderer, scene, stats;
+var animation_times, animations, anim_pause_time, camera, controls, image_name, image_opacity, mesh_name, mesh_opacity, renderer, scene, stats;
 var update_obj = {
     num: new Array(),
     type: new Array()
@@ -17,7 +18,9 @@ var anim_start = Date.now();				// Set animation start time
 var anim_pause = false;						// Start with animation paused
 var obj_add_ct = 0;							// Set initial object add count
 var mesh_load_ct = 0;						// Set initial mesh load count
-var meshes_ready = false;					// Start with meshes not ready
+var image_load_ct = 0;						// Set initial image load count
+var meshes_ready = false;					// Initially meshes not ready
+var images_ready = false;					// Initially images not ready
 
 function addLights(scene_center, distance, intensity){
 
@@ -48,6 +51,46 @@ function addLights(scene_center, distance, intensity){
 			sphereMesh.position.set(source[0], source[1], source[2]);
 			scene.add(sphereMesh);
 		}
+	}
+}
+
+function addImageToScene( texture ) {
+
+//alert(Object.getOwnPropertyNames(geometry));
+
+	var geometry = new THREE.PlaneGeometry( 5, 5, 32 );
+	var material = new THREE.MeshBasicMaterial({map: texture});
+	var plane = new THREE.Mesh( geometry, material );
+	scene.add( plane );
+
+	// Set plane opacity
+	if(image_opacity < 1){
+		material.transparent = true;
+		material.opacity = image_opacity;
+	}
+
+	// Set plane name
+	plane.name = image_name;
+	
+	// Add to planes
+	images.push(plane)
+
+	// Add to scene
+	scene.add( images[image_load_ct] );
+
+	// If additional images, load next image
+	if(image_load_ct+1 < svg_obj.image.length){
+
+		// Advance count
+		image_load_ct++;
+
+		// Load next image
+		loadNextImage();
+
+	}else{
+
+		// Confirm that images are ready
+		images_ready = true;
 	}
 }
 
@@ -133,7 +176,7 @@ function loadGeometries(){
 
 	var arrowHelper, canvas, context, dir, geometry, i, j, n, line, material, mesh, num_seg, origin;
 	var sprite, spriteMaterial, text, texture, text_length, text_size;
-	
+
 	//// Load lines
 	if(svg_obj.line != undefined){
 
@@ -338,6 +381,29 @@ function loadGeometries(){
 	}
 }
 
+function loadNextImage(){
+
+	if(svg_obj.image == undefined){
+		images_ready = true;
+		return;
+	}
+
+	var loader = new THREE.TextureLoader();
+	loader.load( app_dir[svg_obj.image[image_load_ct].src_idx] + '/' + svg_obj.image[image_load_ct].fname, addImageToScene);
+
+	// Set image name
+	image_name = svg_obj.image[image_load_ct].name;
+	image_opacity = svg_obj.image[image_load_ct].opacity;
+
+	// Check if position over time is specified
+	if(svg_obj.image[image_load_ct].position != undefined){
+
+		// Add type and number to 
+		update_obj.num.push(image_load_ct);
+		update_obj.type.push('image');
+	}
+}
+
 function loadNextMesh(){
 
 	if(svg_obj.mesh == undefined){
@@ -401,6 +467,10 @@ function loadNextMesh(){
 						//flatShading: true
 					} )
 		}
+
+		// Set mesh name
+		mesh_name = svg_obj.mesh[mesh_load_ct].name;
+		mesh_opacity = svg_obj.mesh[mesh_load_ct].opacity;
 
 		// Add mesh
 		addMeshToScene(geometry, material);
@@ -518,6 +588,9 @@ function onReady(){
 
 	// Start mesh loading
 	loadNextMesh();
+
+	// Start image loading
+	loadNextImage();
 
 	// Load coordinate objects
 	loadGeometries();
@@ -937,6 +1010,7 @@ function tryRender () {
 	
 	// If these are not loaded, do not render
 	if(meshes_ready == false) return;
+	if(images_ready == false) return;
 
 	// Stop running tryRender
 	clearInterval(try_render_int);
