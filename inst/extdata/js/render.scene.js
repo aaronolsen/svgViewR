@@ -531,20 +531,61 @@ function onObjectsReady(){
 	// Set bounding box
 	setBoundingBox();
 
-	// Setup the camera
-	camera = new THREE.PerspectiveCamera( fov=30, aspect=window.innerWidth / window.innerHeight, near=0.1, far=bbox_size*20 );
+	if(svg_obj.camera != undefined){
 
-	// Add camera controls
-	controls = new THREE.TrackballControls( camera );
+		// Get number of cameras
+		var cameras_length = svg_obj.camera.length;
 
-	//controls.addEventListener( 'change', render );
+		// For each camera
+		for(i = 0; i < cameras_length; i++){
 
+			// Setup the camera
+			camera = new THREE.PerspectiveCamera( fov=45, aspect=window.innerWidth / window.innerHeight, near=0.1, far=bbox_size*20 );
+
+			// Set camera position
+			camera.position.set(svg_obj.camera[i].x[0], svg_obj.camera[i].x[1], svg_obj.camera[i].x[2]);
+
+			// Set camera focal length
+			camera.setFocalLength(svg_obj.camera[i].focal);
+
+			// Add camera controls
+			if(svg_obj.camera[i].set == true){
+
+				// Set camera to controls
+				controls = new THREE.TrackballControls( camera );
+
+				// Set where the camera is targeted
+				controls.target.set(svg_obj.camera[i].target[0], svg_obj.camera[i].target[1], svg_obj.camera[i].target[2]);
+			}
+
+			// Set target as bounding box center
+			bbox_center = svg_obj.camera[i].target;
+		}
+
+	}else{
+
+		// Setup a camera
+		camera = new THREE.PerspectiveCamera( fov=45, aspect=window.innerWidth / window.innerHeight, near=0.1, far=bbox_size*20 );
+
+		// Set camera to controls
+		controls = new THREE.TrackballControls( camera );
+
+		// Set look at to scene
+		camera.lookAt(scene.position);
+
+		// Set camera to include all shapes
+		updateCameraPosition();
+	}
+
+	// Set controls
 	controls.rotateSpeed = 1.0;
 	controls.zoomSpeed = 1.2;
 	controls.panSpeed = 0.2;
 
-	// Set camera to include all shapes
-	updateCameraPosition();
+	renderer.render(scene, camera);
+	
+	controls.target.set( bbox_center[0], bbox_center[1], bbox_center[2]);
+	controls.update();
 
 	// Add lights
 	addLights(bbox_center, bbox_size, 1.5*0.95)
@@ -1140,8 +1181,8 @@ function updateCameraPosition(){
 	//alert(box_width + ' (' + screen_width + '),' + box_height + ' (' + screen_height + ') ' + n);
 
 	// Set where the camera is targeted
-	controls.target.set( bbox_center[0], bbox_center[1], bbox_center[2]);
-	controls.update();
+	//controls.target.set( bbox_center[0], bbox_center[1], bbox_center[2]);
+	//controls.update();
 }
 
 function updateShapes(time_index){
