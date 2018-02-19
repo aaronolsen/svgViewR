@@ -1,5 +1,5 @@
 create_sphere_mesh <- function(center = NULL, ends = NULL, radius = NULL, width = NULL, axes = NULL, 
-	col='blue', emissive=rgb(0.03, 0.15, 0.21), name = 'sphere', seg = 40, portion = 1){
+	seg = 40, portion = 1){
 
 	# Set width
 	if(is.null(width) && !is.null(radius)) width <- rep(radius*2, 3)
