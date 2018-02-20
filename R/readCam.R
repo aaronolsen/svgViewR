@@ -17,9 +17,13 @@ readCam <- function(file){
 	extrinsic[3,1:3] <- as.numeric(strsplit(read_lines[12], ',')[[1]])
 	extrinsic[,4] <- as.numeric(read_lines[15:17])
 
-	list(
+	camera <- list(
 		'image.size'=image_size,
 		'intrinsic'=intrinsic,
 		'extrinsic'=extrinsic
 	)
+	
+	class(camera) <- 'camera'
+	
+	camera
 }
