@@ -7,7 +7,7 @@ var spheres = new Array( );
 var sprites = new Array( );
 
 // Declare global variables
-var animation_times, animations, anim_pause_time, camera, controls, image_name, image_opacity, mesh_name, mesh_opacity, renderer, scene, stats;
+var animation_times, animations, anim_pause_time, camera, controls, image_name, image_obj, image_opacity, mesh_name, mesh_opacity, renderer, scene, stats;
 var update_obj = {
     num: new Array(),
     type: new Array()
@@ -56,23 +56,25 @@ function addLights(scene_center, distance, intensity){
 
 function addImageToScene( texture ) {
 
-//alert(Object.getOwnPropertyNames(geometry));
+	// Create geometry
+	var geometry = parseMeshGeometry(image_obj, geometry);
 
-	var geometry = new THREE.PlaneGeometry( 5, 5, 32 );
-	var material = new THREE.MeshBasicMaterial({map: texture});
+	//var geometry = new THREE.PlaneGeometry( 5, 5, 32 );
+	var material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
+
 	var plane = new THREE.Mesh( geometry, material );
 	scene.add( plane );
 
 	// Set plane opacity
-	if(image_opacity < 1){
+	if(image_obj.opacity < 1){
 		material.transparent = true;
-		material.opacity = image_opacity;
+		material.opacity = image_obj.opacity;
 	}
 
 	// Set plane name
-	plane.name = image_name;
+	plane.name = image_obj.name;
 	
-	// Add to planes
+	// Add to images
 	images.push(plane)
 
 	// Add to scene
@@ -391,9 +393,8 @@ function loadNextImage(){
 	var loader = new THREE.TextureLoader();
 	loader.load( app_dir[svg_obj.image[image_load_ct].src_idx] + '/' + svg_obj.image[image_load_ct].fname, addImageToScene);
 
-	// Set image name
-	image_name = svg_obj.image[image_load_ct].name;
-	image_opacity = svg_obj.image[image_load_ct].opacity;
+	// Set global image object
+	image_obj = svg_obj.image[image_load_ct]
 
 	// Check if position over time is specified
 	if(svg_obj.image[image_load_ct].position != undefined){
@@ -413,7 +414,7 @@ function loadNextMesh(){
 
 	if(svg_obj.mesh[mesh_load_ct].src_idx == undefined){
 		
-		var geometry, i, material, mesh, num_faces, num_vertices, vertex, face;
+		var i, material, mesh, num_faces, num_vertices, vertex, face;
 		
 		// Get mesh object
 		mesh = svg_obj.mesh[mesh_load_ct];
@@ -426,36 +427,17 @@ function loadNextMesh(){
 			update_obj.type.push('mesh');
 		}
 
-		// Create geometry
-		geometry = new THREE.Geometry();
-
 		if(mesh.parseModel){
 
+			// Create geometry
+			var geometry = new THREE.Geometry();
 			geometry = parseModel( mesh, geometry );
 			material = new THREE.MeshLambertMaterial( { color:mesh.col, emissive: mesh.emissive } );
 
 		}else{
 
-			// Get vertices
-			num_vertices = mesh.vertices.length;
-			i = 0;
-			while ( i < num_vertices ) {
-				vertex = new THREE.Vector3();
-				vertex.x = mesh.vertices[ i++ ];
-				vertex.y = mesh.vertices[ i++ ];
-				vertex.z = mesh.vertices[ i++ ];
-				geometry.vertices.push(vertex);
-			}
-
-			num_faces = mesh.faces.length;
-			i = 0;
-			while ( i < num_faces ) {
-				face = new THREE.Face3();
-				face.a = mesh.faces[ i++ ];
-				face.b = mesh.faces[ i++ ];
-				face.c = mesh.faces[ i++ ];
-				geometry.faces.push(face);
-			}
+			// Get mesh vertices and faces
+			geometry = parseMeshGeometry(mesh, geometry)
 
 			geometry.computeFaceNormals();
 			if(svg_obj.mesh[mesh_load_ct].computeVN == true) geometry.computeVertexNormals();
@@ -540,7 +522,7 @@ function onObjectsReady(){
 		for(i = 0; i < cameras_length; i++){
 
 			// Setup the camera
-			camera = new THREE.PerspectiveCamera( fov=45, aspect=window.innerWidth / window.innerHeight, near=0.1, far=bbox_size*20 );
+			camera = new THREE.PerspectiveCamera( fov=45, aspect=window.innerWidth / window.innerHeight, near=0.1, far=svg_obj.camera[i].far );
 
 			// Set camera position
 			camera.position.set(svg_obj.camera[i].x[0], svg_obj.camera[i].x[1], svg_obj.camera[i].x[2]);
@@ -641,6 +623,49 @@ function onReady(){
 
 	// Try rendering every 10 msec until all objects are finished loaded
 	try_render_int = setInterval(tryRender, 10);
+}
+
+function parseMeshGeometry( mesh ){
+
+	// Create geometry
+	var geometry = new THREE.Geometry();
+
+	// Get vertices
+	var num_vertices = mesh.vertices.length;
+	var i = 0;
+	while ( i < num_vertices ) {
+		vertex = new THREE.Vector3();
+		vertex.x = mesh.vertices[ i++ ];
+		vertex.y = mesh.vertices[ i++ ];
+		vertex.z = mesh.vertices[ i++ ];
+		geometry.vertices.push(vertex);
+	}
+
+	var num_faces = mesh.faces.length;
+	i = 0;
+	while ( i < num_faces ) {
+		face = new THREE.Face3();
+		face.a = mesh.faces[ i++ ];
+		face.b = mesh.faces[ i++ ];
+		face.c = mesh.faces[ i++ ];
+		geometry.faces.push(face);
+	}
+
+	if(mesh.uvs != undefined){
+
+		var num_uvs = mesh.uvs.length;
+
+		i = 0;
+		while ( i < num_uvs ) {
+			geometry.faceVertexUvs[0].push([
+				new THREE.Vector2(mesh.uvs[ i++ ], mesh.uvs[ i++ ]),
+				new THREE.Vector2(mesh.uvs[ i++ ], mesh.uvs[ i++ ]),
+				new THREE.Vector2(mesh.uvs[ i++ ], mesh.uvs[ i++ ])
+			]);
+		}
+	}
+	
+	return geometry
 }
 
 function parseModel( json, geometry ) {
