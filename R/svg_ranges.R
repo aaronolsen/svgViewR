@@ -19,7 +19,7 @@ svg_ranges <- function(x = NULL){
 				
 				corners <- NULL
 				
-				if(svgviewr_env$ref$type[oi] == 'mesh'){
+				if(svgviewr_env$ref$type[oi] %in% c('mesh', 'image')){
 
 					if(is.null(obj[['lim']])){
 
