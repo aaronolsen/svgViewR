@@ -1,6 +1,6 @@
 readCam <- function(file){
 	
-	# Reads MayaCam file exported from XMALab
+	## Reads MayaCam file exported from XMALab
 	
 	read_lines <- readLines(file)
 	
@@ -17,10 +17,19 @@ readCam <- function(file){
 	extrinsic[3,1:3] <- as.numeric(strsplit(read_lines[12], ',')[[1]])
 	extrinsic[,4] <- as.numeric(read_lines[15:17])
 
+	# Calculate camera parameters
+	cam_params <- cameraParameters(intrinsic, extrinsic, image_size)
+
 	camera <- list(
 		'image.size'=image_size,
 		'intrinsic'=intrinsic,
-		'extrinsic'=extrinsic
+		'extrinsic'=extrinsic,
+		'pinhole'=cam_params$pinhole,
+		'plane.corners'=cam_params$plane.corners,
+		'plane.dist'=cam_params$plane.dist,
+		'prin.uvec'=cam_params$prin.uvec,
+		'prin.vec'=cam_params$prin.vec,
+		'prin.axis'=cam_params$prin.axis
 	)
 	
 	class(camera) <- 'camera'
