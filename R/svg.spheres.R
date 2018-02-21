@@ -1,4 +1,4 @@
-svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0.21), 
+svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0.21), opacity = 1, 
 	name = 'sphere', wseg = 16, hseg = 16){
 
 	# Make sure that type is webgl
@@ -17,7 +17,8 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0
 
 			add_at <- length(svgviewr_env$svg$sphere)+1
 			svgviewr_env$svg$sphere[[add_at]] <- list('type'='sphere', 'name'=name, 'x'=setNames(x[i,], NULL), 
-				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=wseg, 'hseg'=hseg)
+				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=wseg, 'hseg'=hseg, 
+				'opacity'=opacity)
 
 			# Add object reference data
 			svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
@@ -32,7 +33,8 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0
 			# Add object
 			add_at <- length(svgviewr_env$svg$sphere)+1
 			svgviewr_env$svg$sphere[[add_at]] <- list('type'='sphere', 'name'=name, 'x'=setNames(x[i,,1], NULL), 
-				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=wseg, 'hseg'=hseg)
+				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=wseg, 'hseg'=hseg, 
+				'opacity'=opacity)
 
 			# Add object reference data
 			svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)

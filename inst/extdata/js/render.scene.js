@@ -349,6 +349,11 @@ function loadGeometries(){
 						//side: THREE.DoubleSide,
 					} )
 
+			if(svg_obj.sphere[i].opacity < 1){
+				material.transparent = true;
+				material.opacity = svg_obj.sphere[i].opacity;
+			}
+
 			// mesh maps the material onto the geometry to make an object  
 			mesh = new THREE.Mesh( geometry, material ) ;
 
