@@ -116,7 +116,7 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 		
 		# Set corners
 		corners <- lim2corners(obj_ranges)
-		
+
 		# Add limits to object
 		svgviewr_env$svg$mesh[[add_at]][['lim']] <- obj_ranges
 		svgviewr_env$svg$mesh[[add_at]][['corners']] <- corners

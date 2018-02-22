@@ -1,8 +1,9 @@
-svg.images <- function(file, corners, name = gsub('[.][A-Za-z]+$', '', tail(strsplit(file, '/')[[1]], 1)), 
-	seg = 2, opacity = 1){
+svg.images <- function(file, corners, name = gsub('[.][A-Za-z]+$', '', tail(strsplit(file[1], '/')[[1]], 1)), 
+	seg = 2, opacity = 1, times = NULL){
 
-	# Make sure that type is webgl
+	# Make sure that type is webgl and html
 	if('svg' == getOption("svgviewr_glo_type")) stop("Image plotting is currently only available with webgl svgViewR output.")
+	if('html' == getOption("svgviewr_glo_type")) stop('Image plotting is currently only available with server-based visualization.')
 
 	# Get viewer environment
 	env <- as.environment(getOption("svgviewr_glo_env"))
@@ -16,30 +17,40 @@ svg.images <- function(file, corners, name = gsub('[.][A-Za-z]+$', '', tail(strs
 	# Set where to add object
 	add_at <- length(svgviewr_env$svg$image)+1
 
-	# Check that file exists
-	if(!file.exists(file)) stop(paste0('Input file "', file, '" not found.'))
+	# Create vector for filenames
+	input_params$fname <- rep(NA, length(file))
 
-	# Check that file is json format
-	if(!grepl('[.](jpeg|jpg)$', file)) stop(paste0('Input file "', file, '" is of unrecognized file type. Currently only jpeg files are allowed.'))
+	# For each file
+	for(i in 1:length(file)){
 
-	#
-	if('html' == getOption("svgviewr_glo_type")) stop('Image plotting is currently only available with server-based visualization.')
+		# Check that file exists
+		if(!file.exists(file[i])) stop(paste0('Input file "', file[i], '" not found.'))
 
+		# Check that file is json format
+		if(!grepl('[.](jpeg|jpg)$', file[i])) stop(paste0('Input file "', file[i], '" is of unrecognized file type. Currently only jpeg files are allowed.'))
+
+		# Set filename
+		input_params$fname[i] <- tail(strsplit(file[i], '/')[[1]], 1)
+	}
+	
+	## Get source directory
 	# Get absolute file path (rook app doesn't work with relative paths)
-	file <- normalizePath(path=file)
+	file_norm <- normalizePath(path=file[1])
 
 	# Separate directory and filename
-	file_strsplit <- strsplit(file, '/')[[1]]
-
-	# Set filename
-	input_params$fname <- tail(file_strsplit, 1)
+	file_norm_split <- strsplit(file_norm, '/')[[1]]
 
 	# Set directory path
 	input_params$src <- ''
-	if(length(file_strsplit) > 1) input_params$src <- paste0(paste0(file_strsplit[1:(length(file_strsplit)-1)], collapse='/'), '/')
+	if(length(file_norm_split) > 1) input_params$src <- paste0(paste0(file_norm_split[1:(length(file_norm_split)-1)], collapse='/'), '/')
 
 	# Duplicate single segment value
 	if(length(seg) == 1) seg <- rep(seg, 2)
+
+	# If multiple images, define number of animation times if not already defined
+	if(!is.null(times) && length(file) > 1){
+		if(is.null(svgviewr_env$svg$animate$times)) svgviewr_env$svg$animate$times <- times
+	}
 
 	# Create plane mesh
 	plane_mesh <- create_plane_mesh(corners, seg, create.uvs=TRUE)

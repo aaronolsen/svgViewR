@@ -3,6 +3,7 @@ var arrows = new Array( );
 var lines = new Array( );
 var meshes = new Array( );
 var images = new Array( );
+var textures = new Array( );
 var spheres = new Array( );
 var sprites = new Array( );
 
@@ -18,9 +19,12 @@ var anim_start = Date.now();				// Set animation start time
 var anim_pause = false;						// Start with animation paused
 var obj_add_ct = 0;							// Set initial object add count
 var mesh_load_ct = 0;						// Set initial mesh load count
-var image_load_ct = 0;						// Set initial image load count
+var image_idx_ct = 0;						// 
+var texture_idx_ct = 0;						// 
+var texture_load_ct = 0;					// 
 var meshes_ready = false;					// Initially meshes not ready
 var images_ready = false;					// Initially images not ready
+var image_textures_ready = false;
 
 function addLights(scene_center, distance, intensity){
 
@@ -54,45 +58,29 @@ function addLights(scene_center, distance, intensity){
 	}
 }
 
-function addImageToScene( texture ) {
+function addTexture( texture ) {
 
-	// Create geometry
-	var geometry = parseMeshGeometry(image_obj, geometry);
+	// Add to textures
+	textures[texture_idx_ct].push(texture);
 
-	//var geometry = new THREE.PlaneGeometry( 5, 5, 32 );
-	var material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
-
-	var plane = new THREE.Mesh( geometry, material );
-	scene.add( plane );
-
-	// Set plane opacity
-	if(image_obj.opacity < 1){
-		material.transparent = true;
-		material.opacity = image_obj.opacity;
-	}
-
-	// Set plane name
-	plane.name = image_obj.name;
-	
-	// Add to images
-	images.push(plane)
-
-	// Add to scene
-	scene.add( images[image_load_ct] );
-
-	// If additional images, load next image
-	if(image_load_ct+1 < svg_obj.image.length){
+	// If additional textures, load next texture
+	if(texture_load_ct+1 < svg_obj.image[image_idx_ct].fname.length){
 
 		// Advance count
-		image_load_ct++;
+		texture_load_ct++;
 
 		// Load next image
-		loadNextImage();
+		loadNextTexture();
 
 	}else{
 
-		// Confirm that images are ready
-		images_ready = true;
+		// Advance indices once all are loaded
+		texture_load_ct = 0;
+		texture_idx_ct++;
+		image_idx_ct++;
+		
+		// Move to next image
+		loadNextImageTexture();
 	}
 }
 
@@ -388,26 +376,78 @@ function loadGeometries(){
 	}
 }
 
-function loadNextImage(){
+function loadImages(){
 
-	if(svg_obj.image == undefined){
-		images_ready = true;
+	var geometry, i, material, plane, texture_idx;
+
+	// Get number of images
+	num_images = svg_obj.image.length;
+	
+	for(i = 0; i < num_images; i++){
+
+		// Parse mesh geometry
+		geometry = parseMeshGeometry(svg_obj.image[i]);
+		
+		// Get texture index
+		texture_idx = svg_obj.image[i].texture_idx;
+
+		// Get material from loaded texture
+		material = new THREE.MeshBasicMaterial({map: textures[texture_idx][0], side: THREE.DoubleSide});
+
+		plane = new THREE.Mesh( geometry, material );
+		scene.add( plane );
+
+		// Set plane opacity
+		if(svg_obj.image[i].opacity < 1){
+			material.transparent = true;
+			material.opacity = svg_obj.image[i].opacity;
+		}
+
+		// Set plane name
+		plane.name = svg_obj.image[i].name;
+	
+		// Add to images
+		images.push(plane)
+
+		// Add to scene
+		scene.add( images[i] );
+
+		// Check if position over time is specified
+		if(typeof(svg_obj.image[i].fname) == 'object'){
+
+			// Add type and number
+			update_obj.num.push(i);
+			update_obj.type.push('image');
+		}
+	}
+
+	images_ready = true;
+}
+
+function loadNextImageTexture(){
+
+	if(svg_obj.image == undefined) return;
+
+	// If no additional textures, end
+	if(image_idx_ct+1 > svg_obj.image.length){
+
+		// Confirm that images are ready
+		image_textures_ready = true;
+		
+		// Load images
+		loadImages();
+		
 		return;
 	}
 
-	var loader = new THREE.TextureLoader();
-	loader.load( app_dir[svg_obj.image[image_load_ct].src_idx] + '/' + svg_obj.image[image_load_ct].fname, addImageToScene);
+	// Set index in texture array to find loaded textures
+	svg_obj.image[image_idx_ct].texture_idx = texture_idx_ct;
 
-	// Set global image object
-	image_obj = svg_obj.image[image_load_ct]
+	// Add array at look-up index
+	textures[texture_idx_ct] = new Array( );
 
-	// Check if position over time is specified
-	if(svg_obj.image[image_load_ct].position != undefined){
-
-		// Add type and number to 
-		update_obj.num.push(image_load_ct);
-		update_obj.type.push('image');
-	}
+	// Start loading textures
+	loadNextTexture();
 }
 
 function loadNextMesh(){
@@ -442,7 +482,7 @@ function loadNextMesh(){
 		}else{
 
 			// Get mesh vertices and faces
-			geometry = parseMeshGeometry(mesh, geometry)
+			geometry = parseMeshGeometry(mesh);
 
 			geometry.computeFaceNormals();
 			if(svg_obj.mesh[mesh_load_ct].computeVN == true) geometry.computeVertexNormals();
@@ -484,6 +524,17 @@ function loadNextMesh(){
 			update_obj.num.push(mesh_load_ct);
 			update_obj.type.push('mesh');
 		}
+	}
+}
+
+function loadNextTexture(){
+
+	// Load texture
+	var loader = new THREE.TextureLoader();
+	if(typeof(svg_obj.image[image_idx_ct].fname) == 'string'){
+		loader.load( app_dir[svg_obj.image[image_idx_ct].src_idx] + '/' + svg_obj.image[image_idx_ct].fname, addTexture);
+	}else{
+		loader.load( app_dir[svg_obj.image[image_idx_ct].src_idx] + '/' + svg_obj.image[image_idx_ct].fname[texture_load_ct], addTexture);
 	}
 }
 
@@ -617,8 +668,8 @@ function onReady(){
 	// Start mesh loading
 	loadNextMesh();
 
-	// Start image loading
-	loadNextImage();
+	// Load all textures for any images, after all of these are loaded images will be loaded
+	loadNextImageTexture();
 
 	// Load coordinate objects
 	loadGeometries();
@@ -1217,7 +1268,7 @@ function updateCameraPosition(){
 
 function updateShapes(time_index){
 
-	var num, type, i, j, k, set_prop, set_val, tracks_length;
+	var num, type, i, j, k, obj_num, obj_type, set_prop, set_val, tracks_length;
 
 	//// Apply animation transformations
 	if(animate == true){
@@ -1226,34 +1277,48 @@ function updateShapes(time_index){
 		var update_obj_length = update_obj.num.length;
 
 		for (i = 0; i < update_obj_length; i++){
-		
-			if(update_obj.type[i] == 'mesh'){
-				meshes[update_obj.num[i]].position.x = svg_obj.mesh[update_obj.num[i]].position[time_index][0];
-				meshes[update_obj.num[i]].position.y = svg_obj.mesh[update_obj.num[i]].position[time_index][1];
-				meshes[update_obj.num[i]].position.z = svg_obj.mesh[update_obj.num[i]].position[time_index][2];
+			
+			// Set object number and type
+			obj_num = update_obj.num[i];
+			obj_type = update_obj.type[i];
 
-				meshes[update_obj.num[i]].rotation.x = svg_obj.mesh[update_obj.num[i]].rotation[time_index][0];
-				meshes[update_obj.num[i]].rotation.y = svg_obj.mesh[update_obj.num[i]].rotation[time_index][1];
-				meshes[update_obj.num[i]].rotation.z = svg_obj.mesh[update_obj.num[i]].rotation[time_index][2];
+			if(obj_type == 'image'){
+
+				// Get texture index
+				texture_idx = svg_obj.image[obj_num].texture_idx;
+
+				// Get material from loaded texture
+				//material = new THREE.MeshBasicMaterial({map: textures[texture_idx][time_index], side: THREE.DoubleSide});
+				images[obj_num].material.map = textures[texture_idx][time_index];
 			}
 
-			if(update_obj.type[i] == 'sphere'){
-				spheres[update_obj.num[i]].position.x = spheres[update_obj.num[i]].x_tm[time_index][0];
-				spheres[update_obj.num[i]].position.y = spheres[update_obj.num[i]].x_tm[time_index][1];
-				spheres[update_obj.num[i]].position.z = spheres[update_obj.num[i]].x_tm[time_index][2];
+			if(obj_type == 'mesh'){
+				meshes[obj_num].position.x = svg_obj.mesh[obj_num].position[time_index][0];
+				meshes[obj_num].position.y = svg_obj.mesh[obj_num].position[time_index][1];
+				meshes[obj_num].position.z = svg_obj.mesh[obj_num].position[time_index][2];
+
+				meshes[obj_num].rotation.x = svg_obj.mesh[obj_num].rotation[time_index][0];
+				meshes[obj_num].rotation.y = svg_obj.mesh[obj_num].rotation[time_index][1];
+				meshes[obj_num].rotation.z = svg_obj.mesh[obj_num].rotation[time_index][2];
 			}
 
-			if(update_obj.type[i] == 'line'){
+			if(obj_type == 'sphere'){
+				spheres[obj_num].position.x = spheres[obj_num].x_tm[time_index][0];
+				spheres[obj_num].position.y = spheres[obj_num].x_tm[time_index][1];
+				spheres[obj_num].position.z = spheres[obj_num].x_tm[time_index][2];
+			}
+
+			if(obj_type == 'line'){
 				// Update each segment
 				k = 0;
 				for(j = 0; j < svg_obj.line[i].nseg*3; j = j + 3){
-					lines[update_obj.num[i]].geometry.vertices[k].x = lines[update_obj.num[i]].x_tm[time_index][j];
-					lines[update_obj.num[i]].geometry.vertices[k].y = lines[update_obj.num[i]].x_tm[time_index][j+1];
-					lines[update_obj.num[i]].geometry.vertices[k].z = lines[update_obj.num[i]].x_tm[time_index][j+2];
+					lines[obj_num].geometry.vertices[k].x = lines[obj_num].x_tm[time_index][j];
+					lines[obj_num].geometry.vertices[k].y = lines[obj_num].x_tm[time_index][j+1];
+					lines[obj_num].geometry.vertices[k].z = lines[obj_num].x_tm[time_index][j+2];
 					k++;
 				}
 				// Update vertices
-				lines[update_obj.num[i]].geometry.verticesNeedUpdate = true;
+				lines[obj_num].geometry.verticesNeedUpdate = true;
 			}
 		}
 	}
