@@ -88,6 +88,27 @@ svg.close <- function(){
 			svgviewr_env$js_var[['animation_ntimes']] <- length(svgviewr_env$svg$animate$times)
 			svgviewr_env$js_var[['animation_duration']] <- svgviewr_env$js_var[['animation_end']] - svgviewr_env$js_var[['animation_start']]
 		}
+		
+		# Check save as image parameters
+		if(svgviewr_env$js_var[['save_as_img']]){
+			
+			if(!is.null(svgviewr_env$svg$animate$times)){
+				if(!is.null(svgviewr_env$js_var[['save_as_img_paths']])){
+				
+					# Check that number of images matches number of frames
+					if(length(svgviewr_env$js_var[['save_as_img_paths']]) != svgviewr_env$js_var[['animation_ntimes']]){
+						stop(paste0("The number of specified image filenames (", length(svgviewr_env$js_var[['save_as_img_paths']]), 
+							") does not match the number of animation time points (", svgviewr_env$js_var[['animation_ntimes']], ")"))
+					}
+				}else{
+					
+					# Create image names from frames
+					svgviewr_env$js_var[['save_as_img_paths']] <- paste0(svgviewr_env$js_var[['save_as_img_dir']], 
+						'/', formatC(1:svgviewr_env$js_var[['animation_ntimes']], width=5, flag='0'), '.', 
+						svgviewr_env$js_var[['save_as_img_type']])
+				}
+			}
+		}
 
 		# Get js variables
 		js_var <- svgviewr_env$js_var
@@ -113,23 +134,38 @@ svg.close <- function(){
 			# Start server
 			svgviewr_env$R.server$start(quiet=TRUE)
 
-			# Create app to handle requests and responses
-			Rook.app <- function(rook_env) {
+			viewer_app <- function(rook_env) {
 
 				request <- Request$new(rook_env)
 				response <- Response$new()
-
-				page_html <- write_HTML(srcs=unique_srcs, json=svg_json, js.var=js_var, server=svgviewr_env$R.server)
 				
-				response$write(page_html)
+				#print(request$POST())
+
+				# If non NULL, process POST request
+				if(!is.null(request$POST())){
+					
+					request_post <- request$POST()
+
+					# Save image
+					if(request_post[['function']] == 'save_image') viewer_save_image(from=request_post$image$tempfile, 
+						to=request_post$save_image_as)
+
+					#write(request_post[['from_browser']], file='test.txt')
+					response$write('TEST')
+					
+					#print(response)
+
+				}else{
+
+					page_html <- write_HTML(srcs=unique_srcs, json=svg_json, js.var=js_var, server=svgviewr_env$R.server)
+					response$write(page_html)
+				}
 
 				response$finish()
 			}
 
-			# Write html for page
-
 			# Add your Rook app to the Rhttp object
-			svgviewr_env$R.server$add(app = Rook.app, name = "svgViewR")
+			svgviewr_env$R.server$add(app = viewer_app, name = "svgViewR")
 
 			# view your web app in a browser
 			svgviewr_env$R.server$browse("svgViewR")

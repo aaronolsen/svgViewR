@@ -4,17 +4,87 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 	animate.speed = 1, animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
 	time.units = 'sec', clock = FALSE, stats = FALSE, show.control = TRUE, start.rotate = TRUE, 
 	rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, layers = NULL, connection = TRUE, 
-	mode = c('svg', 'webgl'), debug = FALSE){
+	mode = c('svg', 'webgl'), close.on.done = TRUE, file.type = NULL, debug = FALSE){
 
 	digits <- 6
-
-	# Set connection type
-	if(is.null(file)) mode[1] <- 'webgl'
-	if(mode[1] == 'webgl' && is.null(file)) options("svgviewr_glo_type"='live')
-	if(mode[1] == 'webgl' && !is.null(file)) options("svgviewr_glo_type"='html')
+	
+	# Old svg mode - default if mode[1] is svg
 	if(mode[1] == 'svg') options("svgviewr_glo_type"='svg')
+	
+	# Whether to save plot as images
+	save_as_img <- FALSE
+	save_as_img_dir <- NULL
+	save_as_img_paths <- NULL
 
-	if(mode[1] == 'webgl'){
+	## Set connection type
+	# If file is non NULL
+	if(!is.null(file)){
+
+		#
+		if(mode[1] == 'webgl') options("svgviewr_glo_type"='html')
+
+		# Is file directory?
+		is_file_dir <- FALSE
+		if(file[1] == ""){
+
+			#
+			is_file_dir <- TRUE
+
+			# Set current working directory as image directory
+			save_as_img_dir <- file <- getwd()
+			
+			# Make sure that file.type is specified
+			if(is.null(file.type)) stop('To save plot as an image or series of images please specify a valid image type (e.g. jpeg, jpg, tiff, png) as "file.type".')
+
+		}else{
+		
+			# Check if file
+			if(!grepl('[.](jpeg|jpg|tiff|png|html)$', file[1], ignore.case=TRUE)) is_file_dir <- TRUE
+
+			# If directory, make sure that directory exists
+			if(is_file_dir && !file.exists(file[1])) stop(paste0('Input file directory "', file[1], '" not found.'))
+		}
+
+		# If file
+		if(!is_file_dir){
+			
+			# If image file
+			if(grepl('[.](jpeg|jpg|tiff|png)$', file[1], ignore.case=TRUE)){
+
+				# Set to save plot as image(s)
+				save_as_img <- TRUE
+
+				# Set type
+				file.type <- tolower(tail(strsplit(file[1], '[.]')[[1]], 1))
+			
+				# Set directory
+				save_as_img_dir <- normalizePath(path=dirname(file[1]))
+
+				# Set image names
+				save_as_img_fnames <- unlist(lapply(strsplit(file, '/'), tail, 1))
+				save_as_img_paths <- paste0(save_as_img_dir, '/', save_as_img_fnames)
+			}
+
+		}else{
+			
+			# Directory
+			save_as_img_dir <- normalizePath(path=file[1])
+		}
+		
+		# Is directory - will be generating images
+		if(is_file_dir) save_as_img <- TRUE
+
+		# If saving as image(s) will use live viewer
+		if(save_as_img) options("svgviewr_glo_type"='live')
+
+	}else{
+
+		# If file is NULL, set viewer to live server
+		options("svgviewr_glo_type"='live')
+	}
+
+	# If viewer type is html or live
+	if(options("svgviewr_glo_type") %in% c('html', 'live')){
 	
 		# Check whether package is loaded from source or library
 		app_dir <- tryCatch({
@@ -68,7 +138,12 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		svgviewr_env$js_var[['rotateSpeed']] <- rotate.speed
 		svgviewr_env$js_var[['zoomSpeed']] <- zoom.speed
 		svgviewr_env$js_var[['panSpeed']] <- pan.speed
-		svgviewr_env$js_var[['file']] <- file
+		svgviewr_env$js_var[['file']] <- file[1]
+		svgviewr_env$js_var[['save_as_img']] <- save_as_img
+		svgviewr_env$js_var[['save_as_img_dir']] <- save_as_img_dir
+		svgviewr_env$js_var[['save_as_img_type']] <- file.type
+		svgviewr_env$js_var[['save_as_img_paths']] <- save_as_img_paths
+		svgviewr_env$js_var[['save_as_img_close']] <- close.on.done
 		
 		# Create name reference
 		svgviewr_env$ref <- list()
@@ -80,7 +155,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		svgviewr_env$svg$animate <- list()
 
 		## Create server connection to plot WebGL graphics
-		if(is.null(file)){
+		if(options("svgviewr_glo_type") == 'live'){
 
 			# Try stopping server, if running
 			tryCatch({ svgviewr_env$R.server$stop() }, error = function(e) {}, warning = function(e) {})

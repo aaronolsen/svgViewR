@@ -22,9 +22,49 @@ var mesh_load_ct = 0;						// Set initial mesh load count
 var image_idx_ct = 0;						// 
 var texture_idx_ct = 0;						// 
 var texture_load_ct = 0;					// 
+var save_as_img_ct = 0;
 var meshes_ready = false;					// Initially meshes not ready
 var images_ready = false;					// Initially images not ready
 var image_textures_ready = false;
+
+function addFirstTexture(texture){
+
+	var geometry, material, plane;
+
+	// Add to textures
+	textures[texture_idx_ct].push(texture);
+
+	// Parse mesh geometry
+	geometry = parseMeshGeometry(svg_obj.image[image_idx_ct]);
+		
+	// Get material from loaded texture
+	material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
+
+	plane = new THREE.Mesh( geometry, material );
+	scene.add( plane );
+
+	// Set plane opacity
+	if(svg_obj.image[image_idx_ct].opacity < 1){
+		material.transparent = true;
+		material.opacity = svg_obj.image[image_idx_ct].opacity;
+	}
+
+	// Set plane name
+	plane.name = svg_obj.image[image_idx_ct].name;
+	
+	// Add to images
+	images.push(plane)
+
+	// Add to scene
+	scene.add( images[image_idx_ct] );
+
+	// Advance indices once all are loaded
+	texture_idx_ct++;
+	image_idx_ct++;
+
+	// Move to next image
+	loadFirstImageTexture();
+}
 
 function addLights(scene_center, distance, intensity){
 
@@ -69,18 +109,18 @@ function addTexture( texture ) {
 		// Advance count
 		texture_load_ct++;
 
-		// Load next image
+		// Load next texture
 		loadNextTexture();
 
 	}else{
 
 		// Advance indices once all are loaded
-		texture_load_ct = 0;
+		texture_load_ct = 1;
 		texture_idx_ct++;
 		image_idx_ct++;
 		
 		// Move to next image
-		loadNextImageTexture();
+		loadSubsequentTextures();
 	}
 }
 
@@ -160,6 +200,54 @@ function loadAnimation() {
 
 	// Set animation times
 	animation_times = svg_obj.animate.times;
+}
+
+function loadFirstImageTexture(){
+
+	if(svg_obj.image == undefined){
+		images_ready = true;
+		image_textures_ready = true;
+		return;
+	}
+
+	// If no additional images, start loading any/all textures after first iteration
+	if(image_idx_ct+1 > svg_obj.image.length){
+
+		// Confirm that images are ready
+		images_ready = true;
+
+		// Reset indices
+		image_idx_ct = 0;
+		texture_idx_ct = 0;
+		texture_load_ct = 1;
+		
+		// Load subsequent textures
+		loadSubsequentTextures();
+		
+		return;
+	}
+
+	// Set index in texture array to find loaded textures
+	svg_obj.image[image_idx_ct].texture_idx = texture_idx_ct;
+
+	// Add array at look-up index
+	textures[texture_idx_ct] = new Array( );
+
+	// Add to animated objects
+	if(typeof(svg_obj.image[image_idx_ct].fname) == 'object'){
+
+		// Add type and number
+		update_obj.num.push(image_idx_ct);
+		update_obj.type.push('image');
+	}
+
+	// Load texture
+	var loader = new THREE.TextureLoader();
+	if(typeof(svg_obj.image[image_idx_ct].fname) == 'string'){
+		loader.load( app_dir[svg_obj.image[image_idx_ct].src_idx] + '/' + svg_obj.image[image_idx_ct].fname, addFirstTexture);
+	}else{
+		loader.load( app_dir[svg_obj.image[image_idx_ct].src_idx] + '/' + svg_obj.image[image_idx_ct].fname[texture_load_ct], addFirstTexture);
+	}
 }
 
 function loadGeometries(){
@@ -376,80 +464,6 @@ function loadGeometries(){
 	}
 }
 
-function loadImages(){
-
-	var geometry, i, material, plane, texture_idx;
-
-	// Get number of images
-	num_images = svg_obj.image.length;
-	
-	for(i = 0; i < num_images; i++){
-
-		// Parse mesh geometry
-		geometry = parseMeshGeometry(svg_obj.image[i]);
-		
-		// Get texture index
-		texture_idx = svg_obj.image[i].texture_idx;
-
-		// Get material from loaded texture
-		material = new THREE.MeshBasicMaterial({map: textures[texture_idx][0], side: THREE.DoubleSide});
-
-		plane = new THREE.Mesh( geometry, material );
-		scene.add( plane );
-
-		// Set plane opacity
-		if(svg_obj.image[i].opacity < 1){
-			material.transparent = true;
-			material.opacity = svg_obj.image[i].opacity;
-		}
-
-		// Set plane name
-		plane.name = svg_obj.image[i].name;
-	
-		// Add to images
-		images.push(plane)
-
-		// Add to scene
-		scene.add( images[i] );
-
-		// Check if position over time is specified
-		if(typeof(svg_obj.image[i].fname) == 'object'){
-
-			// Add type and number
-			update_obj.num.push(i);
-			update_obj.type.push('image');
-		}
-	}
-
-	images_ready = true;
-}
-
-function loadNextImageTexture(){
-
-	if(svg_obj.image == undefined) return;
-
-	// If no additional textures, end
-	if(image_idx_ct+1 > svg_obj.image.length){
-
-		// Confirm that images are ready
-		image_textures_ready = true;
-		
-		// Load images
-		loadImages();
-		
-		return;
-	}
-
-	// Set index in texture array to find loaded textures
-	svg_obj.image[image_idx_ct].texture_idx = texture_idx_ct;
-
-	// Add array at look-up index
-	textures[texture_idx_ct] = new Array( );
-
-	// Start loading textures
-	loadNextTexture();
-}
-
 function loadNextMesh(){
 
 	if(svg_obj.mesh == undefined){
@@ -529,13 +543,37 @@ function loadNextMesh(){
 
 function loadNextTexture(){
 
-	// Load texture
-	var loader = new THREE.TextureLoader();
 	if(typeof(svg_obj.image[image_idx_ct].fname) == 'string'){
-		loader.load( app_dir[svg_obj.image[image_idx_ct].src_idx] + '/' + svg_obj.image[image_idx_ct].fname, addTexture);
+
+		// Advance indices for next image
+		image_idx_ct++;
+		texture_idx_ct++;
+		texture_load_ct = 1;
+		
+		// Try to load next texture
+		loadSubsequentTextures();
+
 	}else{
+
+		// Load texture
+		var loader = new THREE.TextureLoader();
 		loader.load( app_dir[svg_obj.image[image_idx_ct].src_idx] + '/' + svg_obj.image[image_idx_ct].fname[texture_load_ct], addTexture);
 	}
+}
+
+function loadSubsequentTextures(){
+
+	// If no additional textures, end
+	if(image_idx_ct+1 > svg_obj.image.length){
+
+		// Confirm that images are ready
+		image_textures_ready = true;
+
+		return;
+	}
+
+	// Start loading textures
+	loadNextTexture();
 }
 
 function nearestPow2( aSize ){
@@ -637,6 +675,7 @@ function onReady(){
 
 		// Spacebar event
 		if(e.keyCode == 32){
+		
 			if(anim_pause) { 
 				anim_pause = false; 
 			}else{ 
@@ -661,15 +700,21 @@ function onReady(){
 	//container.appendChild( stats.dom );
 
 	// Setup the renderer
-	renderer = new THREE.WebGLRenderer( {antialias: true } );
+	renderer = new THREE.WebGLRenderer( {
+		antialias: true,
+		preserveDrawingBuffer: true
+	} );
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	document.body.appendChild(renderer.domElement);
 
 	// Start mesh loading
 	loadNextMesh();
 
+	// Load first texture of each image and images
+	loadFirstImageTexture();
+
 	// Load all textures for any images, after all of these are loaded images will be loaded
-	loadNextImageTexture();
+	//loadNextImageTexture();
 
 	// Load coordinate objects
 	loadGeometries();
@@ -1133,6 +1178,7 @@ function tryRender () {
 	// If these are not loaded, do not render
 	if(meshes_ready == false) return;
 	if(images_ready == false) return;
+	if(image_textures_ready == false) return;
 
 	// Stop running tryRender
 	clearInterval(try_render_int);
@@ -1140,13 +1186,28 @@ function tryRender () {
 	// Set viewing frame, camera and lights
 	onObjectsReady();
 
-	// Render scene
-	render();
+	if(save_as_img == true){
+
+		// Render to scene
+		renderer.render(scene, camera);
+		
+		// Start count of saved images
+		save_as_img_ct = 0;
+		
+		// Send rendered visualization to server as image
+		saveFramesAsImages(save_as_img_ct);
+
+	}else{
+
+		// Render scene
+		render();
+	}
 }
 
 // After loading JSON from our file, we add it to the scene
 var render = function () {
 
+	//document.getElementById( "alert" ).innerHTML = document.getElementById( "alert" ).innerHTML + '.';
 	requestAnimationFrame(render);
 
 	if(animate){
@@ -1184,9 +1245,91 @@ var render = function () {
 
 	//stats.update();
 	controls.update();
-
 	renderer.render(scene, camera);
 };
+
+function saveFramesAsImages(save_as_img_ct){
+
+	// Check if all images have already been submitted
+	if(save_as_img_ct == save_as_img_paths.length){
+	
+		// Close on all loaded if specified
+		if(save_as_img_close) window.close();
+		
+		//document.getElementById( "alert" ).innerHTML = 'Done';
+		return;
+	}
+	
+	// If animation, find closest time point in animation
+	if(animate){
+
+		// Update shapes using count as time index (should be same as number of frames)
+		updateShapes(save_as_img_ct);
+
+		// Update renderer
+		renderer.render(scene, camera);
+	}
+
+	// Set animation to frame
+
+	// Save current frame as image
+	var dataUrl = renderer.domElement.toDataURL('image/jpeg', 1.0);
+
+	var fd = new FormData(document.getElementById( "form" ));
+	var blob = dataURItoBlob(dataUrl);
+	var fd = new FormData(document.forms[0]);
+	fd.append("image", blob);
+	fd.append("function", 'save_image');
+	fd.append("save_image_as", decodeURI(save_as_img_paths[save_as_img_ct]));
+
+	// Creates an image at $tempfile - should be removed after copying over
+	var xhr = new XMLHttpRequest();
+
+	// Function to call on receipt (can also be used to receive text from server after request)
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == XMLHttpRequest.DONE) {
+
+			//document.getElementById( "alert" ).innerHTML = save_as_img_ct;
+
+			// Advance count
+			save_as_img_ct++;
+			
+			// Call on next image
+			saveFramesAsImages(save_as_img_ct);
+		}
+	};
+
+	xhr.open('POST', server_url + '/custom/svgViewR', true);
+	xhr.send(fd);
+
+	document.getElementById( "form_input" ).value = fd;
+}
+
+function submit(){
+
+	// Submit
+	//document.getElementById( "form" ).submit();
+}
+
+function dataURItoBlob(dataURI) {
+    // convert base64/URLEncoded data component to raw binary data held in a string
+    var byteString;
+    if (dataURI.split(',')[0].indexOf('base64') >= 0)
+        byteString = atob(dataURI.split(',')[1]);
+    else
+        byteString = unescape(dataURI.split(',')[1]);
+
+    // separate out the mime component
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+    // write the bytes of the string to a typed array
+    var ia = new Uint8Array(byteString.length);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([ia], {type:mimeString});
+}
 
 function updateCameraPosition(){
 
@@ -1268,6 +1411,8 @@ function updateCameraPosition(){
 
 function updateShapes(time_index){
 
+	//document.getElementById( "alert" ).innerHTML = document.getElementById( "alert" ).innerHTML + ',' + time_index;
+
 	var num, type, i, j, k, obj_num, obj_type, set_prop, set_val, tracks_length;
 
 	//// Apply animation transformations
@@ -1286,6 +1431,11 @@ function updateShapes(time_index){
 
 				// Get texture index
 				texture_idx = svg_obj.image[obj_num].texture_idx;
+
+				//if(images[obj_num] == undefined) continue;
+				if(texture_idx + 1 > textures[texture_idx].length) continue;
+
+				//document.getElementById( "alert" ).innerHTML = 'Alert: ' + obj_num + ',' + obj_type + ',' + textures[texture_idx].length;
 
 				// Get material from loaded texture
 				//material = new THREE.MeshBasicMaterial({map: textures[texture_idx][time_index], side: THREE.DoubleSide});
@@ -1324,9 +1474,16 @@ function updateShapes(time_index){
 	}
 }
 
+xhr_close_on_change = function() {
+	if (xhr.readyState == XMLHttpRequest.DONE) {
+		window.close()
+	}
+}
+
 window.onresize = function () {
 	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
 	controls.handleResize();
 	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.render(scene, camera);
 };

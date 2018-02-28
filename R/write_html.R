@@ -45,6 +45,8 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 
 	# Write app directories
 	if(!is.null(server)){
+		#page_html <- paste0(page_html, '\t\t\tvar server_url = "', server$full_url(), '/custom;"\n')
+		page_html <- paste0(page_html, '\t\t\tvar server_url = "', server$full_url(), '";\n')
 		page_html <- paste0(page_html, '\t\t\tvar app_dir = [\n')
 		if(!is.null(srcs)){
 			for(i in 1:length(srcs)) page_html <- paste0(page_html, '\t\t\t\t"', server$full_url(paste0('app_dir', i)), '",\n')
@@ -54,12 +56,16 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 
 	page_html <- paste0(page_html, '\t\t\tvar svg_obj = JSON.parse(\'', json, '\');\n')
 	for(i in 1:length(js.var)){
-		if(grepl('^0x', js.var[[i]]) || is.numeric(js.var[[i]])){
-			page_html <- paste0(page_html, '\t\t\tvar ', names(js.var)[i], ' = ', js.var[[i]], ';\n')
-		}else if(js.var[[i]] == 'FALSE' || js.var[[i]] == 'TRUE'){
-			page_html <- paste0(page_html, '\t\t\tvar ', names(js.var)[i], ' = ', tolower(js.var[[i]]), ';\n')
+		if(length(js.var[[i]]) > 1 || names(js.var)[i] %in% c('save_as_img_paths')){
+			page_html <- paste0(page_html, '\t\t\tvar ', names(js.var)[i], ' = [\"', paste0(js.var[[i]], collapse='","'), '\"];\n')
 		}else{
-			page_html <- paste0(page_html, '\t\t\tvar ', names(js.var)[i], ' = \"', js.var[[i]], '\";\n')
+			if(grepl('^0x', js.var[[i]]) || is.numeric(js.var[[i]])){
+				page_html <- paste0(page_html, '\t\t\tvar ', names(js.var)[i], ' = ', js.var[[i]], ';\n')
+			}else if(js.var[[i]] == 'FALSE' || js.var[[i]] == 'TRUE'){
+				page_html <- paste0(page_html, '\t\t\tvar ', names(js.var)[i], ' = ', tolower(js.var[[i]]), ';\n')
+			}else{
+				page_html <- paste0(page_html, '\t\t\tvar ', names(js.var)[i], ' = \"', js.var[[i]], '\";\n')
+			}
 		}
 	}
 
@@ -82,6 +88,14 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 	</head>
 	<body>
 		<div id="container" style="background-color:green;" ></div>')
+
+	if(!is.null(server)){
+		page_html <- paste0(page_html, '
+		<iframe id="iframe" name="iframe" style="display:none;">INIFRAME</iframe>
+		<form id="form" action="', server$full_url(),'/custom/svgViewR" onSubmit="javascript:submit();" method="post" target="iframe" >
+			<input id="form_input" type="hidden" name="from_browser" value="">
+		</form>')
+	}
 
 	if(js.var[['show_clock']]){
 		page_html <- paste0(page_html, '
