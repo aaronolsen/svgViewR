@@ -12,12 +12,22 @@ svg.transform <- function(tmarr, applyto = '', times = 1:dim(tmarr)[3], add = FA
 		# Set applyto through tmarr dimnames
 		if(!is.null(dimnames(tmarr)[[3]])) applyto <- dimnames(tmarr)[[3]]
 
-		# Apply each body transform in array
-		for(i in 1:dim(tmarr)[3]) svg.transform(tmarr=tmarr[, , i, ], 
-			applyto=applyto[i], times=times, add=add, regexp=regexp)
+		for(i in 1:dim(tmarr)[3]){
+
+			# 
+			#print(applyto[i])
+			#print(sum(is.na(tmarr[, , i, ])))
+			#print(length(tmarr[, , i, ]))
+
+			# Apply each body transform in array
+			suppressWarnings(svg.transform(tmarr=tmarr[, , i, ], applyto=applyto[i], times=times, add=add, regexp=regexp))
+		}
 
 		return(NULL)
 	}
+	
+	# If transformations are all NA, return NULL
+	if(sum(is.na(tmarr)) == length(tmarr)) return(NULL)
 
 	# Make sure number of times matches the number of iterations in transformation array
 	if(length(times) != dim(tmarr)[3]) stop(paste0("The number of times in 'times' (", length(times), ") does not match the number of iterations in 'tmarr' (", dim(tmarr)[3], ")."))
