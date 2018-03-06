@@ -1,4 +1,4 @@
-readCam <- function(file){
+readCam <- function(file, scale=1){
 	
 	## Reads MayaCam file exported from XMALab
 	
@@ -15,7 +15,7 @@ readCam <- function(file){
 	extrinsic[1,1:3] <- as.numeric(strsplit(read_lines[10], ',')[[1]])
 	extrinsic[2,1:3] <- as.numeric(strsplit(read_lines[11], ',')[[1]])
 	extrinsic[3,1:3] <- as.numeric(strsplit(read_lines[12], ',')[[1]])
-	extrinsic[,4] <- as.numeric(read_lines[15:17])
+	extrinsic[,4] <- as.numeric(read_lines[15:17])*scale
 
 	# Calculate camera parameters
 	cam_params <- cameraParameters(intrinsic, extrinsic, image_size)
