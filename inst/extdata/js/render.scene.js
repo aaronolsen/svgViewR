@@ -8,7 +8,7 @@ var spheres = new Array( );
 var sprites = new Array( );
 
 // Declare global variables
-var animation_times, animations, anim_pause_time, camera, controls, image_name, image_obj, image_opacity, mesh_name, mesh_opacity, renderer, scene, stats;
+var animation_times, animations, anim_pause_time, camera, controls, image_name, image_obj, image_opacity, mesh_name, mesh_opacity, mesh_color, renderer, scene, stats;
 var update_obj = {
     num: new Array(),
     type: new Array()
@@ -89,7 +89,8 @@ function addLights(scene_center, distance, intensity){
 		
 		// Mark light position with sphere
 		if(svg_obj.bboxLight[i].hidden == false){
-			var sphereGeometry = new THREE.SphereGeometry(svg_obj.bboxLight[i].intensity*distance/20,10,10);
+			var sphereGeometry = new THREE.SphereGeometry(svg_obj.bboxLight[i].intensity*distance/10,200,200);
+			//var sphereGeometry = new THREE.SphereGeometry(10,200,200);
 			var sphereMaterial = new THREE.MeshBasicMaterial({color: 0xffff00,opacity:1});
 			var sphereMesh = new THREE.Mesh(sphereGeometry,sphereMaterial);
 			sphereMesh.position.set(source[0], source[1], source[2]);
@@ -131,7 +132,7 @@ function addMeshToScene( geometry, materials ) {
 	var material;
 
 	if(materials == undefined){
-		material = new THREE.MeshLambertMaterial( { color: 0xF5F5F5 } );
+		material = new THREE.MeshLambertMaterial( { color: mesh_color } );
 	}else{
 		material = materials;
 	}
@@ -512,6 +513,7 @@ function loadNextMesh(){
 		// Set mesh name
 		mesh_name = svg_obj.mesh[mesh_load_ct].name;
 		mesh_opacity = svg_obj.mesh[mesh_load_ct].opacity;
+		mesh_color = svg_obj.mesh[mesh_load_ct].col;
 
 		// Add mesh
 		addMeshToScene(geometry, material);
@@ -528,6 +530,7 @@ function loadNextMesh(){
 		// Set mesh name
 		mesh_name = svg_obj.mesh[mesh_load_ct].name;
 		mesh_opacity = svg_obj.mesh[mesh_load_ct].opacity;
+		mesh_color = svg_obj.mesh[mesh_load_ct].col;
 
 //alert(svg_obj.mesh[mesh_load_ct].src_idx + ' ' + svg_obj.mesh[mesh_load_ct].fname)
 
@@ -1098,6 +1101,8 @@ function setBoundingBox () {
 		for(i = 0; i <= spheres.length-1; i++){
 
 			var bbox = new THREE.Box3().setFromObject( spheres[i] );
+			
+			if(isNaN(bbox.min.x)) continue;
 
 			// Update min and max
 			minX = Math.min (minX, bbox.min.x);
@@ -1113,6 +1118,8 @@ function setBoundingBox () {
 
 			var bbox = new THREE.Box3().setFromObject( meshes[i] );
 
+			if(isNaN(bbox.min.x)) continue;
+
 			// Update min and max
 			minX = Math.min (minX, bbox.min.x);
 			minY = Math.min (minY, bbox.min.y);
@@ -1127,6 +1134,8 @@ function setBoundingBox () {
 
 			var bbox = new THREE.Box3().setFromObject( lines[i] );
 
+			if(isNaN(bbox.min.x)) continue;
+
 			// Update min and max
 			minX = Math.min (minX, bbox.min.x);
 			minY = Math.min (minY, bbox.min.y);
@@ -1140,6 +1149,8 @@ function setBoundingBox () {
 		for(i = 0; i <= sprites.length-1; i++){
 
 			var bbox = new THREE.Box3().setFromObject( sprites[i] );
+
+			if(isNaN(bbox.min.x)) continue;
 
 			// Update min and max
 			minX = Math.min (minX, bbox.min.x);
