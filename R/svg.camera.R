@@ -1,5 +1,5 @@
 svg.camera <- function(camera, image = NULL, cone = FALSE, focal = 23.75, set = TRUE, name = NULL, 
-	times = NULL, image.opacity = 1, plane.dist = NULL, cone.dim = NULL){
+	times = NULL, image.opacity = 1, plane.dist = NULL){
 
 	# If camera is not list (ie camera object) assume camera file and read
 	if(!is.list(camera)) camera <- readCam(camera)
