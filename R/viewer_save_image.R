@@ -7,8 +7,8 @@ viewer_save_image <- function(from, to){
 	# Copy image file from temp folder
 	file.copy(from=from, to=to_decode, overwrite=TRUE)
 
-	cat('from: ', from, '\n')
-	cat('to: ', to_decode, '\n')
+	#cat('from: ', from, '\n')
+	#cat('to: ', to_decode, '\n')
 	
 	# Remove version in temp
 	if(file.exists(from)) file.remove(from)
