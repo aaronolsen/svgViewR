@@ -97,9 +97,10 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 		svgviewr_env$ref$type <- c(svgviewr_env$ref$type, 'mesh')
 
 	}else{
-		
-		# 
+
 		stop("Mesh import without source file input is not yet supported.")
+		
+		#if(is.null(obj)) stop("If file is NULL, obj must be non-NULL.")
 	}
 
 	# Get xyz limits of mesh		
