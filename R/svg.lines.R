@@ -1,7 +1,7 @@
 svg.lines <- function(x, y=NULL, col="black", z.index=0, layer="", name="line", 
 	label="", lwd=1, opacity=1, file=NULL){
 
-	if('live' != getOption("svgviewr_glo_type")){
+	if('svg' == getOption("svgviewr_glo_type")){
 
 		# If file is null, set current connection
 		if(is.null(file)){
@@ -14,7 +14,12 @@ svg.lines <- function(x, y=NULL, col="black", z.index=0, layer="", name="line",
 		}
 	}
 
-	if('live' == getOption("svgviewr_glo_type")){
+	if('svg' == getOption("svgviewr_glo_type")){
+
+		svgviewr.lines(x, file=file, y=y, col=col, z.index=z.index, layer=layer, 
+			label=label, lwd=lwd, opacity=opacity)
+
+	}else{
 
 		## Add objects to svgViewR environment
 		# Get viewer environment
@@ -29,11 +34,6 @@ svg.lines <- function(x, y=NULL, col="black", z.index=0, layer="", name="line",
 		svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
 		svgviewr_env$ref$num <- c(svgviewr_env$ref$num, add_at)
 		svgviewr_env$ref$type <- c(svgviewr_env$ref$type, 'line')
-
-	}else{
-
-		svgviewr.lines(x, file=file, y=y, col=col, z.index=z.index, layer=layer, 
-			label=label, lwd=lwd, opacity=opacity)
 	}
 	
 	# Suppress return of value in console
