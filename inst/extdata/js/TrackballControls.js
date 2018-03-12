@@ -373,6 +373,10 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 			_state = STATE.ZOOM;
 
+		} else if ( event.keyCode == 91 && ! _this.noPan ) { // Pressing command
+
+			_state = STATE.PAN;
+
 		} else if ( event.keyCode === _this.keys[ STATE.PAN ] && ! _this.noPan ) {
 
 			_state = STATE.PAN;
@@ -405,7 +409,6 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 			// Clear listener so that holding down key does continuous panning
 			window.addEventListener( 'keydown', keydown, false );
-
 		}
 
 	}
@@ -488,7 +491,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 		event.preventDefault();
 		event.stopPropagation();
 
-		_state = STATE.NONE;
+		if(_state != STATE.PAN) _state = STATE.NONE;
 
 		document.removeEventListener( 'mousemove', mousemove );
 		document.removeEventListener( 'mouseup', mouseup );
