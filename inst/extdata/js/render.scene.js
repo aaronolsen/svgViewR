@@ -155,6 +155,18 @@ function addMeshToScene( geometry, materials ) {
 	// Add to scene
 	scene.add( meshes[mesh_load_ct] );
 
+	// Apply any initial transformations
+	if(svg_obj.mesh[mesh_load_ct].iposition != undefined){
+
+		meshes[mesh_load_ct].position.x = svg_obj.mesh[mesh_load_ct].iposition[0];
+		meshes[mesh_load_ct].position.y = svg_obj.mesh[mesh_load_ct].iposition[1];
+		meshes[mesh_load_ct].position.z = svg_obj.mesh[mesh_load_ct].iposition[2];
+
+		meshes[mesh_load_ct].rotation.x = svg_obj.mesh[mesh_load_ct].irotation[0];
+		meshes[mesh_load_ct].rotation.y = svg_obj.mesh[mesh_load_ct].irotation[1];
+		meshes[mesh_load_ct].rotation.z = svg_obj.mesh[mesh_load_ct].irotation[2];
+	}
+
 	// If additional meshes, load next mesh
 	if(mesh_load_ct+1 < svg_obj.mesh.length){
 
@@ -451,6 +463,13 @@ function loadGeometries(){
 			// Set name
 			mesh.name = 'sphere' + n;
 		
+			// Apply any initial transformations
+			if(svg_obj.sphere[i].iposition != undefined){
+				mesh.position.x = svg_obj.sphere[i].iposition[0];
+				mesh.position.y = svg_obj.sphere[i].iposition[1];
+				mesh.position.z = svg_obj.sphere[i].iposition[2];
+			}
+
 			// add the mesh to the scene
 			scene.add( mesh ) ;
 
