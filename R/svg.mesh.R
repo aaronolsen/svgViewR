@@ -87,6 +87,7 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 		input_params[['col']] <- webColor(col)
 		input_params[['emissive']] <- webColor(emissive)
 		input_params[['parseModel']] <- TRUE
+		input_params[['itmat']] <- diag(4)
 
 		# Add to meshes
 		svgviewr_env$svg$mesh[[add_at]] <- input_params

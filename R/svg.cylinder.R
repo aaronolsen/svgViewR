@@ -153,6 +153,7 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 			svgviewr_env$svg$mesh[[add_at]] <- list()
 			svgviewr_env$svg$mesh[[add_at]]$vertices <- t(vertices)
 			svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
+			svgviewr_env$svg$mesh[[add_at]]$itmat <- diag(4)
 			svgviewr_env$svg$mesh[[add_at]]$col <- webColor(col)
 			svgviewr_env$svg$mesh[[add_at]]$emissive <- webColor(emissive)
 			svgviewr_env$svg$mesh[[add_at]]$computeVN <- TRUE
