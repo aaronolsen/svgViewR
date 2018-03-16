@@ -55,7 +55,10 @@ svg.transform <- function(tmarr, applyto = '', times = 1:dim(tmarr)[3], add = FA
 			# Single transformation (rather than animation) -- add to matching objects
 			for(idx in applyto_which){
 			
-				if(is.null(svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['itmat']])) stop(paste0("itmat not set for object of type ", ref_types[idx]))
+				# If NULL, set as identity matrix for default
+				if(is.null(svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['itmat']])){
+					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['itmat']] <- diag(4)
+				}
 
 				# Apply to current itmat
 				itmat <- applyTransform(to=svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['itmat']], tmat=tmarr)
