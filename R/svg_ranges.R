@@ -47,6 +47,16 @@ svg_ranges <- function(x = NULL){
 						corners <- obj[['corners']]
 					}
 
+					# Apply initial transformation to corners
+					if(!is.null(obj[['itmat']])){
+
+						# Apply transformations to each and get ranges
+						corners <- apply_transform_svg(corners, obj[['itmat']])
+
+						# Add range
+						#corners <- apply(obj_tm, 2, 'range', na.rm=TRUE)
+					}
+
 					# Apply transformation to corners
 					if(!is.null(obj[['tmat']])){
 
@@ -78,6 +88,16 @@ svg_ranges <- function(x = NULL){
 					
 					# Get corners
 					corners <- lim2corners(lim)
+
+					# Apply initial transformation to corners
+					if(!is.null(obj[['itmat']])){
+
+						# Apply transformations to each and get ranges
+						obj_tm <- apply_transform_svg(corners, obj[['itmat']])
+
+						# Add range
+						corners <- apply(obj_tm, 2, 'range', na.rm=TRUE)
+					}
 
 				}else if(svgviewr_env$ref$type[oi] == 'line'){
 
