@@ -427,6 +427,8 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 		if ( _this.enabled === false ) return;
 
+		//document.getElementById( "alert" ).innerHTML = 'mousedown, event.which=' + event.which + ', _state=' + _state;
+
 		event.preventDefault();
 		event.stopPropagation();
 
@@ -488,10 +490,18 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 		if ( _this.enabled === false ) return;
 
+		// If right-click mouseup, set state to none
+		switch (event.which) {
+			case 1: // Left
+			case 2: // Middle
+			case 3: // Right
+				_state = STATE.NONE
+		}
+
+		//document.getElementById( "alert" ).innerHTML = 'mouseup, event.which=' + event.which + ', _state=' + _state;
+
 		event.preventDefault();
 		event.stopPropagation();
-
-		if(_state != STATE.PAN) _state = STATE.NONE;
 
 		document.removeEventListener( 'mousemove', mousemove );
 		document.removeEventListener( 'mouseup', mouseup );
