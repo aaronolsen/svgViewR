@@ -1234,6 +1234,17 @@ function tryRender () {
 	}
 }
 
+function receiveObjectFromR(object){
+
+	// Parse object
+	var json = JSON.parse(object);
+
+	// If there is a function call, evaluate call	
+	if(json.call != undefined) eval(json.call);
+	
+	return;
+}
+
 // After loading JSON from our file, we add it to the scene
 var render = function () {
 
@@ -1283,8 +1294,14 @@ function saveFramesAsImages(save_as_img_ct){
 	// Check if all images have already been submitted
 	if(save_as_img_ct == save_as_img_paths.length){
 	
+		//
+		sendObjectToR({'parsejson': 'true', 'function':'close'});
+		
+		//setTimeout(function() { alert(Object.getOwnPropertyNames(document.getElementById( "iframe" ))); }, 1000);
+		
+		
 		// Close on all loaded if specified
-		if(save_as_img_close) window.close();
+		//if(save_as_img_close) window.close();
 		
 		//document.getElementById( "alert" ).innerHTML = 'Done';
 		return;
@@ -1308,18 +1325,20 @@ function saveFramesAsImages(save_as_img_ct){
 	var fd = new FormData(document.getElementById( "form" ));
 	var blob = dataURItoBlob(dataUrl);
 	var fd = new FormData(document.forms[0]);
+
+	// Creates an image at $tempfile - should be removed after copying over
 	fd.append("image", blob);
 	fd.append("function", 'save_image');
 	fd.append("save_image_as", decodeURI(save_as_img_paths[save_as_img_ct]));
 
-	// Creates an image at $tempfile - should be removed after copying over
+	// Create new request
 	var xhr = new XMLHttpRequest();
 
 	// Function to call on receipt (can also be used to receive text from server after request)
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState == XMLHttpRequest.DONE) {
 
-			//document.getElementById( "alert" ).innerHTML = save_as_img_ct;
+			//document.getElementById( "alert" ).innerHTML = xhr.response;
 
 			// Advance count
 			save_as_img_ct++;
@@ -1335,13 +1354,29 @@ function saveFramesAsImages(save_as_img_ct){
 	document.getElementById( "form_input" ).value = fd;
 }
 
-function submit(){
+function sendObjectToR(object){
 
-	// Submit
-	//document.getElementById( "form" ).submit();
+	var fd = new FormData(document.getElementById( "form" ));
+	var fd = new FormData(document.forms[0]);
+	fd.append("type", 'jsonstring');
+	fd.append("jsonstring", JSON.stringify(object));
+
+	// Create new request
+	var xhr = new XMLHttpRequest();
+
+	// Function to call on receipt
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState == XMLHttpRequest.DONE) {
+			receiveObjectFromR(xhr.response);
+		}
+	};
+
+	xhr.open('POST', server_url + '/custom/svgViewR', true);
+	xhr.send(fd);
 }
 
 function dataURItoBlob(dataURI) {
+
     // convert base64/URLEncoded data component to raw binary data held in a string
     var byteString;
     if (dataURI.split(',')[0].indexOf('base64') >= 0)
@@ -1504,11 +1539,11 @@ function updateShapes(time_index){
 	}
 }
 
-xhr_close_on_change = function() {
-	if (xhr.readyState == XMLHttpRequest.DONE) {
-		window.close()
-	}
-}
+//xhr_close_on_change = function() {
+//	if (xhr.readyState == XMLHttpRequest.DONE) {
+//		window.close()
+//	}
+//}
 
 window.onresize = function () {
 	camera.aspect = window.innerWidth / window.innerHeight;
