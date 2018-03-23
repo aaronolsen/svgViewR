@@ -61,7 +61,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 				save_as_img_dir <- normalizePath(path=dirname(file[1]))
 
 				# Set image names
-				save_as_img_fnames <- unlist(lapply(strsplit(file, '/'), tail, 1))
+				save_as_img_fnames <- basename(file)
 				save_as_img_paths <- paste0(save_as_img_dir, '/', save_as_img_fnames)
 			}
 
@@ -129,7 +129,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		svgviewr_env$js_var <- list()
 	
 		# Set javascript variables
-		svgviewr_env$js_var[['bg_col']] <- webColor(col, format='0')
+		svgviewr_env$js_var[['bg_col']] <- setNames(webColor(col, format='0'), NULL)
 		svgviewr_env$js_var[['play_speed']] <- animate.speed
 		svgviewr_env$js_var[['time_units']] <- time.units
 		svgviewr_env$js_var[['signif_digits']] <- digits

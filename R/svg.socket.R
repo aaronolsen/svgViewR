@@ -87,8 +87,8 @@ svg.socket <- function(center = NULL, axes = NULL, outer.radius = 1, inner.radiu
 			svgviewr_env$svg$mesh[[add_at]] <- list()
 			svgviewr_env$svg$mesh[[add_at]]$vertices <- t(vertices)
 			svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
-			svgviewr_env$svg$mesh[[add_at]]$col <- webColor(color)
-			svgviewr_env$svg$mesh[[add_at]]$emissive <- webColor(emissive)
+			svgviewr_env$svg$mesh[[add_at]]$col <- setNames(webColor(color), NULL)
+			svgviewr_env$svg$mesh[[add_at]]$emissive <- setNames(webColor(emissive), NULL)
 			svgviewr_env$svg$mesh[[add_at]]$computeVN <- TRUE
 			svgviewr_env$svg$mesh[[add_at]]$parseModel <- FALSE
 

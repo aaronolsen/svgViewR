@@ -84,8 +84,8 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 
 		# Set opacity
 		input_params[['opacity']] <- opacity
-		input_params[['col']] <- webColor(col)
-		input_params[['emissive']] <- webColor(emissive)
+		input_params[['col']] <- setNames(webColor(col), NULL)
+		input_params[['emissive']] <- setNames(webColor(emissive), NULL)
 		input_params[['parseModel']] <- TRUE
 		input_params[['itmat']] <- diag(4)
 

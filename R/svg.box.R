@@ -106,7 +106,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 		if(is.null(name)){ shape_name <- 'frame.panel' }else{ shape_name <- name }
 		for(i in 1:length(polygons)){
 			svgviewr_env$svg$line[[length(svgviewr_env$svg$line)+1]] <- list('type'='line', 
-				'name'=shape_name, 'x'=t(polygons[[i]]), col=webColor(axis.col), lwd=grid.lwd)
+				'name'=shape_name, 'x'=t(polygons[[i]]), col=setNames(webColor(axis.col), NULL), lwd=grid.lwd)
 		}
 
 		# Add grid
@@ -114,7 +114,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 		if(grid.lwd > 0){
 			grids_in <- grids[grids_type == 'in']
 			for(grid in grids_in) svgviewr_env$svg$line[[length(svgviewr_env$svg$line)+1]] <- 
-				list('type'='line', 'name'=shape_name, 'x'=t(grid), 'col'=webColor(grid.col), 
+				list('type'='line', 'name'=shape_name, 'x'=t(grid), 'col'=setNames(webColor(grid.col), NULL), 
 				'lwd'=grid.lwd)
 		}
 
@@ -123,7 +123,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 		if(tick.lwd > 0){
 			for(i in 1:length(ticks$ticks)){
 				svgviewr_env$svg$line[[length(svgviewr_env$svg$line)+1]] <- list('type'='line', 
-					'name'=shape_name, 'x'=t(ticks$ticks[[i]]), 'col'=webColor(axis.col), 
+					'name'=shape_name, 'x'=t(ticks$ticks[[i]]), 'col'=setNames(webColor(axis.col), NULL), 
 					'lwd'=grid.lwd)
 			}
 		}
@@ -133,7 +133,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 		if(tick.label.size > 0){
 			for(i in 1:length(ticks$ticklabels)){
 				svg.text(labels=ticks$ticklabels[[i]], name=shape_name, x=ticks$ticklabelspos[[i]], 
-					col=webColor(text.col), size=max_diff*tick.label.size)
+					col=setNames(webColor(text.col), NULL), size=max_diff*tick.label.size)
 			}
 		}
 
@@ -142,7 +142,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 		if(axis.label.size > 0){
 			for(i in 1:length(ticks$axislabels)){
 				svg.text(labels=ticks$axislabels[[i]], name=shape_name, x=ticks$axislabelspos[[i]], 
-					col=webColor(text.col), size=max_diff*axis.label.size)
+					col=setNames(webColor(text.col), NULL), size=max_diff*axis.label.size)
 			}
 		}
 	}

@@ -124,8 +124,8 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 		svgviewr_env$svg$mesh[[add_at]] <- list()
 		svgviewr_env$svg$mesh[[add_at]]$vertices <- t(vertices)
 		svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
-		svgviewr_env$svg$mesh[[add_at]]$col <- webColor(col)
-		svgviewr_env$svg$mesh[[add_at]]$emissive <- webColor(emissive)
+		svgviewr_env$svg$mesh[[add_at]]$col <- setNames(webColor(col), NULL)
+		svgviewr_env$svg$mesh[[add_at]]$emissive <- setNames(webColor(emissive), NULL)
 		svgviewr_env$svg$mesh[[add_at]]$computeVN <- FALSE
 		svgviewr_env$svg$mesh[[add_at]]$parseModel <- FALSE
 

@@ -13,18 +13,23 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0
 	# If vector, make into matrix
 	if(is.vector(x)) x <- matrix(x, nrow=1)
 
+	# Repeat properties to match dimensions
+	if(length(col) < dim(x)[1]) col <- rep(col, dim(x)[1])
+	if(length(emissive) < dim(x)[1]) emissive <- rep(emissive, dim(x)[1])
+	if(length(name) < dim(x)[1]) name <- rep(name, dim(x)[1])
+
 	if(length(dim(x)) == 2){
 
 		# Add object
 		for(i in 1:nrow(x)){
 
 			add_at <- length(svgviewr_env$svg$sphere)+1
-			svgviewr_env$svg$sphere[[add_at]] <- list('type'='sphere', 'name'=name, 'x'=setNames(x[i,], NULL), 
-				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=wseg, 'hseg'=hseg, 
+			svgviewr_env$svg$sphere[[add_at]] <- list('type'='sphere', 'name'=name[i], 'x'=setNames(x[i,], NULL), 
+				'radius'=radius, 'col'=setNames(webColor(col[i]), NULL), 'emissive'=setNames(webColor(emissive[i]), NULL), 'wseg'=wseg, 'hseg'=hseg, 
 				'opacity'=opacity, 'itmat'=diag(4))
 
 			# Add object reference data
-			svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
+			svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name[i])
 			svgviewr_env$ref$num <- c(svgviewr_env$ref$num, add_at)
 			svgviewr_env$ref$type <- c(svgviewr_env$ref$type, 'sphere')
 		}
@@ -35,12 +40,12 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0
 		
 			# Add object
 			add_at <- length(svgviewr_env$svg$sphere)+1
-			svgviewr_env$svg$sphere[[add_at]] <- list('type'='sphere', 'name'=name, 'x'=setNames(x[i,,1], NULL), 
-				'radius'=radius, 'col'=webColor(col), 'emissive'=webColor(emissive), 'wseg'=wseg, 'hseg'=hseg, 
+			svgviewr_env$svg$sphere[[add_at]] <- list('type'='sphere', 'name'=name[i], 'x'=setNames(x[i,,1], NULL), 
+				'radius'=radius, 'col'=setNames(webColor(col[i]), NULL), 'emissive'=setNames(webColor(emissive[i]), NULL), 'wseg'=wseg, 'hseg'=hseg, 
 				'opacity'=opacity, 'itmat'=diag(4))
 
 			# Add object reference data
-			svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
+			svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name[i])
 			svgviewr_env$ref$num <- c(svgviewr_env$ref$num, add_at)
 			svgviewr_env$ref$type <- c(svgviewr_env$ref$type, 'sphere')
 

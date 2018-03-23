@@ -47,8 +47,8 @@ svg.sphere <- function(center = NULL, ends = NULL, radius = NULL, width = NULL, 
 		svgviewr_env$svg$mesh[[add_at]] <- list()
 		svgviewr_env$svg$mesh[[add_at]]$vertices <- t(vertices)
 		svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
-		svgviewr_env$svg$mesh[[add_at]]$col <- webColor(col)
-		svgviewr_env$svg$mesh[[add_at]]$emissive <- webColor(emissive)
+		svgviewr_env$svg$mesh[[add_at]]$col <- setNames(webColor(col), NULL)
+		svgviewr_env$svg$mesh[[add_at]]$emissive <- setNames(webColor(emissive), NULL)
 		svgviewr_env$svg$mesh[[add_at]]$computeVN <- TRUE
 		svgviewr_env$svg$mesh[[add_at]]$parseModel <- FALSE
 

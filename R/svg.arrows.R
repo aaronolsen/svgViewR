@@ -37,7 +37,7 @@ svg.arrows <- function(x, y=NULL, name="arrow", col="black", z.index=0, layer=""
 		add_at <- length(svgviewr_env$svg$arrow)+1
 		svgviewr_env$svg$arrow[[add_at]] <- list('type'='arrow', 
 			'name'=name, 'origin'=x[1,], 'dir'=uvector_svg(x[2,]-x[1,]), 'length'=arrow_len, 
-			'len'=len*2.5, 'col'=webColor(col), 'lwd'=lwd)
+			'len'=len*2.5, 'col'=setNames(webColor(col), NULL), 'lwd'=lwd)
 
 		# Add object reference data
 		svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
