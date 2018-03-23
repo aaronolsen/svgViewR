@@ -18,7 +18,7 @@ svg.images <- function(file, corners, name = gsub('[.][A-Za-z]+$', '', tail(strs
 	add_at <- length(svgviewr_env$svg$image)+1
 
 	# If directory, read all files in directory
-	if(file.info(file)$isdir) file <- paste0(file, '/', list.files(file))
+	if(file.info(file[1])$isdir) file <- paste0(file[1], '/', list.files(file[1]))
 
 	# Create vector for filenames
 	input_params$fname <- rep(NA, length(file))
