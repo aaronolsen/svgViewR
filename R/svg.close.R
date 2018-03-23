@@ -1,4 +1,4 @@
-svg.close <- function(){
+svg.close <- function(wait = FALSE){
 
 	# Get connection type
 	conn_type <- getOption("svgviewr_glo_type")
@@ -83,6 +83,7 @@ svg.close <- function(){
 			svgviewr_env$svg$animate$times <- svgviewr_env$svg$animate$times*(1/svgviewr_env$js_var[['play_speed']])
 			
 			# Set js variables
+			svgviewr_env$js_var[['browser_open']] <- TRUE
 			svgviewr_env$js_var[['animation_start']] <- min(svgviewr_env$svg$animate$times)
 			svgviewr_env$js_var[['animation_end']] <- max(svgviewr_env$svg$animate$times)
 			svgviewr_env$js_var[['animation_ntimes']] <- length(svgviewr_env$svg$animate$times)
@@ -139,21 +140,34 @@ svg.close <- function(){
 				request <- Request$new(rook_env)
 				response <- Response$new()
 				
-				#print(request$POST())
-
 				# If non NULL, process POST request
 				if(!is.null(request$POST())){
 					
 					request_post <- request$POST()
-
-					# Save image
-					if(request_post[['function']] == 'save_image') viewer_save_image(from=request_post$image$tempfile, 
-						to=request_post$save_image_as)
-
-					#write(request_post[['from_browser']], file='test.txt')
-					response$write('TEST')
 					
-					#print(response)
+					# If JSON string, parse string after decoding
+					if(request_post[['type']] == 'jsonstring') request_post <- fromJSON(URLdecode(request_post[['jsonstring']]))
+					
+					# Save image
+					if(request_post[['function']] == 'save_image'){
+
+						viewer_save_image(from=request_post$image$tempfile, to=request_post$save_image_as)
+
+						#response$write('TEST2')
+						#print('save_image')
+
+					}else if(request_post[['function']] == 'close'){
+						
+						# Send response back to browser
+						svgviewr_env$js_var[['browser_open']] <- FALSE
+						response$write(toJSON(list('call'='window.close();')))
+
+						# Print to console
+						#print(request_post)
+						#print('close')
+
+					}else{
+					}
 
 				}else{
 
@@ -197,6 +211,21 @@ svg.close <- function(){
 	
 		# Close
 		svgviewr.new(file=file, conn.type='close', layers=file$layers, debug=file$debug)
+	}
+
+	# If wait is TRUE don't return function until signaled
+	t1 <- proc.time()[3]
+	if(wait){
+
+		# Check every interval seconds whether browser has been closed by javascript
+		interval <- 0.1
+		while(svgviewr_env$js_var[['browser_open']]){
+			#print(proc.time()[3] - t1)
+			#if(proc.time()[3] - t1 > 20) break
+			Sys.sleep(0.1)
+		}
+
+		Sys.sleep(1)
 	}
 
 	ret = NULL
