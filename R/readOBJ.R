@@ -1,7 +1,7 @@
 readOBJ <- function(file, scaling = 1, shape.rm = NULL){
 
 	# Read lines
-	read_lines <- suppressWarnings(readLines(file))
+	read_lines <- suppressWarnings(readLines(file[1]))
 
 	# Get vertex lines
 	vertices <- read_lines[grepl('^v ', read_lines)]
