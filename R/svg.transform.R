@@ -1,4 +1,19 @@
-svg.transform <- function(tmarr, applyto = '', times = 1:dim(tmarr)[3], add = FALSE, regexp = FALSE){
+svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp = FALSE){
+
+	# If times is null, set based on dimensions of tmarr
+	if(is.null(times)){
+		if(length(dim(tmarr)) == 4){
+			times <- 1:dim(tmarr)[4]
+		}else if(length(dim(tmarr)) == 3){
+			times <- 1:dim(tmarr)[3]
+		}else if(length(dim(tmarr)) == 2){
+			times <- 1
+		}else{
+		}
+	}
+
+	# If times do not start at 0, shift to start at 0
+	if(times[1] != 0) times <- times - min(times, na.rm=TRUE)
 
 	# Make sure that type is webgl
 	if('svg' == getOption("svgviewr_glo_type")) stop("Transform is currently only available with webgl svgViewR output.")
@@ -13,7 +28,7 @@ svg.transform <- function(tmarr, applyto = '', times = 1:dim(tmarr)[3], add = FA
 			stop(paste0("If dimnames(tmarr)[[3]] is NULL then names of what to apply transformation to should be given through applyto. length(applyto) does not equal dim(tmarr)[3]."))
 
 		# Set applyto through tmarr dimnames
-		if(!is.null(dimnames(tmarr)[[3]])) applyto <- dimnames(tmarr)[[3]]
+		if(applyto == '' && !is.null(dimnames(tmarr)[[3]])) applyto <- dimnames(tmarr)[[3]]
 
 		for(i in 1:dim(tmarr)[3]){
 
