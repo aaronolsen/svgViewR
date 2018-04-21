@@ -17,6 +17,7 @@ create_plane_mesh <- function(corners, seg, create.uvs = FALSE){
 		for(j in 1:3) vertices[add_rows,j] <- seq(edge1_vert[i,j], edge3_vert[i,j], length=vertex_ct[2])
 	}
 
+	vertices_u <- vertices_v <- NULL
 	if(create.uvs){
 		vertices_v <- rep(seq(0, 1, length=vertex_ct[2]), vertex_ct[1])
 		vertices_u <- c(matrix(rep(seq(0, 1, length=vertex_ct[1]), vertex_ct[2]), nrow=vertex_ct[2], ncol=vertex_ct[1], byrow=TRUE))
