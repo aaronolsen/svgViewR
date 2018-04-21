@@ -1,4 +1,4 @@
-svg.plane <- function(corners, col='blue', emissive=rgb(0.03, 0.15, 0.21), name = 'sphere', 
+svg.plane <- function(corners, col='blue', emissive=rgb(0.03, 0.15, 0.21), opacity = 1, name = 'sphere', 
 	seg = 30, create.uvs = FALSE){
 
 	# Make sure that type is webgl
@@ -41,6 +41,7 @@ svg.plane <- function(corners, col='blue', emissive=rgb(0.03, 0.15, 0.21), name 
 		svgviewr_env$svg$mesh[[add_at]]$vertices <- t(vertices)
 		svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
 		svgviewr_env$svg$mesh[[add_at]]$col <- setNames(webColor(col), NULL)
+		svgviewr_env$svg$mesh[[add_at]]$opacity <- opacity
 		svgviewr_env$svg$mesh[[add_at]]$emissive <- setNames(webColor(emissive), NULL)
 		svgviewr_env$svg$mesh[[add_at]]$computeVN <- TRUE
 		svgviewr_env$svg$mesh[[add_at]]$parseModel <- FALSE
