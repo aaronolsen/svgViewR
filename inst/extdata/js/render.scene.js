@@ -284,6 +284,12 @@ function loadGeometries(){
 				linewidth: svg_obj.line[i].lwd
 			});
 
+			// Set line opacity
+			if(svg_obj.line[i].opacity < 1){
+				material.transparent = true;
+				material.opacity = svg_obj.line[i].opacity;
+			}
+
 			// Set number of line segments
 			num_seg = svg_obj.line[i].x.length / 3;
 			svg_obj.line[i].nseg = num_seg;
@@ -1271,6 +1277,11 @@ var render = function () {
 
 			// Find closest time point in animation
 			time_index = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+
+//document.getElementById( "alert" ).innerHTML = elapsed_ms + ',' + animation_start + ',' + animation_end + ',' + animation_duration + ',' + time_index;
+//document.getElementById( "alert" ).innerHTML = document.getElementById( "alert" ).innerHTML + ',' + elapsed_ms;
+//document.getElementById( "alert" ).innerHTML = anim_start + ',' + elapsed_ms;
+
 
 			// Print clock
 			if(show_clock){
