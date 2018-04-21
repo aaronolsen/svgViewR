@@ -1,7 +1,9 @@
 readCam <- function(file, scale=1){
+
+	# If file is already camera just return file
+	if(class(file) == 'camera') return(file)
 	
 	## Reads MayaCam file exported from XMALab
-	
 	read_lines <- readLines(file)
 	
 	image_size <- as.numeric(strsplit(read_lines[2], ',')[[1]])
