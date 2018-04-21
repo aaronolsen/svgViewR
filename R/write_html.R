@@ -93,7 +93,8 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 		page_html <- paste0(page_html, '
 		<iframe id="iframe" name="iframe" style="display:none;">INIFRAME</iframe>
 		<form id="form" action="', server$full_url(),'/custom/svgViewR" onSubmit="javascript:submit();" method="post" target="iframe" >
-			<input id="form_input" type="hidden" name="from_browser" value="">
+			<input id="form_input" type="hidden" name="jsonstring" value="">
+			<input id="form_input_type" type="hidden" name="type" value="default">
 		</form>')
 	}
 
