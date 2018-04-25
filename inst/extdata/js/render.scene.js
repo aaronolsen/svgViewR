@@ -281,7 +281,8 @@ function loadGeometries(){
 			// Set line material
 			material = new THREE.LineBasicMaterial({
 				color: svg_obj.line[i].col,
-				linewidth: svg_obj.line[i].lwd
+				linewidth: svg_obj.line[i].lwd,
+				depthTest: svg_obj.line[i].depthTest
 			});
 
 			// Set line opacity
