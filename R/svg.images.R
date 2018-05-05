@@ -64,7 +64,7 @@ svg.images <- function(file, corners, name = gsub('[.][A-Za-z]+$', '', tail(strs
 	uvs <- plane_mesh$uvs
 
 	# Set opacity
-	input_params[['opacity']] <- opacity
+	input_params[['opacity']] <- setNames(opacity, NULL)
 
 	# Add to images
 	svgviewr_env$svg$image[[add_at]] <- input_params

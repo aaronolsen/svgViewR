@@ -155,6 +155,7 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 			svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
 			svgviewr_env$svg$mesh[[add_at]]$itmat <- diag(4)
 			svgviewr_env$svg$mesh[[add_at]]$col <- setNames(webColor(col), NULL)
+			svgviewr_env$svg$mesh[[add_at]]$opacity <- setNames(opacity, NULL)
 			svgviewr_env$svg$mesh[[add_at]]$emissive <- setNames(webColor(emissive), NULL)
 			svgviewr_env$svg$mesh[[add_at]]$computeVN <- TRUE
 			svgviewr_env$svg$mesh[[add_at]]$parseModel <- FALSE

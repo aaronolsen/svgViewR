@@ -81,9 +81,9 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 			input_params$src <- ''
 			if(length(file_strsplit) > 1) input_params$src <- paste0(paste0(file_strsplit[1:(length(file_strsplit)-1)], collapse='/'), '/')
 		}
-
+		
 		# Set opacity
-		input_params[['opacity']] <- opacity
+		input_params[['opacity']] <- setNames(opacity, NULL)
 		input_params[['col']] <- setNames(webColor(col), NULL)
 		input_params[['emissive']] <- setNames(webColor(emissive), NULL)
 		input_params[['parseModel']] <- TRUE
