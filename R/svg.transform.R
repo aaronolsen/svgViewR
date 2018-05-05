@@ -21,7 +21,7 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 	# If transformations are all NA, return NULL
 	if(sum(is.na(tmarr)) == length(tmarr)) return(NULL)
 
-	if(length(dim(tmarr)) == 4){
+	if(length(dim(tmarr)) == 4 || (length(dim(tmarr)) == 3 && !is.null(dimnames(tmarr)[[3]]))){
 
 		# Check that applyto length matches tmarr if applyto names in tmarr are NULL
 		if(is.null(dimnames(tmarr)[[3]]) && length(applyto) != dim(tmarr)[3]) 
@@ -33,10 +33,17 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 		for(i in 1:dim(tmarr)[3]){
 
 			# Apply each body transform in array
-			suppressWarnings(svg.transform(tmarr=tmarr[, , i, ], applyto=applyto[i], times=times, add=add, regexp=regexp))
+			if(length(dim(tmarr)) == 3){
+				suppressWarnings(svg.transform(tmarr=tmarr[, , i], applyto=applyto[i], add=add, regexp=regexp))
+			}else{
+				suppressWarnings(svg.transform(tmarr=tmarr[, , i, ], applyto=applyto[i], times=times, add=add, regexp=regexp))
+			}
 		}
 
-	}else if(length(dim(tmarr)) %in% c(2,3)){
+	}else{
+	
+		# If 3-D array and 3rd dim has names, use as applyto
+		if(length(dim(tmarr)) == 3 && !is.null(dimnames(tmarr)[[3]])) applyto <- dimnames(tmarr)[[3]]
 
 		# Get viewer environment
 		env <- as.environment(getOption("svgviewr_glo_env"))
@@ -74,7 +81,7 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 				if(is.null(svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['itmat']])){
 					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['itmat']] <- diag(4)
 				}
-
+				
 				# Apply to current itmat
 				itmat <- applyTransform(to=svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['itmat']], tmat=tmarr)
 
