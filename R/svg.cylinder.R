@@ -1,9 +1,9 @@
 svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, length=NULL, 
 	rseg=20, hseg=2, open.ended=FALSE, theta.start=0, theta.length=2*pi, col='blue', 
-	emissive=rgb(0.03, 0.15, 0.21), name='cylinder'){
+	emissive=rgb(0.03, 0.15, 0.21), opacity = 1, name='cylinder'){
 
 	# Make sure that type is webgl
-	#if('live' != getOption("svgviewr_glo_type")) stop("Cylinder drawing is currently only available with webgl svgViewR output.")
+	if('svg' == getOption("svgviewr_glo_type")) stop("Cylinder drawing is currently only available with webgl svgViewR output.")
 
 	## Create mesh
 	# If ends is single point, use axis to find other end point
@@ -179,10 +179,3 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 
 	ret = NULL
 }
-
-#var geometry = new THREE.CylinderGeometry( 5, 5, 20, 32 );
-#var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-#var cylinder = new THREE.Mesh( geometry, material );
-#scene.add( cylinder );
-
-#CylinderGeometry(radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded, thetaStart, thetaLength)
