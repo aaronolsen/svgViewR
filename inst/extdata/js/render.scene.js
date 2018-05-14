@@ -141,6 +141,7 @@ function addMeshToScene( geometry, materials ) {
 	if(mesh_opacity < 1){
 		material.transparent = true;
 		material.opacity = mesh_opacity;
+		//material.depthWrite = mesh_depthWrite;
 	}
 
 	// Create mesh
@@ -440,7 +441,12 @@ function loadGeometries(){
 			//material = new THREE.MeshLambertMaterial( {color: svg_obj.sphere[i].col} ) ;
 			material = new THREE.MeshPhongMaterial( {
 						color: svg_obj.sphere[i].col,
-						emissive: svg_obj.sphere[i].emissive
+						emissive: svg_obj.sphere[i].emissive,
+						depthTest: svg_obj.sphere[i].depthTest
+						//transparent: true,
+						//depthWrite: false,
+						//polygonOffset: true,
+						//polygonOffsetFactor: 4
 						//flatShading: true
 						//side: THREE.DoubleSide,
 					} )
@@ -540,6 +546,7 @@ function loadNextMesh(){
 		mesh_name = svg_obj.mesh[mesh_load_ct].name;
 		mesh_opacity = svg_obj.mesh[mesh_load_ct].opacity;
 		mesh_color = svg_obj.mesh[mesh_load_ct].col;
+		//mesh_depthWrite = false; //svg_obj.mesh[mesh_load_ct].depthWrite;
 
 		// Add mesh
 		addMeshToScene(geometry, material);
@@ -557,6 +564,7 @@ function loadNextMesh(){
 		mesh_name = svg_obj.mesh[mesh_load_ct].name;
 		mesh_opacity = svg_obj.mesh[mesh_load_ct].opacity;
 		mesh_color = svg_obj.mesh[mesh_load_ct].col;
+		//mesh_depthWrite = false; //svg_obj.mesh[mesh_load_ct].depthWrite;
 
 //alert(svg_obj.mesh[mesh_load_ct].src_idx + ' ' + svg_obj.mesh[mesh_load_ct].fname)
 
