@@ -1,5 +1,5 @@
 svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0.21), opacity = 1, 
-	name = 'sphere', wseg = 16, hseg = 16){
+	name = 'sphere', ontop = FALSE, wseg = 16, hseg = 16){
 
 	# Return NULL if zero length
 	if(length(x) == 0) return(NULL)
@@ -26,7 +26,7 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0
 			add_at <- length(svgviewr_env$svg$sphere)+1
 			svgviewr_env$svg$sphere[[add_at]] <- list('type'='sphere', 'name'=name[i], 'x'=setNames(x[i,], NULL), 
 				'radius'=radius, 'col'=setNames(webColor(col[i]), NULL), 'emissive'=setNames(webColor(emissive[i]), NULL), 'wseg'=wseg, 'hseg'=hseg, 
-				'opacity'=setNames(opacity, NULL), 'itmat'=diag(4))
+				'opacity'=setNames(opacity, NULL), 'itmat'=diag(4), 'depthTest'=!ontop)
 
 			# Add object reference data
 			svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name[i])
@@ -42,7 +42,7 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0
 			add_at <- length(svgviewr_env$svg$sphere)+1
 			svgviewr_env$svg$sphere[[add_at]] <- list('type'='sphere', 'name'=name[i], 'x'=setNames(x[i,,1], NULL), 
 				'radius'=radius, 'col'=setNames(webColor(col[i]), NULL), 'emissive'=setNames(webColor(emissive[i]), NULL), 'wseg'=wseg, 'hseg'=hseg, 
-				'opacity'=setNames(opacity, NULL), 'itmat'=diag(4))
+				'opacity'=setNames(opacity, NULL), 'itmat'=diag(4), 'depthTest'=!ontop)
 
 			# Add object reference data
 			svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name[i])
