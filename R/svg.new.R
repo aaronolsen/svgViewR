@@ -129,6 +129,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		svgviewr_env$js_var <- list()
 	
 		# Set javascript variables
+		svgviewr_env$js_var[['window_title']] <- window.title
 		svgviewr_env$js_var[['bg_col']] <- setNames(webColor(col, format='0'), NULL)
 		svgviewr_env$js_var[['play_speed']] <- animate.speed
 		svgviewr_env$js_var[['time_units']] <- time.units

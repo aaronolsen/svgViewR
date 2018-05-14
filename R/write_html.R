@@ -26,7 +26,7 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 	page_html <- ''
 
 	# Write some header contents
-	page_html <- paste0(page_html, '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>svgViewR</title>\n\t\t<meta charset="utf-8">\n\t\t<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">\n\n')
+	page_html <- paste0(page_html, '<!DOCTYPE html>\n<html>\n\t<head>\n\t\t<title>', js.var[['window_title']], '</title>\n\t\t<meta charset="utf-8">\n\t\t<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">\n\n')
 
 	# Write stylesheet link
 	if(is.null(server)){
