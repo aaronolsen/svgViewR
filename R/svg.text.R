@@ -28,6 +28,8 @@ svg.text <- function(x, y = NULL, labels = NULL, layer="", name="text",
 
 		# Convert to matrix if vector
 		if(is.vector(x)) x <- matrix(x, nrow=1, )
+		
+		colnames(x) <- NULL
 
 		if(length(dim(x)) == 2){
 
