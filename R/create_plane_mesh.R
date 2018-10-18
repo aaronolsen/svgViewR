@@ -54,7 +54,6 @@ create_plane_mesh <- function(corners, seg, create.uvs = FALSE){
 		}
 	}
 
-
 	# Output vertices and faces
 	list('vertices'=vertices, 'faces'=faces, 'uvs'=uvs, 'vertices_norm'=cbind(vertices_u, vertices_v))
 }
