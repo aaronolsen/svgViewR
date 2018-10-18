@@ -44,9 +44,14 @@ function addFirstTexture(texture){
 	scene.add( plane );
 
 	// Set plane opacity
-	if(svg_obj.image[image_idx_ct].opacity < 1){
+	if(svg_obj.image[image_idx_ct].opacity.length > 1){
 		material.transparent = true;
-		material.opacity = svg_obj.image[image_idx_ct].opacity;
+		material.opacity = svg_obj.image[image_idx_ct].opacity[1];
+	}else{
+		if(svg_obj.image[image_idx_ct].opacity < 1){
+			material.transparent = true;
+			material.opacity = svg_obj.image[image_idx_ct].opacity;
+		}
 	}
 
 	// Set plane name
@@ -138,10 +143,16 @@ function addMeshToScene( geometry, materials ) {
 	}
 
 	// Set model opacity
-	if(mesh_opacity < 1){
+	if(mesh_opacity.length > 1){
 		material.transparent = true;
-		material.opacity = mesh_opacity;
-		//material.depthWrite = mesh_depthWrite;
+		material.opacity = mesh_opacity[1];
+		material.depthTest = mesh_depthTest;
+	}else{
+		if(mesh_opacity < 1){
+			material.transparent = true;
+			material.opacity = mesh_opacity;
+			material.depthTest = mesh_depthTest;
+		}
 	}
 
 	// Create mesh
@@ -546,6 +557,7 @@ function loadNextMesh(){
 		mesh_name = svg_obj.mesh[mesh_load_ct].name;
 		mesh_opacity = svg_obj.mesh[mesh_load_ct].opacity;
 		mesh_color = svg_obj.mesh[mesh_load_ct].col;
+		mesh_depthTest = svg_obj.mesh[mesh_load_ct].depthTest;
 		//mesh_depthWrite = false; //svg_obj.mesh[mesh_load_ct].depthWrite;
 
 		// Add mesh
@@ -564,6 +576,7 @@ function loadNextMesh(){
 		mesh_name = svg_obj.mesh[mesh_load_ct].name;
 		mesh_opacity = svg_obj.mesh[mesh_load_ct].opacity;
 		mesh_color = svg_obj.mesh[mesh_load_ct].col;
+		mesh_depthTest = svg_obj.mesh[mesh_load_ct].depthTest;
 		//mesh_depthWrite = false; //svg_obj.mesh[mesh_load_ct].depthWrite;
 
 //alert(svg_obj.mesh[mesh_load_ct].src_idx + ' ' + svg_obj.mesh[mesh_load_ct].fname)
@@ -1525,6 +1538,10 @@ function updateShapes(time_index){
 				// Get material from loaded texture
 				//material = new THREE.MeshBasicMaterial({map: textures[texture_idx][time_index], side: THREE.DoubleSide});
 				images[obj_num].material.map = textures[texture_idx][time_index];
+				
+				if(svg_obj.image[texture_idx].opacity.length == animation_ntimes){
+					images[obj_num].material.opacity = svg_obj.image[obj_num].opacity[time_index];
+				}
 			}
 
 			if(obj_type == 'mesh'){
@@ -1535,6 +1552,10 @@ function updateShapes(time_index){
 				meshes[obj_num].rotation.x = svg_obj.mesh[obj_num].rotation[time_index][0];
 				meshes[obj_num].rotation.y = svg_obj.mesh[obj_num].rotation[time_index][1];
 				meshes[obj_num].rotation.z = svg_obj.mesh[obj_num].rotation[time_index][2];
+				
+				if(svg_obj.mesh[obj_num].opacity.length == animation_ntimes){
+					meshes[obj_num].material.opacity = svg_obj.mesh[obj_num].opacity[time_index];
+				}
 			}
 
 			if(obj_type == 'sphere'){
