@@ -2,7 +2,7 @@ svgviewr_env <- new.env(parent = emptyenv())
 
 svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1, 
 	animate.speed = 1, animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
-	time.units = 'sec', clock = FALSE, stats = FALSE, show.control = TRUE, start.rotate = TRUE, 
+	times = NULL, time.units = 'sec', clock = FALSE, stats = FALSE, show.control = TRUE, start.rotate = TRUE, 
 	rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, layers = NULL, connection = TRUE, 
 	mode = c('svg', 'webgl'), close.on.done = TRUE, file.type = NULL, debug = FALSE){
 
@@ -181,6 +181,14 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		}else{
 
 			svgviewr_env$js_var[['app_dir']] <- app_dir
+		}
+
+		if(!is.null(times)){
+			# If times do not start at 0, shift to start at 0
+			if(times[1] != 0) times <- times - min(times, na.rm=TRUE)
+
+			# Set times
+			svgviewr_env$svg[['animate']][['times']] <- times
 		}
 
 	}else{
