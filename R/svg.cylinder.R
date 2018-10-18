@@ -1,6 +1,6 @@
 svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, length=NULL, 
 	rseg=20, hseg=2, open.ended=FALSE, theta.start=0, theta.length=2*pi, col='blue', 
-	emissive=rgb(0.03, 0.15, 0.21), opacity = 1, name='cylinder'){
+	emissive=rgb(0.03, 0.15, 0.21), opacity = 1, ontop = FALSE, name='cylinder'){
 
 	# Make sure that type is webgl
 	if('svg' == getOption("svgviewr_glo_type")) stop("Cylinder drawing is currently only available with webgl svgViewR output.")
@@ -159,6 +159,7 @@ svg.cylinder <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, axis=NULL, le
 			svgviewr_env$svg$mesh[[add_at]]$emissive <- setNames(webColor(emissive), NULL)
 			svgviewr_env$svg$mesh[[add_at]]$computeVN <- TRUE
 			svgviewr_env$svg$mesh[[add_at]]$parseModel <- FALSE
+			svgviewr_env$svg$mesh[[add_at]]$depthTest <- !ontop
 
 			# Add object reference data
 			svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)

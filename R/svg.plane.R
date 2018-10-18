@@ -1,15 +1,15 @@
 svg.plane <- function(corners, col='blue', emissive=rgb(0.03, 0.15, 0.21), opacity = 1, name = 'sphere', 
-	seg = 30, create.uvs = FALSE){
+	seg = 30, ontop = FALSE, create.uvs = FALSE){
 
 	# Make sure that type is webgl
-	#if('live' != getOption("svgviewr_glo_type")) stop("Sphere drawing is currently only available with webgl svgViewR output.")
+	#if('live' != getOption("svgviewr_glo_type")) stop("Plane drawing is currently only available with webgl svgViewR output.")
 
 	# Duplicate single segment value
 	if(length(seg) == 1) seg <- rep(seg, 2)
 	
 	# Create plane mesh
 	plane_mesh <- create_plane_mesh(corners=corners, seg=seg, create.uvs=create.uvs)
-
+	
 	# Get vertices and faces
 	vertices <- plane_mesh$vertices
 	faces <- plane_mesh$faces
@@ -45,6 +45,7 @@ svg.plane <- function(corners, col='blue', emissive=rgb(0.03, 0.15, 0.21), opaci
 		svgviewr_env$svg$mesh[[add_at]]$emissive <- setNames(webColor(emissive), NULL)
 		svgviewr_env$svg$mesh[[add_at]]$computeVN <- TRUE
 		svgviewr_env$svg$mesh[[add_at]]$parseModel <- FALSE
+		svgviewr_env$svg$mesh[[add_at]]$depthTest <- !ontop
 
 		# Add object reference data
 		svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)

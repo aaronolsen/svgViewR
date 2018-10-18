@@ -1,5 +1,5 @@
 svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
-	col='blue', emissive=rgb(0.03, 0.15, 0.21), name='cuboid'){
+	col='blue', emissive=rgb(0.03, 0.15, 0.21), opacity = 1, ontop = FALSE, name='cuboid'){
 
 	# Make sure that type is webgl
 	#if('live' != getOption("svgviewr_glo_type")) stop("Cuboid drawing is currently only available with webgl svgViewR output.")
@@ -126,8 +126,10 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 		svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
 		svgviewr_env$svg$mesh[[add_at]]$col <- setNames(webColor(col), NULL)
 		svgviewr_env$svg$mesh[[add_at]]$emissive <- setNames(webColor(emissive), NULL)
+		svgviewr_env$svg$mesh[[add_at]]$opacity <- setNames(webColor(opacity), NULL)
 		svgviewr_env$svg$mesh[[add_at]]$computeVN <- FALSE
 		svgviewr_env$svg$mesh[[add_at]]$parseModel <- FALSE
+		svgviewr_env$svg$mesh[[add_at]]$depthTest <- !ontop
 
 		# Add object reference data
 		svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)

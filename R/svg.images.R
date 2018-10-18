@@ -1,5 +1,5 @@
 svg.images <- function(file, corners, name = gsub('[.][A-Za-z]+$', '', tail(strsplit(file[1], '/')[[1]], 1)), 
-	seg = 2, opacity = 1, times = NULL){
+	seg = 2, opacity = 1, ontop = FALSE, times = NULL){
 
 	# Make sure that type is webgl and html
 	if('svg' == getOption("svgviewr_glo_type")) stop("Image plotting is currently only available with webgl svgViewR output.")
@@ -65,6 +65,7 @@ svg.images <- function(file, corners, name = gsub('[.][A-Za-z]+$', '', tail(strs
 
 	# Set opacity
 	input_params[['opacity']] <- setNames(opacity, NULL)
+	input_params[['depthTest']] <- !ontop
 
 	# Add to images
 	svgviewr_env$svg$image[[add_at]] <- input_params

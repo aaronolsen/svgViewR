@@ -1,7 +1,7 @@
 svg.arrow <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, head.radius=radius*1.5, 
 	head.prop=0.25, axis=NULL, head.length = NULL, length=NULL, rseg=c(20,30), hseg=c(2,10), 
-	open.ended=FALSE, theta.start=0, theta.length=2*pi, col='blue', 
-	emissive=rgb(0.03, 0.15, 0.21), opacity = 1, name='arrow'){
+	open.ended=FALSE, theta.start=0, theta.length=2*pi, col='blue', emissive=rgb(0.03, 0.15, 0.21), 
+	opacity = 1, ontop = FALSE, name='arrow'){
 
 	# Make sure that type is webgl
 	if('svg' == getOption("svgviewr_glo_type")) stop("Arrow drawing is currently only available with webgl svgViewR output.")
@@ -53,10 +53,10 @@ svg.arrow <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, head.radius=radi
 	# Create cylinder portion of arrow
 	svg.cylinder(ends=cylinder_ends, radius=radius, rseg=rseg[1], hseg=hseg[1], 
 		theta.start=theta.start, theta.length=theta.length, col=col, emissive=emissive, 
-		opacity=opacity, name=name)
+		opacity=opacity, ontop=ontop, name=name)
 	
 	# Create arrow head
 	svg.cone(ends=cone_ends, radius=head.radius, rseg=rseg[2], hseg=hseg[2], 
 		theta.start=theta.start, theta.length=theta.length, col=col, emissive=emissive, 
-		opacity=opacity, name=name)
+		opacity=opacity, ontop=ontop, name=name)
 }

@@ -1,5 +1,5 @@
 svg.sphere <- function(center = NULL, ends = NULL, radius = NULL, width = NULL, axes = NULL, 
-	col='blue', emissive=rgb(0.03, 0.15, 0.21), name = 'sphere', seg = 40){
+	col='blue', emissive=rgb(0.03, 0.15, 0.21), opacity = 1, name = 'sphere', seg = 40, ontop = FALSE){
 
 	# Make sure that type is webgl
 	#if('live' != getOption("svgviewr_glo_type")) stop("Sphere drawing is currently only available with webgl svgViewR output.")
@@ -49,8 +49,10 @@ svg.sphere <- function(center = NULL, ends = NULL, radius = NULL, width = NULL, 
 		svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
 		svgviewr_env$svg$mesh[[add_at]]$col <- setNames(webColor(col), NULL)
 		svgviewr_env$svg$mesh[[add_at]]$emissive <- setNames(webColor(emissive), NULL)
+		svgviewr_env$svg$mesh[[add_at]]$opacity <- setNames(opacity, NULL)
 		svgviewr_env$svg$mesh[[add_at]]$computeVN <- TRUE
 		svgviewr_env$svg$mesh[[add_at]]$parseModel <- FALSE
+		svgviewr_env$svg$mesh[[add_at]]$depthTest <- !ontop
 
 		# Add object reference data
 		svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
