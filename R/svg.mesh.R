@@ -1,5 +1,5 @@
 svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit(file, '/')[[1]], 1)), 
-	col = '#F5F5F5', emissive = 'black', opacity = 1, get.lim = TRUE){
+	col = '#F5F5F5', emissive = 'black', opacity = 1, ontop = FALSE, get.lim = TRUE){
 
 	# Make sure that type is webgl
 	if('svg' == getOption("svgviewr_glo_type")) stop("Mesh drawing is currently only available with webgl svgViewR output.")
@@ -88,7 +88,7 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 		input_params[['emissive']] <- setNames(webColor(emissive), NULL)
 		input_params[['parseModel']] <- TRUE
 		input_params[['itmat']] <- diag(4)
-		#input_params[['depthTest']] <- TRUE
+		input_params[['depthTest']] <- !ontop
 
 		# Add to meshes
 		svgviewr_env$svg$mesh[[add_at]] <- input_params
