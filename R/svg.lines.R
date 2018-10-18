@@ -25,11 +25,25 @@ svg.lines <- function(x, y=NULL, col="black", z.index=0, layer="", name="line",
 		# Get viewer environment
 		env <- as.environment(getOption("svgviewr_glo_env"))
 		
-		# Add arrow
-		add_at <- length(svgviewr_env$svg$line)+1
-		svgviewr_env$svg$line[[add_at]] <- list('type'='line', 
-			'name'=name, x=t(x), 'col'=setNames(webColor(col), NULL), 'lwd'=lwd, 'itmat'=diag(4), 
-			'opacity'=setNames(opacity, NULL), 'depthTest'=!ontop)
+		if(length(dim(x)) == 2){
+
+			# Add line
+			add_at <- length(svgviewr_env$svg$line)+1
+			svgviewr_env$svg$line[[add_at]] <- list('type'='line', 
+				'name'=name, x=t(x), 'col'=setNames(webColor(col), NULL), 'lwd'=lwd, 'itmat'=diag(4), 
+				'opacity'=setNames(opacity, NULL), 'depthTest'=!ontop)
+
+		}else{
+
+			# Add object
+			add_at <- length(svgviewr_env$svg$line)+1
+			svgviewr_env$svg$line[[add_at]] <- list('type'='line', 
+				'name'=name, x=setNames(t(x[,,1]), NULL), 'col'=setNames(webColor(col), NULL), 'lwd'=lwd, 'itmat'=diag(4), 
+				'opacity'=setNames(opacity, NULL), 'depthTest'=!ontop)
+
+			# Add animation
+			svgviewr_env[['svg']][['line']][[add_at]][['x_tm']] <- lapply(seq_len(dim(x)[3]), function(iter) t(x[,,iter]))
+		}
 
 		# Add object reference data
 		svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
