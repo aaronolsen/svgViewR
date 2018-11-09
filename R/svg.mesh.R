@@ -29,18 +29,30 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 
 			# Read mesh file
 			if(grepl('[.]json$', file)){
-				obj_json <- fromJSON(paste(suppressWarnings(readLines(file)), collapse=""))
+				obj_list <- fromJSON(paste(suppressWarnings(readLines(file)), collapse=""))
 			}else{
-				obj_json <- objToJSON(obj=file)
-			}
 
+				# Read OBJ as string
+				obj_list <- read_obj_str(paste(suppressWarnings(readLines(file)), collapse="*"))
+
+				## Format faces for threejs
+				# Convert to matrix
+				obj_faces <- matrix(obj_list$faces, nrow=length(obj_list$faces)/6, ncol=6, byrow=TRUE)
+				faces <- matrix(NA, nrow=nrow(obj_faces), ncol=7)
+				faces[, 1] <- 32
+				faces[, 2:4] <- obj_faces[, c(1,3,5)] - 1
+				faces[, 5:7] <- obj_faces[, c(2,4,6)] - 1
+				obj_list$faces <- t(faces)
+			}
+			
 			# Add mesh properties to input parameters
-			for(obj_name in names(obj_json)) input_params[[obj_name]] <- obj_json[[obj_name]]
+			for(prop_name in names(obj_list)) input_params[[prop_name]] <- obj_list[[prop_name]]
 
 			input_params[['scale']] <- 1
 
 		}else{
 
+			# Live/server visualization
 			if(grepl('[.](obj)$', file)){
 				
 				# For server webgl visualization
@@ -109,12 +121,12 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 	if(get.lim){
 
 		# Get number of vertices
-		num_vertices <- length(obj_json$vertices)
+		num_vertices <- length(obj_list$vertices)
 
 		# Get xyz limits
-		obj_ranges <- cbind(range(obj_json$vertices[seq(1, num_vertices-2, by=3)], na.rm=TRUE),
-			range(obj_json$vertices[seq(2, num_vertices-1, by=3)], na.rm=TRUE),
-			range(obj_json$vertices[seq(3, num_vertices, by=3)], na.rm=TRUE))
+		obj_ranges <- cbind(range(obj_list$vertices[seq(1, num_vertices-2, by=3)], na.rm=TRUE),
+			range(obj_list$vertices[seq(2, num_vertices-1, by=3)], na.rm=TRUE),
+			range(obj_list$vertices[seq(3, num_vertices, by=3)], na.rm=TRUE))
 		colnames(obj_ranges) <- c('x', 'y', 'z')
 		
 		# Set corners
