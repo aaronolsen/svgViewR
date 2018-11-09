@@ -1,71 +1,35 @@
-readOBJ <- function(file, scaling = 1, shape.rm = NULL){
+readOBJ <- function(file){
 
 	# Read lines
-	read_lines <- suppressWarnings(readLines(file[1]))
+	read_lines <- suppressWarnings(readLines(con=file))
+	
+	# Paste into string
+	obj_str <- paste(read_lines, collapse="*")
 
-	# Get vertex lines
-	vertices <- read_lines[grepl('^v ', read_lines)]
+	# Use C++ function to read string
+	read_obj <- read_obj_str(obj_str)
 	
 	# Convert to matrix
-	vertices <- matrix(as.numeric(unlist(lapply(strsplit(x=vertices, split=' '), tail, 3))), nrow=length(vertices), ncol=3, byrow=TRUE)
+	vertices <- matrix(read_obj$vertices, nrow=length(read_obj$vertices)/3, ncol=3, byrow=TRUE)
 	
-	# Apply scaling
-	vertices <- vertices * scaling
-
 	# Get vertex normals
 	normals <- read_lines[grepl('^vn ', read_lines)]
 
 	# Convert to matrix
-	normals <- matrix(as.numeric(unlist(lapply(strsplit(x=normals, split=' '), tail, 3))), nrow=length(normals), ncol=3, byrow=TRUE)
+	normals <- matrix(read_obj$normals, nrow=length(read_obj$normals)/3, ncol=3, byrow=TRUE)
 	
-	# Get face lines
-	faces <- read_lines[grepl('^f ', read_lines)]
-
 	# Convert to matrix
-	faces <- matrix(as.numeric(unlist(lapply(strsplit(x=faces, split=' |//'), tail, 6))), nrow=length(faces), ncol=6, byrow=TRUE)
+	faces <- matrix(read_obj$faces, nrow=length(read_obj$faces)/6, ncol=6, byrow=TRUE)
 
 	# Get lines
 	l_lines <- read_lines[grepl('^l ', read_lines)]
 	
 	# Convert to matrix
-	if(length(l_lines) > 0){
-
-		lines_mat <- matrix(as.numeric(unlist(lapply(strsplit(x=l_lines, split=' |//'), tail, 2))), nrow=length(l_lines), ncol=2, byrow=TRUE)
-
-		# 
-		if(!is.null(shape.rm)){
-			if('l' %in% shape.rm){
-		
-				#
-				max_lines_mat <- max(lines_mat)
-				vertices <- vertices[(max_lines_mat+1):nrow(vertices), ]
-				faces <- faces - max_lines_mat
-			}
-		}
+	if(!is.null(read_obj$lines)){
+		lines_mat <- matrix(read_obj$lines, nrow=length(read_obj$lines)/2, ncol=2, byrow=TRUE)
 	}else{
 		lines_mat <- NULL
 	}
-
-	#if(repair){
-
-		# Only keep faces with all indices greater than 0
-		#faces <- faces[rowSums(faces > 0) == ncol(faces), ]
-
-		# Get range of face index values
-		#faces_range <- range(faces)
-
-		# Set desired number of vertices
-		#num_vertices <- faces_range[2]
-	
-		# Get number of normals
-		#num_normals <- nrow(normals)
-
-		# Add normals to equal desired number
-		#if(num_normals < num_vertices) normals <- rbind(normals, matrix(c(1,0,0), nrow=num_vertices-num_normals, ncol=3, byrow=TRUE))
-
-		# Remove normals to equal desired number
-		#if(num_normals < num_vertices) normals <- normals[1:num_vertices, ]
-	#}
 
 	obj <- list(
 		'vertices'=vertices,
@@ -84,7 +48,7 @@ readOBJ <- function(file, scaling = 1, shape.rm = NULL){
 		)
 	)
 	class(obj) <- 'obj'
-	
+
 	obj
 }
 
