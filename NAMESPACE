@@ -1,3 +1,5 @@
+useDynLib(svgViewR, .registration = TRUE)
+
 exportPattern("^[[:alpha:]]+")
 
 exportClass(Rhttpd2)
@@ -8,6 +10,7 @@ importFrom("methods", "new")
 importFrom("stats", "median", "sd", "setNames")
 importFrom("utils", "capture.output", "head", "packageVersion", "tail")
 
+import(Rcpp)
 import(grid)
 import(rjson)
 import(Rook)
