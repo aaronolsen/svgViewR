@@ -355,13 +355,23 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 		if ( _this.enabled === false ) return;
 
-		//document.getElementById( "alert" ).innerHTML = event.keyCode;
+		//if(debug) document.getElementById( "alert" ).innerHTML = 'keydown: ' + event.keyCode;
 
 		window.removeEventListener( 'keydown', keydown );
+
+		if ( event.keyCode == 91 ) { // Pressing command
+			
+			// Clear state
+			_state = -1;
+		}
+
+		//if(debug) document.getElementById( "alert" ).innerHTML = document.getElementById( "alert" ).innerHTML + ' _state: ' + _state;
 
 		_prevState = _state;
 
 		if ( _state !== STATE.NONE ) {
+
+			//if(debug) document.getElementById( "alert" ).innerHTML = document.getElementById( "alert" ).innerHTML + ' _state !== STATE.NONE ';
 
 			return;
 
@@ -374,6 +384,8 @@ THREE.TrackballControls = function ( object, domElement ) {
 			_state = STATE.ZOOM;
 
 		} else if ( event.keyCode == 91 && ! _this.noPan ) { // Pressing command
+
+			//if(debug) document.getElementById( "alert" ).innerHTML = document.getElementById( "alert" ).innerHTML + ' set _state to "STATE.PAN"';
 
 			_state = STATE.PAN;
 
@@ -419,8 +431,9 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 		_state = _prevState;
 
-		window.addEventListener( 'keydown', keydown, false );
+		//if(debug) document.getElementById( "alert" ).innerHTML = 'keyup';
 
+		window.addEventListener( 'keydown', keydown, false );
 	}
 
 	function mousedown( event ) {

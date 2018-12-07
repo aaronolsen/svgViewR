@@ -359,7 +359,7 @@ function doEvent(){
 	// Apply rotation
 //	var t1 = new Date().getTime();
 	if (currentEvent == "rotateXaxis" || currentEvent == "rotateYaxis" || currentEvent == "rotateZaxis")
-		for (i = 0, len = shape_transform.length; i < len; i++) eval(currentEvent + '(' + shape_transform[i] + ', degToRad(d))');
+		for (i = 0, len = shape_transform.length; i < len; i++) eval(currentEvent + '(' + shape_transform[i] + ', degToRad(d*0.3))');
 //	var t2 = new Date().getTime();
 //	alert(t2 - t1)
 

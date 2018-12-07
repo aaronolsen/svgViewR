@@ -87,7 +87,7 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 			input_params$fname <- tail(file_strsplit, 1)
 
 			# Read source file
-			if(get.lim) obj_json <- fromJSON(paste(suppressWarnings(readLines(file)), collapse=""))
+			if(get.lim) obj_list <- fromJSON(paste(suppressWarnings(readLines(file)), collapse=""))
 
 			# Set directory path
 			input_params$src <- ''
