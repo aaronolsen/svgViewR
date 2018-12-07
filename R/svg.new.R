@@ -145,7 +145,6 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		svgviewr_env$js_var[['save_as_img_type']] <- file.type
 		svgviewr_env$js_var[['save_as_img_paths']] <- save_as_img_paths
 		svgviewr_env$js_var[['save_as_img_close']] <- close.on.done
-		svgviewr_env$js_var[['debug']] <- debug
 		
 		# Create name reference
 		svgviewr_env$ref <- list()
@@ -155,9 +154,6 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 
 		# Create animation reference
 		svgviewr_env$svg$animate <- list()
-
-		# Create deformation reference
-		svgviewr_env$svg$deform <- list()
 
 		## Create server connection to plot WebGL graphics
 		if(options("svgviewr_glo_type") == 'live'){

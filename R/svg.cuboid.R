@@ -33,15 +33,8 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 
 		}else{
 		
-			if(is.vector(axes)) axes <- matrix(axes, 1, 3)
-
-			#if(nrow(axes) == 3) stop("If 'ends' is a 2-row matrix then 'axes' must be a 1 or 2-row matrix.")
-
-			# If only 2 rows provided, use ends to add first
-			if(nrow(axes) == 2) axes <- rbind(ends[2,]-ends[1,], axes)
-			
-			# Issue warning if length is not used
-			if(!is.null(length)) warning('Input parameter "length" is ignored with input of two end points ("ends").')
+			# Find axis, make unit
+			axes <- rbind(ends[2,]-ends[1,], axes)
 		
 			# Get length
 			length <- sqrt(sum((axes[1, ])^2))
@@ -54,7 +47,7 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 		if(length(width) == 1) width <- rep(width, 2)
 	
 		# Get vector orthogonal to axes
-		if(nrow(axes) == 2) axes <- rbind(axes, cprod_svg(axes[1,], axes[2,]))
+		axes <- rbind(axes, cprod_svg(axes[1,], axes[2,]))
 
 	}else{
 		
@@ -95,17 +88,17 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 	
 	# Add faces
 	faces[1,] <- c(0,1,2)
-	faces[2,] <- c(1,3,2)
+	faces[2,] <- c(1,2,3)
 	faces[3,] <- c(4,5,6)
-	faces[4,] <- c(5,7,6)
+	faces[4,] <- c(5,6,7)
 	faces[5,] <- c(2,3,6)
-	faces[6,] <- c(3,7,6)
+	faces[6,] <- c(3,6,7)
 	faces[7,] <- c(1,3,7)
-	faces[8,] <- c(1,7,5)
+	faces[8,] <- c(1,5,7)
 	faces[9,] <- c(4,6,2)
-	faces[10,] <- c(4,2,0)
+	faces[10,] <- c(4,0,2)
 	faces[11,] <- c(1,5,4)
-	faces[12,] <- c(1,4,0)
+	faces[12,] <- c(1,0,4)
 	
 	faces <- faces[!is.na(faces[,1]), ]
 

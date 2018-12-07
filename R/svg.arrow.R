@@ -13,8 +13,6 @@ svg.arrow <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, head.radius=radi
 	if(length(rseg) == 1) rseg <- rep(rseg, 2)
 	if(length(hseg) == 1) hseg <- rep(hseg, 2)
 
-	if(class(ends) == 'data.frame') stop("'ends' must be a vector or matrix, not a data.frame.")
-
 	## Get ends of arrow base and head portions
 	# If ends is single point, use axis to find other end point
 	if(is.vector(ends) || nrow(ends) == 1){
@@ -32,7 +30,7 @@ svg.arrow <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, head.radius=radi
 		ends <- rbind(ends, ends + length*axis)
 
 	}else{
-	
+		
 		# Find axis, make unit
 		axis <- ends[2,]-ends[1,]
 		

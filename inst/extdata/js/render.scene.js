@@ -13,13 +13,8 @@ var update_obj = {
     num: new Array(),
     type: new Array()
 };
-var deform_obj = {
-    num: new Array(),
-    type: new Array()
-};
 
 var animate = false;						// Whether to animate - turned on if animation is loaded
-var deform = false;							// Whether to deform any shapes
 var anim_start = Date.now();				// Set animation start time
 var anim_pause = false;						// Start with animation paused
 var obj_add_ct = 0;							// Set initial object add count
@@ -230,17 +225,6 @@ function loadAnimation() {
 
 	// Set animation times
 	animation_times = svg_obj.animate.times;
-}
-
-function loadDeformation() {
-
-	if(svg_obj.deform == ''){
-		deform = false;
-		return;
-	}
-
-	// Set deform on
-	deform = true;
 }
 
 function loadFirstImageTexture(){
@@ -531,28 +515,20 @@ function loadNextMesh(){
 		return;
 	}
 
-	// Check if position over time is specified
-	if(svg_obj.mesh[mesh_load_ct].position != undefined){
-
-		// Add type and number to 
-		update_obj.num.push(mesh_load_ct);
-		update_obj.type.push('mesh');
-	}
-
-	// Check if deformation over time is specified
-	if(svg_obj.mesh[mesh_load_ct].deform != undefined){
-
-		// Add type and number to 
-		deform_obj.num.push(mesh_load_ct);
-		deform_obj.type.push('mesh');
-	}
-
 	if(svg_obj.mesh[mesh_load_ct].src_idx == undefined){
 		
 		var i, material, mesh, num_faces, num_vertices, vertex, face;
 		
 		// Get mesh object
 		mesh = svg_obj.mesh[mesh_load_ct];
+		
+		// Check if position over time is specified
+		if(svg_obj.mesh[mesh_load_ct].position != undefined){
+
+			// Add type and number to 
+			update_obj.num.push(mesh_load_ct);
+			update_obj.type.push('mesh');
+		}
 
 		if(mesh.parseModel){
 
@@ -584,36 +560,10 @@ function loadNextMesh(){
 		mesh_depthTest = svg_obj.mesh[mesh_load_ct].depthTest;
 		//mesh_depthWrite = false; //svg_obj.mesh[mesh_load_ct].depthWrite;
 
-		// Check if there's a deformation
-		if(svg_obj.mesh[mesh_load_ct].deform != undefined){
-
-			// Copy vertices
-			deform_obj.num.push(mesh_load_ct);
-			deform_obj.type.push('mesh');
-
-			var nVertices = geometry.vertices.length;
-			svg_obj.mesh[mesh_load_ct].clone_vertices = new Array();
-
-			for(i = 0; i < nVertices; i++) {
-				svg_obj.mesh[mesh_load_ct].clone_vertices[i] = geometry.vertices[i].clone();
-			}
-
-			//document.getElementById( "alert" ).innerHTML = svg_obj.mesh[mesh_load_ct].clone_vertices[3].y;
-		}
-
-		// Add mesh -- this advances mesh_load_ct!
+		// Add mesh
 		addMeshToScene(geometry, material);
 
-		//alert(svg_obj.mesh[mesh_load_ct].position + ',' + svg_obj.mesh[mesh_load_ct].rotation)
-
 	}else{
-
-		// Set mesh name
-		mesh_name = svg_obj.mesh[mesh_load_ct].name;
-		mesh_opacity = svg_obj.mesh[mesh_load_ct].opacity;
-		mesh_color = svg_obj.mesh[mesh_load_ct].col;
-		mesh_depthTest = svg_obj.mesh[mesh_load_ct].depthTest;
-		//mesh_depthWrite = false; //svg_obj.mesh[mesh_load_ct].depthWrite;
 
 		// JSONLoader (buffer Geometry loader was not getting the indices right...)
 		// Send next mesh after previous mesh is loaded so that names correspond
@@ -621,8 +571,23 @@ function loadNextMesh(){
 		// a way that ensures correspondence
 		var loader = new THREE.JSONLoader();
 		loader.load( app_dir[svg_obj.mesh[mesh_load_ct].src_idx] + '/' + svg_obj.mesh[mesh_load_ct].fname, addMeshToScene);
+	
+		// Set mesh name
+		mesh_name = svg_obj.mesh[mesh_load_ct].name;
+		mesh_opacity = svg_obj.mesh[mesh_load_ct].opacity;
+		mesh_color = svg_obj.mesh[mesh_load_ct].col;
+		mesh_depthTest = svg_obj.mesh[mesh_load_ct].depthTest;
+		//mesh_depthWrite = false; //svg_obj.mesh[mesh_load_ct].depthWrite;
 
-		//alert(svg_obj.mesh[mesh_load_ct].src_idx + ' ' + svg_obj.mesh[mesh_load_ct].fname)
+//alert(svg_obj.mesh[mesh_load_ct].src_idx + ' ' + svg_obj.mesh[mesh_load_ct].fname)
+
+		// Check if position over time is specified
+		if(svg_obj.mesh[mesh_load_ct].position != undefined){
+
+			// Add type and number to 
+			update_obj.num.push(mesh_load_ct);
+			update_obj.type.push('mesh');
+		}
 	}
 }
 
@@ -804,12 +769,9 @@ function onReady(){
 	// Load coordinate objects
 	loadGeometries();
 	
-	// Load animation
+	// Load animation from string
 	loadAnimation();
 
-	// Load deformation
-	loadDeformation();
-	
 	// Try rendering every 10 msec until all objects are finished loaded
 	try_render_int = setInterval(tryRender, 10);
 }
@@ -1549,48 +1511,7 @@ function updateShapes(time_index){
 
 	//document.getElementById( "alert" ).innerHTML = document.getElementById( "alert" ).innerHTML + ',' + time_index;
 
-	var def_vars, num, type, i, j, k, nVertices, obj_num, obj_type, set_prop, set_val, tracks_length;
-
-	//// Apply deformation transformations
-	if(deform == true){
-		
-		// Apply object updates/transformations
-		var deform_obj_length = deform_obj.num.length;
-
-		for (i = 0; i < deform_obj_length; i++){
-			
-			// Set object number and type
-			obj_num = deform_obj.num[i];
-			obj_type = deform_obj.type[i];
-
-			if(obj_type == 'mesh'){
-
-				//var nVertices = Object.getOwnPropertyNames(meshes[obj_num].geometry.vertices);
-				nVertices = meshes[obj_num].geometry.vertices.length;
-//document.getElementById( "alert" ).innerHTML = svg_obj.mesh[obj_num].deform[time_index];
-
-				// deform variables
-				def_vars = svg_obj.mesh[obj_num].deform[time_index];
-
-//document.getElementById( "alert" ).innerHTML = def_vars;
-
-				for(i = 0; i < nVertices; i++) {
-					meshes[obj_num].geometry.vertices[i].x = svg_obj.mesh[obj_num].clone_vertices[i].x + def_vars[1]*(svg_obj.mesh[obj_num].clone_vertices[i].x - def_vars[0]);
-					meshes[obj_num].geometry.vertices[i].y = svg_obj.mesh[obj_num].clone_vertices[i].y + def_vars[3]*(svg_obj.mesh[obj_num].clone_vertices[i].y - def_vars[2]);
-					meshes[obj_num].geometry.vertices[i].z = svg_obj.mesh[obj_num].clone_vertices[i].z + def_vars[5]*(svg_obj.mesh[obj_num].clone_vertices[i].z - def_vars[4]);
-				}
-
-				//svg_obj.mesh[obj_num].clone_vertices[i] = geometry.vertices[i].clone();
-
-				// Mark the vertices as needing update
-				meshes[obj_num].geometry.verticesNeedUpdate = true;		
-
-				//anim_pause_time = Date.now();
-				//anim_pause_start = anim_start;
-				//anim_pause = true; 
-			}
-		}
-	}
+	var num, type, i, j, k, obj_num, obj_type, set_prop, set_val, tracks_length;
 
 	//// Apply animation transformations
 	if(animate == true){
@@ -1623,10 +1544,7 @@ function updateShapes(time_index){
 				}
 			}
 
-			//document.getElementById( "alert" ).innerHTML = svg_obj.mesh[obj_num].rotation[time_index][0];
-
 			if(obj_type == 'mesh'){
-
 				meshes[obj_num].position.x = svg_obj.mesh[obj_num].position[time_index][0];
 				meshes[obj_num].position.y = svg_obj.mesh[obj_num].position[time_index][1];
 				meshes[obj_num].position.z = svg_obj.mesh[obj_num].position[time_index][2];
@@ -1647,7 +1565,6 @@ function updateShapes(time_index){
 			}
 
 			if(obj_type == 'line'){
-
 				// Update each segment
 				k = 0;
 				for(j = 0; j < svg_obj.line[i].nseg*3; j = j + 3){
