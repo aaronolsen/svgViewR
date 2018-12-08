@@ -123,6 +123,9 @@ svg.close <- function(wait = FALSE){
 				if('tmat' %in% names(svgviewr_env$svg[[name1]][[num]])) svgviewr_env$svg[[name1]][[num]][['tmat']] <- NULL
 			}
 		}
+		
+#		print(names(svgviewr_env$svg$mesh[[4]]))
+#		print(svgviewr_env$svg$mesh[[4]]$position)
 
 		# Convert svg objects to json
 		svg_json <- rjson::toJSON(x = as.list(svgviewr_env$svg))
