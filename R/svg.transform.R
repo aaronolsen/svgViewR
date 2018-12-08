@@ -34,9 +34,9 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 
 			# Apply each body transform in array
 			if(length(dim(tmarr)) == 3){
-				suppressWarnings(svg.transform(tmarr=tmarr[, , i], applyto=applyto[i], add=add, regexp=regexp))
+				svg.transform(tmarr=tmarr[, , i], applyto=applyto[i], add=add, regexp=regexp)
 			}else{
-				suppressWarnings(svg.transform(tmarr=tmarr[, , i, ], applyto=applyto[i], times=times, add=add, regexp=regexp))
+				svg.transform(tmarr=tmarr[, , i, ], applyto=applyto[i], times=times, add=add, regexp=regexp)
 			}
 		}
 
@@ -44,7 +44,7 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 	
 		# If 3-D array and 3rd dim has names, use as applyto
 		if(length(dim(tmarr)) == 3 && !is.null(dimnames(tmarr)[[3]])) applyto <- dimnames(tmarr)[[3]]
-
+		
 		# Get viewer environment
 		env <- as.environment(getOption("svgviewr_glo_env"))
 
