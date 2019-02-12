@@ -92,7 +92,12 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		}, warning = function(w) {
 		}, error = function(e) {
 			if(e[1]$message == 'none of the packages are loaded'){
-				app_dir_src <- '/Users/aaron/Documents/Research/github/svgViewR/inst/extdata'
+
+				if(Sys.info()['login'] == 'xromm18'){
+					app_dir_src <- '/Users/xromm18/Documents/Analysis/R/svgViewR/inst/extdata'
+				}else{
+					app_dir_src <- '/Users/aaron/Documents/Research/github/svgViewR/inst/extdata'
+				}
 				if(file.exists(app_dir_src)){
 					return(app_dir_src)
 				}else{
@@ -103,7 +108,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		})
 		
 		# Set package load source
-		if(app_dir == '/Users/aaron/Documents/Research/github/svgViewR/inst/extdata'){
+		if(app_dir %in% c('/Users/aaron/Documents/Research/github/svgViewR/inst/extdata', '/Users/xromm18/Documents/Analysis/R/svgViewR/inst/extdata')){
 			pkg_load <- 'source'
 		}else{
 			pkg_load <- 'library'
