@@ -26,6 +26,7 @@ Rhttpd2 <- setRefClass(
 	    #}
 	},
 	full_url = function(i){
+		if(missing(i)) return(NULL)
 	    paste('http://',listenAddr,':',listenPort,appList[[i]]$path,sep='')
 	},
 	launch = function(...){
