@@ -1,17 +1,109 @@
-svg.triangle <- function(corners, col='blue', emissive=rgb(0.03, 0.15, 0.21), opacity = 1, name = 'triangle', 
+svg.triangle <- function(corners, col='blue', seg=1, emissive=rgb(0.03, 0.15, 0.21), opacity = 1, name = 'triangle', 
 	ontop = FALSE){
 
 	# Make sure that type is webgl
 	if('svg' == getOption("svgviewr_glo_type")) stop("Sphere drawing is currently only available with webgl svgViewR output.")
 	
-	# Create mesh
-	triangle_mesh <- list('vertices'=corners, 'faces'=c(0,1,2))
+	# Create points along edges of triangle
+	if(seg > 1){
+		
+		# Get parameters for each edge
+		edge1_len <- dppt_svg(corners[1,], corners[2,])
+		edge1_vec <- uvector_svg(corners[1,]-corners[2,])
+		edge1_spa <- edge1_len / seg
+		edge2_len <- dppt_svg(corners[2,], corners[3,])
+		edge2_vec <- uvector_svg(corners[3,]-corners[2,])
+		edge2_spa <- edge2_len / seg
+		edge3_len <- dppt_svg(corners[1,], corners[3,])
+		edge3_vec <- uvector_svg(corners[3,]-corners[1,])
+		edge3_spa <- edge3_len / seg
 
-	# Get vertices and faces
-	vertices <- triangle_mesh$vertices
-	faces <- triangle_mesh$faces
+		# Create matrix for edge points
+		edge1_pts <- edge2_pts <- edge3_pts <- matrix(NA, seg-1, 3)
 
+		for(i in 1:(seg-1)){
+			edge1_pts[i, ] <- corners[2,] + i*edge1_spa*edge1_vec
+			edge2_pts[i, ] <- corners[2,] + i*edge2_spa*edge2_vec
+			edge3_pts[i, ] <- corners[1,] + i*edge3_spa*edge3_vec
+		}
+		
+		#vertices <- rbind(corners, edge1_pts, edge2_pts, edge3_pts)
+		vertices <- rbind(corners[2,], edge1_pts[1,], edge2_pts[1,])
+
+		# Set internal vertices
+		if(seg > 2){
+
+			for(i in 2:(seg-1)){
+
+				int_len <- dppt_svg(edge1_pts[i, ], edge2_pts[i, ])
+				int_vec <- uvector_svg(edge2_pts[i, ]-edge1_pts[i, ])
+				int_spa <- int_len / i
+
+				vertices <- rbind(vertices, edge1_pts[i, ])
+
+				for(j in 1:(i-1)){
+					vertices <- rbind(vertices, edge1_pts[i, ] + j*int_spa*int_vec)
+				}
+
+				vertices <- rbind(vertices, edge2_pts[i, ])
+			}
+			
+		}else{
+
+			# Set remaining vertices without internal vertices
+			vertices <- rbind(vertices, corners[1,], edge3_pts[1,], corners[3,])
+		}
+
+		# Set faces
+		faces <- matrix(NA, 0, 3)
+		start_face <- 0
+		for(i in 1:max(2, (seg-1))){
+		
+			#cat(paste0(i, '\n'))
+			
+			#
+			for(j in 1:((i-1)*2+1)){
+
+				#cat(paste0('\t', j, ':', start_face, '\n'))
+
+				if(j == 1 || j %% 2 == 1){
+
+					# Set faces
+					faces <- rbind(faces, c(start_face, start_face + i, start_face + i + 1))
+
+					# Set starting face for next round
+					start_face <- start_face + 1
+
+				}else{
+
+					# Set faces
+					faces <- rbind(faces, c(start_face, start_face - 1, start_face + i))
+				}
+			}
+		}
+
+	}else{
+
+		# Create single triangle
+		vertices <- corners
+		faces <- c(0,1,2)
+	}
+	
 	if('svg' == getOption("svgviewr_glo_type")){
+		
+		if(is.vector(faces)) faces <- matrix(faces, 1, 3)
+
+		svg.points(vertices[1,], col='red')
+		svg.points(vertices[2:(nrow(vertices)-1), ])
+		svg.points(vertices[nrow(vertices),], col='blue')
+		
+		svg.text(vertices, labels=0:(nrow(vertices)-1), font.size=0.1)
+
+		# Draw faces
+		if(!is.null(faces)){
+			faces <- cbind(faces, faces[,1])
+			svg.pathsC(lapply(seq_len(nrow(faces)), function(i) faces[i,]+1), col='black', opacity.fill=0.2)
+		}
 
 	}else{
 
