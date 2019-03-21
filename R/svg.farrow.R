@@ -6,7 +6,7 @@ svg.farrow <- function(ends=rbind(c(0,0,0), c(1,0,0)), head.width=0.25, head.len
 	if('svg' == getOption("svgviewr_glo_type")) stop("Flat arrow drawing is currently only available with webgl svgViewR output.")
 	
 	# Repeat some params if length 1
-	if(length(seg) == 1) seg <- rep(seg, 2)
+	#if(length(seg) == 1) seg <- rep(seg, 2)
 
 	# Make sure ends is matrix
 	if(class(ends) == 'data.frame') stop("'ends' must be a vector or matrix, not a data.frame.")
@@ -67,6 +67,6 @@ svg.farrow <- function(ends=rbind(c(0,0,0), c(1,0,0)), head.width=0.25, head.len
 		seg=seg, col=col, emissive=emissive, opacity=opacity, ontop=ontop, name=name)
 
     # Create triangle head planes
-	svg.triangle(corners=rbind(arr_vert_a['headbase1', ], arr_vert_a['headtip', ], arr_vert_a['headbase2', ]), seg=1)
-	svg.triangle(corners=rbind(arr_vert_b['headbase1', ], arr_vert_b['headtip', ], arr_vert_b['headbase2', ]), seg=1)
+	svg.triangle(corners=rbind(arr_vert_a['headbase1', ], arr_vert_a['headtip', ], arr_vert_a['headbase2', ]), seg=seg)
+	svg.triangle(corners=rbind(arr_vert_b['headbase1', ], arr_vert_b['headtip', ], arr_vert_b['headbase2', ]), seg=seg)
 }
