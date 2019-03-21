@@ -2,7 +2,7 @@ svg.triangle <- function(corners, col='blue', seg=1, emissive=rgb(0.03, 0.15, 0.
 	ontop = FALSE){
 
 	# Make sure that type is webgl
-	if('svg' == getOption("svgviewr_glo_type")) stop("Sphere drawing is currently only available with webgl svgViewR output.")
+	if('svg' == getOption("svgviewr_glo_type")) stop("Triangle drawing is currently only available with webgl svgViewR output.")
 	
 	# Create points along edges of triangle
 	if(seg > 1){
@@ -50,14 +50,15 @@ svg.triangle <- function(corners, col='blue', seg=1, emissive=rgb(0.03, 0.15, 0.
 			
 		}else{
 
-			# Set remaining vertices without internal vertices
-			vertices <- rbind(vertices, corners[1,], edge3_pts[1,], corners[3,])
 		}
+
+		# Set remaining vertices without internal vertices
+		vertices <- rbind(vertices, corners[1,], edge3_pts, corners[3,])
 
 		# Set faces
 		faces <- matrix(NA, 0, 3)
 		start_face <- 0
-		for(i in 1:max(2, (seg-1))){
+		for(i in 1:max(2, (seg))){
 		
 			#cat(paste0(i, '\n'))
 			
