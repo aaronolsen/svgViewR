@@ -1,3 +1,6 @@
+/****************************************************************************************/
+/*****                                 General style                                *****/
+/****************************************************************************************/
 a {
 	color: #0af;
 }
@@ -9,7 +12,16 @@ body {
 	margin: 0px;
 	overflow: hidden;
 }
-.alert, .clock, .idx, .time {
+.bottom_frame {
+	position:absolute;
+	visibility:none;
+	bottom:0px;
+	width:100%;
+	height:0px;
+	color:white;
+	background-color:gray;
+}
+.alert, .alert2, .clock, .idx, .time {
 	position:absolute;
 	left:10px;
 	z-index:5;
@@ -28,8 +40,146 @@ body {
 .alert {
 	top:130px;
 }
+.alert2 {
+	top:150px;
+}
 #info {
 	position: absolute;
 	top: 0px; width: 100%;
 	padding: 5px;
+}
+
+/****************************************************************************************/
+/*****                                Timeline style                                *****/
+/****************************************************************************************/
+
+.timeline_axis {
+	height:65%;
+	background-color:white;
+}
+.timeline_axis_space, .timeline_axis_space_left, .timeline_axis_tick, .timeline_axis_tick_tall, .timeline_axis_tick_value, .timeline_axis_tick_value_left, .timeline_axis_tvspace, .timeline_axis_tick_value_right, .timeline_axis_value {
+	float:left;
+}
+.timeline_axis_space {
+	width:10.65%;
+	height:100%;
+}
+.timeline_axis_space_left {
+	width:0.5%;
+	height:100%;
+}
+.timeline_axis_tick, .timeline_axis_tick_tall {
+	line-height:15px;
+	width:100%;
+}
+.timeline_axis_tick {
+	color:#999999;
+	height:35%;
+}
+.timeline_axis_tick_tall {
+	color:black;
+	height:50%;
+}
+.timeline_axis_tick_value_left {
+	text-align:left;
+}
+.timeline_axis_tick_value_right {
+	text-align:right;
+}
+.timeline_axis_tick_value, .timeline_axis_tick_value_left, .timeline_axis_tick_value_right {
+	width:5%;
+	height:100%;
+}
+.timeline_axis_tvspace {
+	background-color:white;
+	height:15%;
+	width:100%;
+}
+.timeline_axis_value, .timeline_axis_value_tall {
+	color:black;
+	font-size:10px;
+	line-height:7px;
+	width:100%;
+	background-color:white;
+}
+.timeline_axis_value {
+	height:50%;
+}
+.timeline_axis_units, .timeline_cursor_input, .timeline_cursor_value, .timeline_label, .timeline_playback_buttons, .timeline_speed_input, .timeline_speed_value {
+	float:left;
+	margin:4px 0.05% 0% 0.05%;
+	height:17px;
+}
+.timeline_axis_units {
+	background-color:olive;
+	width:5%;
+}
+.timeline_container {
+	background-color:green;
+	height:25px;
+}
+.timeline_cursor_container {
+	float:left;
+	height:100%;
+	margin:0px 1px 0px 1px;
+	width:57.5%;
+}
+.timeline_cursor_input {
+	width:1.5%;
+	background-color:blue;
+}
+.timeline_cursor_value {
+	width:5%;
+	background-color:purple;
+}
+.timeline_cursor_window {
+	background-color:orange;
+	height:35%;
+}
+.timeline_label {
+	width:13%;
+	margin-left:0.2%;
+	background-color:pink;
+}
+.timeline_playback_buttons {
+	width:10%;
+	background-color:brown;
+}
+.timeline_speed_input {
+	width:1.5%;
+	background-color:lime;
+}
+.timeline_speed_value {
+	width:5%;
+	background-color:teal;
+}
+
+/***********************************  Cursor slider   ***********************************/
+.timeline_cursor_slider {
+	-webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+	width: 98%;
+	cursor: default;
+	margin:0px 1%;
+	float:left;
+	background-color:transparent;
+}
+.timeline_cursor_slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	height: 8px;
+	width: 6px;
+	background: #ffffff;
+	border-radius: 3px;
+	margin-top: 0px;
+	box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+	border: 0px solid #000000;
+}
+.timeline_cursor_slider::-webkit-slider-runnable-track {
+	height: 8px;
+	margin:0px;
+	box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
+	background: rgb(200,200,200);
+	border-radius: 3px;
+}
+input[type=range]:focus {
+  outline: none; /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
 }
