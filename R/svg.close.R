@@ -1,4 +1,4 @@
-svg.close <- function(wait = FALSE){
+svg.close <- function(wait = FALSE, quiet = TRUE){
 
 	# Get connection type
 	conn_type <- getOption("svgviewr_glo_type")
@@ -58,7 +58,7 @@ svg.close <- function(wait = FALSE){
 					j <- j + 1
 				}
 			}
-
+			
 			# Add directories to app
 			for(i in 1:length(unique_srcs)) svgviewr_env$R.server$add(app = File$new(unique_srcs[i]), name = paste0("app_dir", i))
 		}
@@ -136,13 +136,14 @@ svg.close <- function(wait = FALSE){
 			tryCatch({ svgviewr_env$R.server$stop() }, error = function(e) {}, warning = function(e) {})
 
 			# Start server
-			svgviewr_env$R.server$start(quiet=TRUE)
+			svgviewr_env$R.server$start(quiet=quiet)
 
 			viewer_app <- function(rook_env) {
 
+#cat('start viewer app\n')
 				request <- Request$new(rook_env)
 				response <- Response$new()
-				
+
 				# If non NULL, process POST request
 				if(!is.null(request$POST())){
 					
@@ -174,9 +175,12 @@ svg.close <- function(wait = FALSE){
 
 				}else{
 
+#print(list(srcs=unique_srcs, js.var=js_var, server=svgviewr_env$R.server))
 					page_html <- write_HTML(srcs=unique_srcs, json=svg_json, js.var=js_var, server=svgviewr_env$R.server)
 					response$write(page_html)
 				}
+
+				#cat('end viewer app\n')
 
 				response$finish()
 			}
