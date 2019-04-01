@@ -8,7 +8,9 @@ var spheres = new Array( );
 var sprites = new Array( );
 
 // Declare global variables
-var animation_times, animations, anim_pause_time, camera, controls, image_name, image_obj, image_opacity, mesh_name, mesh_opacity, mesh_color, renderer, scene, stats;
+var anim_index, anim_start, anim_pause, animation_times, animations, anim_pause_time, camera, controls;
+var elapsed_ms, image_name, image_obj;
+var image_opacity, mesh_name, mesh_opacity, mesh_color, renderer, scene, stats;
 var update_obj = {
     num: new Array(),
     type: new Array()
@@ -19,9 +21,8 @@ var deform_obj = {
 };
 
 var animate = false;						// Whether to animate - turned on if animation is loaded
+var bottom_frame_start_y = 0;
 var deform = false;							// Whether to deform any shapes
-var anim_start = Date.now();				// Set animation start time
-var anim_pause = false;						// Start with animation paused
 var obj_add_ct = 0;							// Set initial object add count
 var mesh_load_ct = 0;						// Set initial mesh load count
 var image_idx_ct = 0;						// 
@@ -64,7 +65,7 @@ function addFirstTexture(texture){
 	
 	// Add to images
 	images.push(plane)
-
+	
 	// Add to scene
 	scene.add( images[image_idx_ct] );
 
@@ -200,6 +201,50 @@ function addMeshToScene( geometry, materials ) {
 	}
 }
 
+function getStyle(el, styleProp) {
+  var value, defaultView = (el.ownerDocument || document).defaultView;
+  // W3C standard way:
+  if (defaultView && defaultView.getComputedStyle) {
+	// sanitize property name to css notation
+	// (hypen separated words eg. font-Size)
+	styleProp = styleProp.replace(/([A-Z])/g, "-$1").toLowerCase();
+	return defaultView.getComputedStyle(el, null).getPropertyValue(styleProp);
+  } else if (el.currentStyle) { // IE
+	// sanitize property name to camelCase
+	styleProp = styleProp.replace(/\-(\w)/g, function(str, letter) {
+	  return letter.toUpperCase();
+	});
+	value = el.currentStyle[styleProp];
+	// convert other units to pixels on IE
+	if (/^\d+(em|pt|%|ex)?$/i.test(value)) { 
+	  return (function(value) {
+		var oldLeft = el.style.left, oldRsLeft = el.runtimeStyle.left;
+		el.runtimeStyle.left = el.currentStyle.left;
+		el.style.left = value || 0;
+		value = el.style.pixelLeft + "px";
+		el.style.left = oldLeft;
+		el.runtimeStyle.left = oldRsLeft;
+		return value;
+	  })(value);
+	}
+	return value;
+  }
+}
+
+function getWindowDims() {
+
+	var width = window.innerWidth;
+	var height = window.innerHeight;
+
+	// Subtract bottom frame height from window height
+	if(!bottom_frame_hidden) height = height - bottom_frame_height_px;
+
+	return {
+        width: width,
+        height: height
+    }
+}
+
 function indexOfMax(arr) {
     if (arr.length === 0) {
         return -1;
@@ -216,6 +261,47 @@ function indexOfMax(arr) {
     }
 
     return maxIndex;
+}
+
+function inputTimelineIndex(index) {
+
+	// Pause animation
+	playPauseAnimation('pause');
+
+	// Slider input
+	if(index.id == 'timeline_cursor_slider_1'){
+
+		//printAlert2(index.value + ',' + animation_duration + ',' + index.id);
+
+		// Set elapsed time based on index		
+		elapsed_ms = (index.value / 100) * animation_duration;
+	}
+
+// 	if(element.id == 'animation_frame_count_input'){
+// 	
+// 		if(!is_numeric(element.value)) return;
+// 
+// 		anim_n = parseFloat(element.value) - 1;
+// 		
+// 		animateShapes();
+// 	}
+
+	// Find closest time index in animation
+	anim_index = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+
+	// Set elapsed time to match
+	elapsed_ms = ((anim_index) / (animation_ntimes-1))*animation_duration;
+
+	// Update animation start time
+	anim_start = Date.now() + elapsed_ms;
+
+	// Update shapes
+	updateShapes(anim_index);
+
+	// Animation pause time just needs to be greater than animation pause start by the amount of elapsed time
+	// Then when animation starts again, it will start from input index
+	anim_pause_start = anim_start;
+	anim_pause_time = anim_pause_start + elapsed_ms;
 }
 
 function loadAnimation() {
@@ -250,7 +336,7 @@ function loadFirstImageTexture(){
 		image_textures_ready = true;
 		return;
 	}
-
+	
 	// If no additional images, start loading any/all textures after first iteration
 	if(image_idx_ct+1 > svg_obj.image.length){
 
@@ -276,7 +362,7 @@ function loadFirstImageTexture(){
 
 	// Add to animated objects
 	if(typeof(svg_obj.image[image_idx_ct].fname) == 'object'){
-
+		
 		// Add type and number
 		update_obj.num.push(image_idx_ct);
 		update_obj.type.push('image');
@@ -639,6 +725,8 @@ function loadNextTexture(){
 		loadSubsequentTextures();
 
 	}else{
+		
+		//printAlert2(image_idx_ct + ',' + texture_load_ct + ',' + app_dir[svg_obj.image[image_idx_ct].src_idx] + '/' + svg_obj.image[image_idx_ct].fname[texture_load_ct])
 
 		// Load texture
 		var loader = new THREE.TextureLoader();
@@ -689,6 +777,9 @@ function onObjectsReady(){
 
 	var i, j;
 
+	// Get window dimensions
+	var window_dims = getWindowDims();
+
 	// Set bounding box
 	setBoundingBox();
 
@@ -699,9 +790,9 @@ function onObjectsReady(){
 
 		// For each camera
 		for(i = 0; i < cameras_length; i++){
-
+			
 			// Setup the camera
-			camera = new THREE.PerspectiveCamera( fov=45, aspect=window.innerWidth / window.innerHeight, near=0.1, far=svg_obj.camera[i].far );
+			camera = new THREE.PerspectiveCamera( fov=45, aspect=window_dims.width / window_dims.height, near=0.1, far=svg_obj.camera[i].far );
 
 			// Set camera position
 			camera.position.set(svg_obj.camera[i].x[0], svg_obj.camera[i].x[1], svg_obj.camera[i].x[2]);
@@ -726,7 +817,7 @@ function onObjectsReady(){
 	}else{
 
 		// Setup a camera
-		camera = new THREE.PerspectiveCamera( fov=45, aspect=window.innerWidth / window.innerHeight, near=0.1, far=bbox_size*20 );
+		camera = new THREE.PerspectiveCamera( fov=45, aspect=window_dims.width / window_dims.height, near=0.1, far=bbox_size*20 );
 
 		// Set camera to controls
 		controls = new THREE.TrackballControls( camera );
@@ -755,20 +846,17 @@ function onObjectsReady(){
 // Set frames per second for motion
 function onReady(){
 
+	// Set bottom frame height from R write
+	document.getElementById( "bottom_frame" ).style.height = bottom_frame_height_px + 'px';
+
+	// Set where bottom frame starts
+	bottom_frame_start_y = window.innerHeight - bottom_frame_height_px;
+
 	// Key events
 	document.body.onkeyup = function(e){
 
-		// Spacebar event
-		if(e.keyCode == 32){
-		
-			if(anim_pause) { 
-				anim_pause = false; 
-			}else{ 
-				anim_pause_time = Date.now();
-				anim_pause_start = anim_start;
-				anim_pause = true; 
-			}
-		}
+		// On spacebar keyup, start-stop animation
+		if(e.keyCode == 32) playPauseAnimation();
 	}
 
 	// Setup a new scene
@@ -789,7 +877,10 @@ function onReady(){
 		antialias: true,
 		preserveDrawingBuffer: true
 	} );
-	renderer.setSize(window.innerWidth, window.innerHeight);
+	
+	// Get window dimensions
+	var window_dims = getWindowDims();
+	renderer.setSize(window_dims.width, window_dims.height);
 	document.body.appendChild(renderer.domElement);
 
 	// Start mesh loading
@@ -809,7 +900,7 @@ function onReady(){
 
 	// Load deformation
 	loadDeformation();
-	
+
 	// Try rendering every 10 msec until all objects are finished loaded
 	try_render_int = setInterval(tryRender, 10);
 }
@@ -1157,6 +1248,30 @@ function parseModel( json, geometry ) {
 	return geometry;
 }
 
+function playPauseAnimation(state) {
+
+	// Set state based on toggle if undefined
+	if(state == undefined) {
+		var state;
+		if(anim_pause) { state = 'play' }else{ state = 'pause' }
+	}else{
+		if(state == 'pause' && anim_pause) return;
+		if(state == 'play' && !anim_pause) return;
+	}
+
+	if(state == 'play') { 
+		anim_pause = false; 
+	}else{ 
+		anim_pause_time = Date.now();	// time at which the animation was paused
+		anim_pause_start = anim_start; 	// start time when animation was paused
+		anim_pause = true; 
+	}
+}
+
+function printAlert2(text){
+	document.getElementById( "alert2" ).innerHTML = text;
+}
+
 function setBoundingBox () {
 
 	// Geometry is the same as when read in - not updated with position/rotation
@@ -1295,6 +1410,9 @@ function tryRender () {
 
 	}else{
 
+		// Set animation start time
+		if(!anim_pause) anim_start = Date.now();
+
 		// Render scene
 		render();
 	}
@@ -1327,7 +1445,7 @@ var render = function () {
 		}else{
 
 			// Get elapsed time in ms
-			var elapsed_ms = Date.now() - anim_start;
+			elapsed_ms = Date.now() - anim_start;
 	
 			// If exceeds animation duration, reset clock
 			if(elapsed_ms > animation_duration){
@@ -1336,23 +1454,21 @@ var render = function () {
 			}
 
 			// Find closest time point in animation
-			time_index = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
-
-//document.getElementById( "alert" ).innerHTML = elapsed_ms + ',' + animation_start + ',' + animation_end + ',' + animation_duration + ',' + time_index;
-//document.getElementById( "alert" ).innerHTML = document.getElementById( "alert" ).innerHTML + ',' + elapsed_ms;
-//document.getElementById( "alert" ).innerHTML = anim_start + ',' + elapsed_ms;
-
-
-			// Print clock
-			if(show_clock){
-				document.getElementById( "clock" ).innerHTML = Math.round(elapsed_ms / 100)*100 + " ms";
-				document.getElementById( "idx" ).innerHTML = time_index;
-				document.getElementById( "time" ).innerHTML = Math.round((elapsed_ms*play_speed) / 100)*100 + " ms";
-			}
+			anim_index = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
 
 			// Update shapes
-			updateShapes(time_index);
+			updateShapes(anim_index);
 		}
+
+		// Update clock
+		if(show_clock){
+			document.getElementById( "clock" ).innerHTML = Math.round(elapsed_ms / 100)*100 + " ms";
+			document.getElementById( "idx" ).innerHTML = anim_index;
+			document.getElementById( "time" ).innerHTML = Math.round((elapsed_ms*play_speed) / 100)*100 + " ms";
+		}
+
+		// Update slider position
+		document.getElementById('timeline_cursor_slider_1').value = Math.round(((anim_index) / (animation_ntimes-1))*100);
 	}
 
 	//stats.update();
@@ -1470,8 +1586,7 @@ function dataURItoBlob(dataURI) {
 function updateCameraPosition(){
 
 	// Get screen dimensions
-	var screen_width = window.innerWidth;
-	var screen_height = window.innerHeight;
+	var window_dims = getWindowDims();
 
 	// Set initial camera distance and interval
 	var camera_dist = bbox_scale[2]+bbox_size*0.01;
@@ -1482,9 +1597,9 @@ function updateCameraPosition(){
 
 	// Set initial camera
 	// Projection will not use updated camera position without rendering
-	camera.aspect = screen_width / screen_height;
+	camera.aspect = window_dims.width / window_dims.height;
 	camera.updateProjectionMatrix();
-	renderer.setSize( screen_width, screen_height );
+	renderer.setSize( window_dims.width, window_dims.height );
 	camera.position.set(bbox_center[0], bbox_center[1], bbox_center[2]+camera_dist);
 	renderer.render(scene, camera);
 	
@@ -1492,7 +1607,7 @@ function updateCameraPosition(){
 	var corner1 = {x:bbox_center[0] + bbox_scale[0]/2, y:bbox_center[1] + bbox_scale[1]/2, z:bbox_center[2] + bbox_scale[2]/2};
 	var corner4 = {x:bbox_center[0] - bbox_scale[0]/2, y:bbox_center[1] - bbox_scale[1]/2, z:bbox_center[2] + bbox_scale[2]/2};
 
-	var widthHalf = screen_width / 2, heightHalf = screen_height / 2;
+	var widthHalf = window_dims.width / 2, heightHalf = window_dims.height / 2;
 	var box_width, box_height;
 
 	while(n < n_limit){
@@ -1510,7 +1625,7 @@ function updateCameraPosition(){
 		box_height = Math.abs(corner1_proj.y-corner4_proj.y);
 		
 		// 
-		if(box_width > (screen_width-margin) || box_height > (screen_height-margin)){
+		if(box_width > (window_dims.width-margin) || box_height > (window_dims.height-margin)){
 
 			// Shape exceeds boundaries, move camera further away
 			camera_dist = camera_dist + camera_dist_int;
@@ -1538,7 +1653,7 @@ function updateCameraPosition(){
 		n++;
 	}
 
-	//alert(box_width + ' (' + screen_width + '),' + box_height + ' (' + screen_height + ') ' + n);
+	//alert(box_width + ' (' + window_dims.width + '),' + box_height + ' (' + window_dims.height + ') ' + n);
 
 	// Set where the camera is targeted
 	//controls.target.set( bbox_center[0], bbox_center[1], bbox_center[2]);
@@ -1597,26 +1712,35 @@ function updateShapes(time_index){
 
 		//// Apply object updates/transformations
 		var update_obj_length = update_obj.num.length;
-
+		
 		for (i = 0; i < update_obj_length; i++){
-			
+
 			// Set object number and type
 			obj_num = update_obj.num[i];
 			obj_type = update_obj.type[i];
+
+			//printAlert2('Alert: ' + i + ', ' + obj_num + ', ' + obj_type)
+			//document.getElementById( "alert2" ).innerHTML = document.getElementById( "alert2" ).innerHTML + ',' + i;
 
 			if(obj_type == 'image'){
 
 				// Get texture index
 				texture_idx = svg_obj.image[obj_num].texture_idx;
-
+			
 				//if(images[obj_num] == undefined) continue;
-				if(texture_idx + 1 > textures[texture_idx].length) continue;
+				if(texture_idx + 1 > textures[texture_idx].length){
+					continue;
+				}
 
-				//document.getElementById( "alert" ).innerHTML = 'Alert: ' + obj_num + ',' + obj_type + ',' + textures[texture_idx].length;
+				//printAlert2('Alert: ' + obj_num + ',' + obj_type + ',' + time_index + ',' + textures[texture_idx].length)
 
 				// Get material from loaded texture
 				//material = new THREE.MeshBasicMaterial({map: textures[texture_idx][time_index], side: THREE.DoubleSide});
 				images[obj_num].material.map = textures[texture_idx][time_index];
+
+				if(obj_num == 0){
+					//printAlert2('Alert: ' + obj_num + ',' + obj_type + ',' + texture_idx + ',' + time_index + ',' + images[obj_num].material.map)
+				}
 				
 				if(svg_obj.image[texture_idx].opacity.length == animation_ntimes){
 					images[obj_num].material.opacity = svg_obj.image[obj_num].opacity[time_index];
@@ -1650,7 +1774,7 @@ function updateShapes(time_index){
 
 				// Update each segment
 				k = 0;
-				for(j = 0; j < svg_obj.line[i].nseg*3; j = j + 3){
+				for(j = 0; j < svg_obj.line[obj_num].nseg*3; j = j + 3){
 					lines[obj_num].geometry.vertices[k].x = lines[obj_num].x_tm[time_index][j];
 					lines[obj_num].geometry.vertices[k].y = lines[obj_num].x_tm[time_index][j+1];
 					lines[obj_num].geometry.vertices[k].z = lines[obj_num].x_tm[time_index][j+2];
@@ -1670,9 +1794,16 @@ function updateShapes(time_index){
 //}
 
 window.onresize = function () {
-	camera.aspect = window.innerWidth / window.innerHeight;
+
+	// Get window dimensions
+	var window_dims = getWindowDims();
+
+	// Update where bottom frame starts
+	bottom_frame_start_y = window.innerHeight - bottom_frame_height_px;
+
+	camera.aspect = window_dims.width / window_dims.height;
 	camera.updateProjectionMatrix();
 	controls.handleResize();
-	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.setSize( window_dims.width, window_dims.height );
 	renderer.render(scene, camera);
 };
