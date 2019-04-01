@@ -4,7 +4,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 	animate.speed = 1, animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
 	times = NULL, time.units = 'sec', clock = FALSE, stats = FALSE, show.control = TRUE, start.rotate = TRUE, 
 	rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, layers = NULL, connection = TRUE, 
-	mode = c('svg', 'webgl'), close.on.done = TRUE, file.type = NULL, debug = FALSE){
+	mode = c('svg', 'webgl'), close.on.done = TRUE, file.type = NULL, app.dir.src = NULL, debug = FALSE){
 
 	digits <- 6
 	
@@ -87,32 +87,39 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 	if(options("svgviewr_glo_type") %in% c('html', 'live')){
 	
 		# Check whether package is loaded from source or library
-		app_dir <- tryCatch({
-			app_dir <- paste0(path.package("svgViewR"), "/extdata")
-		}, warning = function(w) {
-		}, error = function(e) {
-			if(e[1]$message == 'none of the packages are loaded'){
+		if(!is.null(app.dir.src)){
 
-				if(Sys.info()['login'] == 'xromm18'){
-					app_dir_src <- '/Users/xromm18/Documents/Analysis/R/svgViewR/inst/extdata'
-				}else{
-					app_dir_src <- '/Users/aaron/Documents/Research/github/svgViewR/inst/extdata'
-				}
-				if(file.exists(app_dir_src)){
-					return(app_dir_src)
-				}else{
-					stop(e)
-				}
-			}
-		}, finally = {
-		})
-		
-		# Set package load source
-		if(app_dir %in% c('/Users/aaron/Documents/Research/github/svgViewR/inst/extdata', '/Users/xromm18/Documents/Analysis/R/svgViewR/inst/extdata')){
+			app_dir <- app.dir.src
 			pkg_load <- 'source'
+
 		}else{
-			pkg_load <- 'library'
-		}
+			app_dir <- tryCatch({
+				app_dir <- paste0(path.package("svgViewR"), "/extdata")
+			}, warning = function(w) {
+			}, error = function(e) {
+				if(e[1]$message == 'none of the packages are loaded'){
+
+					if(Sys.info()['login'] == 'xromm18'){
+						app_dir_src <- '/Users/xromm18/Documents/Analysis/R/svgViewR/inst/extdata'
+					}else{
+						app_dir_src <- '/Users/aaron/Documents/Research/github/svgViewR/inst/extdata'
+					}
+					if(file.exists(app_dir_src)){
+						return(app_dir_src)
+					}else{
+						stop(e)
+					}
+				}
+			}, finally = {
+			})
+
+			# Set package load source
+			if(app_dir %in% c(app_dir_src, '/Users/aaron/Documents/Research/github/svgViewR/inst/extdata', '/Users/xromm18/Documents/Analysis/R/svgViewR/inst/extdata')){
+				pkg_load <- 'source'
+			}else{
+				pkg_load <- 'library'
+			}
+		}		
 
 		# Set app source file directory and viewer environment
 		if(pkg_load == 'source'){
@@ -133,24 +140,34 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		#
 		svgviewr_env$js_var <- list()
 	
+		if(debug){
+			svgviewr_env$js_var[['bottom_frame_height_px']] <- 50
+			svgviewr_env$js_var[['bottom_frame_hidden']] <- FALSE
+			svgviewr_env$js_var[['show_clock']] <- TRUE
+		}else{
+			svgviewr_env$js_var[['bottom_frame_height_px']] <- 0
+			svgviewr_env$js_var[['bottom_frame_hidden']] <- TRUE
+			svgviewr_env$js_var[['show_clock']] <- clock
+		}
+
 		# Set javascript variables
-		svgviewr_env$js_var[['window_title']] <- window.title
+		svgviewr_env$js_var[['anim_pause']] <- FALSE	# Start with animation playing
 		svgviewr_env$js_var[['bg_col']] <- setNames(webColor(col, format='0'), NULL)
-		svgviewr_env$js_var[['play_speed']] <- animate.speed
-		svgviewr_env$js_var[['time_units']] <- time.units
-		svgviewr_env$js_var[['signif_digits']] <- digits
-		svgviewr_env$js_var[['show_clock']] <- clock
-		svgviewr_env$js_var[['show_stats']] <- stats
-		svgviewr_env$js_var[['rotateSpeed']] <- rotate.speed
-		svgviewr_env$js_var[['zoomSpeed']] <- zoom.speed
-		svgviewr_env$js_var[['panSpeed']] <- pan.speed
+		svgviewr_env$js_var[['debug']] <- debug
 		svgviewr_env$js_var[['file']] <- file[1]
+		svgviewr_env$js_var[['panSpeed']] <- pan.speed
+		svgviewr_env$js_var[['play_speed']] <- animate.speed
+		svgviewr_env$js_var[['rotateSpeed']] <- rotate.speed
 		svgviewr_env$js_var[['save_as_img']] <- save_as_img
 		svgviewr_env$js_var[['save_as_img_dir']] <- save_as_img_dir
 		svgviewr_env$js_var[['save_as_img_type']] <- file.type
 		svgviewr_env$js_var[['save_as_img_paths']] <- save_as_img_paths
 		svgviewr_env$js_var[['save_as_img_close']] <- close.on.done
-		svgviewr_env$js_var[['debug']] <- debug
+		svgviewr_env$js_var[['show_stats']] <- stats
+		svgviewr_env$js_var[['signif_digits']] <- digits
+		svgviewr_env$js_var[['time_units']] <- time.units
+		svgviewr_env$js_var[['window_title']] <- window.title
+		svgviewr_env$js_var[['zoomSpeed']] <- zoom.speed
 		
 		# Create name reference
 		svgviewr_env$ref <- list()
