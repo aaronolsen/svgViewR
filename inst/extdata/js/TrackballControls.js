@@ -5,6 +5,8 @@
  * @author Luca Antiga 	/ http://lantiga.github.io
  */
 
+var key_down = false;
+
 THREE.TrackballControls = function ( object, domElement ) {
 
 	var _this = this;
@@ -352,6 +354,9 @@ THREE.TrackballControls = function ( object, domElement ) {
 	// listeners
 
 	function keydown( event ) {
+	
+		// Set key_down to true
+		key_down = true;
 
 		if(debug) document.getElementById( "alert" ).innerHTML = 'keydown: ' + event.keyCode;
 
@@ -426,6 +431,8 @@ THREE.TrackballControls = function ( object, domElement ) {
 	}
 
 	function keyup( event ) {
+	
+		key_down = false;
 
 		if ( _this.enabled === false ) return;
 
@@ -437,42 +444,50 @@ THREE.TrackballControls = function ( object, domElement ) {
 	}
 
 	function mousedown( event ) {
+	
+		// If bottom frame is not hidden, check whether mouse is over timeline
+		if(bottom_frame_hidden === false && event.pageY > bottom_frame_start_y){
 
-		if ( _this.enabled === false ) return;
+			// Mousedown in the bottom frame
 
-		if(debug) document.getElementById( "alert" ).innerHTML = 'mousedown, event.which=' + event.which + ', _state=' + _state;
+		}else{
 
-		event.preventDefault();
-		event.stopPropagation();
+			if ( _this.enabled === false ) return;
 
-		if ( _state === STATE.NONE ) {
+			if(debug) document.getElementById( "alert" ).innerHTML = 'mousedown, event.which=' + event.which + ', _state=' + _state;
 
-			_state = event.button;
+			// Prevents normal mousedown events from being triggered (e.g. selecting text, etc.)
+			event.preventDefault();
+			event.stopPropagation();
 
+			if ( _state === STATE.NONE ) {
+
+				_state = event.button;
+
+			}
+
+			if ( _state === STATE.ROTATE && ! _this.noRotate ) {
+
+				_moveCurr.copy( getMouseOnCircle( event.pageX, event.pageY ) );
+				_movePrev.copy( _moveCurr );
+
+			} else if ( _state === STATE.ZOOM && ! _this.noZoom ) {
+
+				_zoomStart.copy( getMouseOnScreen( event.pageX, event.pageY ) );
+				_zoomEnd.copy( _zoomStart );
+
+			} else if ( _state === STATE.PAN && ! _this.noPan ) {
+
+				_panStart.copy( getMouseOnScreen( event.pageX, event.pageY ) );
+				_panEnd.copy( _panStart );
+
+			}
+
+			document.addEventListener( 'mousemove', mousemove, false );
+			document.addEventListener( 'mouseup', mouseup, false );
+
+			_this.dispatchEvent( startEvent );
 		}
-
-		if ( _state === STATE.ROTATE && ! _this.noRotate ) {
-
-			_moveCurr.copy( getMouseOnCircle( event.pageX, event.pageY ) );
-			_movePrev.copy( _moveCurr );
-
-		} else if ( _state === STATE.ZOOM && ! _this.noZoom ) {
-
-			_zoomStart.copy( getMouseOnScreen( event.pageX, event.pageY ) );
-			_zoomEnd.copy( _zoomStart );
-
-		} else if ( _state === STATE.PAN && ! _this.noPan ) {
-
-			_panStart.copy( getMouseOnScreen( event.pageX, event.pageY ) );
-			_panEnd.copy( _panStart );
-
-		}
-
-		document.addEventListener( 'mousemove', mousemove, false );
-		document.addEventListener( 'mouseup', mouseup, false );
-
-		_this.dispatchEvent( startEvent );
-
 	}
 
 	function mousemove( event ) {
@@ -506,12 +521,14 @@ THREE.TrackballControls = function ( object, domElement ) {
 		if(debug) document.getElementById( "alert" ).innerHTML = 'mouseup, event.which=' + event.which + ', _state=' + _state;
 
 		// If right-click mouseup, set state to none
-		//switch (event.which) {
-		//	case 1: // Left
-		//	case 2: // Middle
-		//	case 3: // Right
-		//		_state = STATE.NONE
-		//}
+		if(key_down === false){
+			switch (event.which) {
+				case 1: // Left
+				case 2: // Middle
+				case 3: // Right
+					_state = STATE.NONE
+			}
+		}
 
 		event.preventDefault();
 		event.stopPropagation();
