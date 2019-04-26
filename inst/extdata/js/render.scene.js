@@ -275,6 +275,10 @@ function inputTimelineIndex(index) {
 
 		// Set elapsed time based on index		
 		elapsed_ms = (index.value / 100) * animation_duration;
+		
+		// Find closest time index in animation
+		//anim_index = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+		 anim_index = (index.value/100)*(animation_ntimes- 1);
 	}
 
 // 	if(element.id == 'animation_frame_count_input'){
@@ -286,8 +290,17 @@ function inputTimelineIndex(index) {
 // 		animateShapes();
 // 	}
 
-	// Find closest time index in animation
-	anim_index = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+
+	
+	
+	//Animation
+	// (index.value/100)*(number_of_iterations - 1)
+	
+	// Render:
+	// (elapsed_ms/animation_duration)*(animation_ntimes - 1)
+	//anim_index = (elapsed_ms/animation_duration)*(animation_ntimes - 1);
+
+
 
 	// Set elapsed time to match
 	elapsed_ms = ((anim_index) / (animation_ntimes-1))*animation_duration;
@@ -303,6 +316,51 @@ function inputTimelineIndex(index) {
 	anim_pause_start = anim_start;
 	anim_pause_time = anim_pause_start + elapsed_ms;
 }
+
+function interpolateQuats(q0, q1, t){
+  
+  var n , value
+  var q = {w: 0, x: 0, y:0, z:0}
+  
+  if (t <= 0){
+    return q0;
+  }
+  if (t >= 1){
+    return q1;
+  }
+  
+  q.w = (1 - t)*q0.w + t*q1.w;
+  q.x = (1 - t)*q0.x + t*q1.x;
+  q.y = (1 - t)*q0.y + t*q1.y;
+  q.z = (1 - t)*q0.z + t*q1.z;
+  
+  value = q.w*q.w + q.x*q.x + q.y*q.y + q.z*q.z;
+  
+  if (value > 0){
+    if (q.w < 0){
+      n = -Math.sqrt(value);
+    }
+    else{
+      n = Math.sqrt(value);
+    }
+
+  q.w = q.w / n
+  q.x = q.x / n
+  q.y = q.y / n
+  q.z = q.z / n
+  
+  }
+  
+  else {
+    q.w = 1
+    q.x = 0
+    q.y = 0
+    q.z = 0
+  }
+  
+  return q;
+}
+  
 
 function loadAnimation() {
 
@@ -611,7 +669,7 @@ function loadGeometries(){
 }
 
 function loadNextMesh(){
-
+	var i
 	if(svg_obj.mesh == undefined){
 		meshes_ready = true;
 		return;
@@ -623,6 +681,16 @@ function loadNextMesh(){
 		// Add type and number to 
 		update_obj.num.push(mesh_load_ct);
 		update_obj.type.push('mesh');
+		
+		//Convert to quaternion
+		for(i = 0; i < svg_obj.mesh[mesh_load_ct].quaternion.length; i++){
+			svg_obj.mesh[mesh_load_ct].quaternion[i] = new THREE.Quaternion().set(svg_obj.mesh[mesh_load_ct].quaternion[i][0], 
+				svg_obj.mesh[mesh_load_ct].quaternion[i][1], svg_obj.mesh[mesh_load_ct].quaternion[i][2], 
+				svg_obj.mesh[mesh_load_ct].quaternion[i][3]);
+			
+		}
+		
+		//printAlert2()
 	}
 
 	// Check if deformation over time is specified
@@ -1454,7 +1522,9 @@ var render = function () {
 			}
 
 			// Find closest time point in animation
-			anim_index = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+			//anim_index = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+			
+			anim_index = (elapsed_ms/animation_duration)*(animation_ntimes- 1);
 
 			// Update shapes
 			updateShapes(anim_index);
@@ -1712,6 +1782,9 @@ function updateShapes(time_index){
 
 		//// Apply object updates/transformations
 		var update_obj_length = update_obj.num.length;
+		var new_quat;
+		var time_index_floor;
+		var time_index_ceil;
 		
 		for (i = 0; i < update_obj_length; i++){
 
@@ -1751,14 +1824,49 @@ function updateShapes(time_index){
 
 			if(obj_type == 'mesh'){
 
-				meshes[obj_num].position.x = svg_obj.mesh[obj_num].position[time_index][0];
-				meshes[obj_num].position.y = svg_obj.mesh[obj_num].position[time_index][1];
-				meshes[obj_num].position.z = svg_obj.mesh[obj_num].position[time_index][2];
+				meshes[obj_num].position.x = svg_obj.mesh[obj_num].position[0][0];
+				meshes[obj_num].position.y = svg_obj.mesh[obj_num].position[0][1];
+				meshes[obj_num].position.z = svg_obj.mesh[obj_num].position[0][2];
 
-				meshes[obj_num].rotation.x = svg_obj.mesh[obj_num].rotation[time_index][0];
-				meshes[obj_num].rotation.y = svg_obj.mesh[obj_num].rotation[time_index][1];
-				meshes[obj_num].rotation.z = svg_obj.mesh[obj_num].rotation[time_index][2];
+ 			//	meshes[obj_num].rotation.x = svg_obj.mesh[obj_num].rotation[time_index][0];
+ 			//	meshes[obj_num].rotation.y = svg_obj.mesh[obj_num].rotation[time_index][1];
+ 			//	meshes[obj_num].rotation.z = svg_obj.mesh[obj_num].rotation[time_index][2];
+
+				//Set the floor of the specified time index
+				time_index_floor = Math.floor(time_index);
 				
+				//Update the floor of the specified time index if at the final iteration
+				if(time_index_floor == animation_ntimes - 1){
+					time_index_floor = time_index_floor - 1
+				}
+				
+				//Set the ceiling of the specified time index
+				time_index_ceil = time_index_floor + 1; 	
+				
+				
+												
+			// 	svg_obj.mesh[obj_num].quaternion[i] = new THREE.Quaternion().set(svg_obj.mesh[obj_num].quaternion[i][0], 
+// 				svg_obj.mesh[obj_num].quaternion[i][1], svg_obj.mesh[obj_num].quaternion[i][2], 
+// 				svg_obj.mesh[obj_num].quaternion[i][3]);
+				
+				
+				// Create a quaternion based on user specified time index			
+				new_quat = interpolateQuats(svg_obj.mesh[obj_num].quaternion[time_index_floor], 
+								svg_obj.mesh[obj_num].quaternion[time_index_ceil], 
+								time_index - time_index_floor);
+
+								
+				//new_quat = svg_obj.mesh[obj_num].quaternion[time_index_floor].lerp(svg_obj.mesh[obj_num].quaternion[time_index_ceil], 
+				//				time_index - time_index_floor)
+								
+				//printAlert2('Q1:' + svg_obj.mesh[obj_num].quaternion[time_index_ceil].w);
+				//printAlert2('Floor:' + time_index_floor + 'Ceil:' + time_index_ceil + 'T:' + [time_index - time_index_floor]);
+				//printAlert2('Ceil:' + time_index_ceil);
+				
+				meshes[obj_num].quaternion.set(new_quat.x, new_quat.y, new_quat.z, new_quat.w);
+				
+				printAlert2('Time1:' + new_quat.y + 'Time3:' + svg_obj.mesh[obj_num].quaternion[3].y)
+ 			  
 				if(svg_obj.mesh[obj_num].opacity.length == animation_ntimes){
 					meshes[obj_num].material.opacity = svg_obj.mesh[obj_num].opacity[time_index];
 				}
