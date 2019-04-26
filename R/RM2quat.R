@@ -1,4 +1,4 @@
-RM2quat <- function(RM){
+RM2Quat <- function(RM){
 	
 	# http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
 	
