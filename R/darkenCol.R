@@ -14,18 +14,18 @@ darkenCol <- function(col, factor){
 	}
 	
 	if(length(col) == 3){
-		darker_col <- c(max(0, factor*col[1]/255), max(0, factor*col[2]/255), max(0, factor*col[3]/255))
+		new_col <- c(max(0, factor*col[1]/255), max(0, factor*col[2]/255), max(0, factor*col[3]/255))
 	}else if(length(col) == 4){
-		darker_col <- c(max(0, factor*col[1]/255), max(0, factor*col[2]/255), max(0, factor*col[3]/255, col[4]))
+		new_col <- c(max(0, factor*col[1]/255), max(0, factor*col[2]/255), max(0, factor*col[3]/255, col[4]))
 	}
 
 	if(input_str){
-		if(length(darker_col) == 3){
-			darker_col <- rgb(darker_col[1], darker_col[2], darker_col[3])
-		}else if(length(darker_col) == 4){
-			darker_col <- rgb(darker_col[1], darker_col[2], darker_col[3], darker_col[4])
+		if(length(new_col) == 3){
+			new_col <- rgb(new_col[1], new_col[2], new_col[3])
+		}else if(length(new_col) == 4){
+			new_col <- rgb(new_col[1], new_col[2], new_col[3], new_col[4])
 		}
 	}
 
-	darker_col
+	new_col
 }
