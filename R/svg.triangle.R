@@ -1,5 +1,5 @@
 svg.triangle <- function(corners, col='blue', seg=1, emissive=rgb(0.03, 0.15, 0.21), opacity = 1, name = 'triangle', 
-	ontop = FALSE){
+	ontop = FALSE, return.shape = FALSE, plot = TRUE){
 
 	# Make sure that type is webgl
 	if('svg' == getOption("svgviewr_glo_type")) stop("Triangle drawing is currently only available with webgl svgViewR output.")
@@ -89,7 +89,10 @@ svg.triangle <- function(corners, col='blue', seg=1, emissive=rgb(0.03, 0.15, 0.
 		vertices <- corners
 		faces <- c(0,1,2)
 	}
-	
+
+	# If not plotting, return vertices and faces
+	if(!plot) return(list('vertices'=vertices, 'faces'=faces))
+
 	if('svg' == getOption("svgviewr_glo_type")){
 		
 		if(is.vector(faces)) faces <- matrix(faces, 1, 3)
@@ -145,6 +148,10 @@ svg.triangle <- function(corners, col='blue', seg=1, emissive=rgb(0.03, 0.15, 0.
 		svgviewr_env$svg$mesh[[add_at]][['corners']] <- corners
 	}
 
-	# Suppress return of value in console
-	ret = NULL
+	if(return.shape){
+		return(list('vertices'=vertices, 'faces'=faces))
+	}else{
+		# Suppress return of value in console
+		return(NULL)
+	}
 }
