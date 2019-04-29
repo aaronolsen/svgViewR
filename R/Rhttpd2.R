@@ -228,6 +228,9 @@ Rhttpd2 <- setRefClass(
       env
    },
    handler = function(appName,path,query,postBody,headers){
+   
+#cat('handler call start\n')
+
       if (debug()>0){
          cat('Request:',path,'\n')
       }
@@ -255,13 +258,14 @@ Rhttpd2 <- setRefClass(
       }
       env <- build_env(app$path,path,query,postBody,headers)
       if (is(app$app,'function')) {
+#cat('handler was here\n')
          res <- try(app$app(env))
       } else {
          res <- try(app$app$call(env))
       }
-      if (inherits(res,'try-error') || (is.character(res) && length(res) == 1))
+      if (inherits(res,'try-error') || (is.character(res) && length(res) == 1)) {
          res
-      else {
+      } else {
          # Only need to handle the case where body is a vector of strings
          # We presume that if res$body is a location to a file then the
          # app has so named it. We also presume that res$body may be
@@ -300,6 +304,8 @@ Rhttpd2 <- setRefClass(
          }
          ret
       }
+
+#cat('handler call end\n')
    },
 	print = function() {
 	    if (listenPort > 0){
