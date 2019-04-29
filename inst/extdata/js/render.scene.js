@@ -133,6 +133,8 @@ function addTexture( texture ) {
 		
 		// Move to next image
 		loadSubsequentTextures();
+		
+		printAlert2('')
 	}
 }
 
@@ -727,6 +729,8 @@ function loadNextTexture(){
 	}else{
 		
 		//printAlert2(image_idx_ct + ',' + texture_load_ct + ',' + app_dir[svg_obj.image[image_idx_ct].src_idx] + '/' + svg_obj.image[image_idx_ct].fname[texture_load_ct])
+
+		printAlert2(svg_obj.image[image_idx_ct].fname[texture_load_ct]);
 
 		// Load texture
 		var loader = new THREE.TextureLoader();
