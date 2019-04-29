@@ -17,6 +17,9 @@ svg.images <- function(file, corners, name = gsub('[.][A-Za-z]+$', '', tail(strs
 	# Set where to add object
 	add_at <- length(svgviewr_env$svg$image)+1
 
+	# Check that file exists
+	if(!file.exists(file[1])) stop(paste0("File '", file[1], "' not found."))
+
 	# If directory, read all files in directory
 	if(file.info(file[1])$isdir) file <- paste0(file[1], '/', list.files(file[1]))
 
