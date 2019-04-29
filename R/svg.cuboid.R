@@ -39,7 +39,11 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 
 			# If only 2 rows provided, use ends to add first
 			if(nrow(axes) == 2) axes <- rbind(ends[2,]-ends[1,], axes)
-			
+			if(nrow(axes) == 1){
+				axes <- rbind(ends[2,]-ends[1,], cprod_svg(ends[2,]-ends[1,], axes[1,]))
+				axes <- rbind(axes, cprod_svg(axes[1,], axes[2,]))
+			}
+
 			# Issue warning if length is not used
 			if(!is.null(length)) warning('Input parameter "length" is ignored with input of two end points ("ends").')
 		
@@ -52,29 +56,29 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 
 		# Set widths if only one given
 		if(length(width) == 1) width <- rep(width, 2)
-	
+		
 		# Get vector orthogonal to axes
 		if(nrow(axes) == 2) axes <- rbind(axes, cprod_svg(axes[1,], axes[2,]))
 
 	}else{
 		
 		# Set widths if only one given
-		if(length(width) == 1) width <- rep(width, 3)
+		if(length(width) == 1) width <- rep(width, 2)
+		if(is.null(length)) length <- width[1]
 	
 		# Make sure unit
 		axes <- uvector_svg(axes)
 		
 		# Set ends
 		ends <- matrix(NA, 2, 3)
-		ends[1,] <- center + (width[1]/2)*axes[1,]
-		ends[2,] <- center - (width[1]/2)*axes[1,]
+		ends[1,] <- center + (length/2)*axes[1,]
+		ends[2,] <- center - (length/2)*axes[1,]
 		
 		# Make sure there are 3 axes
 		if(nrow(axes) == 2) axes <- rbind(axes, cprod_svg(axes[1,], axes[2,]))
 		
 		# 
-		length <- width[1]
-		width <- width[2:3]
+		#width <- width[2:3]
 	}
 	
 	# Create vertices matrix
