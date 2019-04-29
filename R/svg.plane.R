@@ -1,5 +1,5 @@
 svg.plane <- function(corners, col='blue', emissive=rgb(0.03, 0.15, 0.21), opacity = 1, name = 'sphere', 
-	seg = 30, ontop = FALSE, create.uvs = FALSE){
+	seg = 30, ontop = FALSE, create.uvs = FALSE, return.shape = FALSE, plot = TRUE){
 
 	# Make sure that type is webgl
 	#if('live' != getOption("svgviewr_glo_type")) stop("Plane drawing is currently only available with webgl svgViewR output.")
@@ -13,6 +13,9 @@ svg.plane <- function(corners, col='blue', emissive=rgb(0.03, 0.15, 0.21), opaci
 	# Get vertices and faces
 	vertices <- plane_mesh$vertices
 	faces <- plane_mesh$faces
+	
+	# If not plotting, return vertices and faces
+	if(!plot) return(list('vertices'=vertices, 'faces'=faces))
 
 	if('svg' == getOption("svgviewr_glo_type")){
 
@@ -67,6 +70,10 @@ svg.plane <- function(corners, col='blue', emissive=rgb(0.03, 0.15, 0.21), opaci
 		svgviewr_env$svg$mesh[[add_at]][['corners']] <- corners
 	}
 
-	# Suppress return of value in console
-	ret = NULL
+	if(return.shape){
+		return(list('vertices'=vertices, 'faces'=faces))
+	}else{
+		# Suppress return of value in console
+		return(NULL)
+	}
 }
