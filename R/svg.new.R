@@ -90,9 +90,11 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		if(!is.null(app.dir.src)){
 
 			app_dir <- app.dir.src
+			app_dir_src <- 
 			pkg_load <- 'source'
 
 		}else{
+
 			app_dir <- tryCatch({
 				app_dir <- paste0(path.package("svgViewR"), "/extdata")
 			}, warning = function(w) {
@@ -114,7 +116,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 			})
 
 			# Set package load source
-			if(app_dir %in% c(app_dir_src, '/Users/aaron/Documents/Research/github/svgViewR/inst/extdata', '/Users/xromm18/Documents/Analysis/R/svgViewR/inst/extdata')){
+			if(app_dir %in% c('/Users/aaron/Documents/Research/github/svgViewR/inst/extdata', '/Users/xromm18/Documents/Analysis/R/svgViewR/inst/extdata')){
 				pkg_load <- 'source'
 			}else{
 				pkg_load <- 'library'
