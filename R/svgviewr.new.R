@@ -1,7 +1,7 @@
 svgviewr.new <- function(file, window.title="SVG Viewer", animate.duration = 1, 
 	animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
 	show.control = TRUE, start.rotate = TRUE, layers = NULL, debug = FALSE, 
-	fdir = NULL, conn.type = 'new'){
+	fdir = NULL, conn.type = 'new', app.dir.src = NULL){
 
 	# IF CON IS NEW MAKE SURE FILE IS NOT NULL
 	#if(is.null(file) && conn.type == 'new') stop("Input file is NULL.")
@@ -13,24 +13,29 @@ svgviewr.new <- function(file, window.title="SVG Viewer", animate.duration = 1,
 	#  /Applications/XAMPP/xamppfiles/htdocs/data_analysis/r_package_development/svgViewR/inst/extdata/
 
 	# Set path to package
-	fdir <- NULL
-	if(is.null(fdir)){
-		fdir <- tryCatch({
-			fdir <- paste0(path.package("svgViewR"), "/extdata/")
-		}, warning = function(w) {
-		}, error = function(e) {
-			if(e[1]$message == 'none of the packages are loaded'){
-				fdir_dev <- '/Users/aaron/Documents/Research/github/svgViewR/inst/extdata/'
-				if(file.exists(fdir_dev)){
-					return(fdir_dev)
-				}else{
-					stop(e)
+	if(!is.null(app.dir.src)){
+		fdir <- NULL
+		if(is.null(fdir)){
+			fdir <- tryCatch({
+				fdir <- paste0(path.package("svgViewR"), "/extdata/")
+			}, warning = function(w) {
+			}, error = function(e) {
+				if(e[1]$message == 'none of the packages are loaded'){
+					fdir_dev <- '/Users/aaron/Documents/Research/github/svgViewR/inst/extdata/'
+					if(file.exists(fdir_dev)){
+						return(fdir_dev)
+					}else{
+						stop(e)
+					}
 				}
-			}
-		}, finally = {
-		})
-	}
+			}, finally = {
+			})
+		}
 
+	}else{
+		fdir <- app.dir.src
+		fdir_dev <- app.dir.src
+	}
 	n <- rep(NA, 0)
 
 	if(conn.type %in% c('new', 'open')){
