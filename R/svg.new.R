@@ -90,7 +90,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		if(!is.null(app.dir.src)){
 
 			app_dir <- app.dir.src
-			app_dir_src <- app_dir_src
+			app_dir_src <- app_dir
 			pkg_load <- 'source'
 
 		}else{
