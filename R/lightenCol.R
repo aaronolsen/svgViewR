@@ -1,10 +1,10 @@
-darkenCol <- function(col, factor){
+lightenCol <- function(col, factor){
 
 	if(factor < 0) stop(paste0("'factor' (", factor, ") must be greater than 0."))
 	if(factor > 1) stop(paste0("'factor' (", factor, ") must be less than 1."))
 	
-	# Subtract factor from 1 so that a larger number darkens the color more
-	factor <- 1 - factor
+	# Add factor to 1 to increase color
+	factor <- 1 + factor
 
 	# If color string, convert to vector
 	input_str <- FALSE
@@ -14,9 +14,9 @@ darkenCol <- function(col, factor){
 	}
 	
 	if(length(col) == 3){
-		new_col <- c(max(0, factor*col[1]/255), max(0, factor*col[2]/255), max(0, factor*col[3]/255))
+		new_col <- c(min(1, factor*col[1]/255), min(1, factor*col[2]/255), min(1, factor*col[3]/255))
 	}else if(length(col) == 4){
-		new_col <- c(max(0, factor*col[1]/255), max(0, factor*col[2]/255), max(0, factor*col[3]/255, col[4]))
+		new_col <- c(min(1, factor*col[1]/255), min(1, factor*col[2]/255), min(1, factor*col[3]/255, col[4]))
 	}
 
 	if(input_str){

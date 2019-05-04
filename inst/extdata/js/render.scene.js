@@ -133,6 +133,8 @@ function addTexture( texture ) {
 		
 		// Move to next image
 		loadSubsequentTextures();
+		
+		//printAlert2('')
 	}
 }
 
@@ -172,7 +174,7 @@ function addMeshToScene( geometry, materials ) {
 
 	// Add to scene
 	scene.add( meshes[mesh_load_ct] );
-
+	
 	// Apply any initial transformations
 	if(svg_obj.mesh[mesh_load_ct].iposition != undefined){
 
@@ -844,6 +846,8 @@ function loadNextTexture(){
 	}else{
 		
 		//printAlert2(image_idx_ct + ',' + texture_load_ct + ',' + app_dir[svg_obj.image[image_idx_ct].src_idx] + '/' + svg_obj.image[image_idx_ct].fname[texture_load_ct])
+
+		printAlert2(svg_obj.image[image_idx_ct].fname[texture_load_ct]);
 
 		// Load texture
 		var loader = new THREE.TextureLoader();
@@ -1837,6 +1841,9 @@ function updateShapes(time_index){
 		var time_index_floor;
 		var time_index_ceil;
 		
+//	printAlert2(obj_num + ',' + svg_obj.mesh[obj_num].opacity)
+//	printAlert2(update_obj.num)
+				
 		for (i = 0; i < update_obj_length; i++){
 
 			// Set object number and type
@@ -1874,6 +1881,7 @@ function updateShapes(time_index){
 			//document.getElementById( "alert" ).innerHTML = svg_obj.mesh[obj_num].rotation[time_index][0];
 
 			if(obj_type == 'mesh'){
+				//printAlert2(svg_obj.mesh[obj_num].opacity.length)
 
 			//	meshes[obj_num].position.x = svg_obj.mesh[obj_num].position[time_index][0];
 			//	meshes[obj_num].position.y = svg_obj.mesh[obj_num].position[time_index][1];
@@ -1895,7 +1903,6 @@ function updateShapes(time_index){
 				time_index_ceil = time_index_floor + 1; 	
 				
 
-				
 				// Create a quaternion based on user specified time index			
 				new_quat = interpolateQuats(svg_obj.mesh[obj_num].quaternion[time_index_floor], 
 								svg_obj.mesh[obj_num].quaternion[time_index_ceil], 
@@ -1915,16 +1922,21 @@ function updateShapes(time_index){
 				meshes[obj_num].quaternion.set(new_quat.x, new_quat.y, new_quat.z, new_quat.w);
 				
 				//printAlert2('Time1:' + new_quat.y + 'Time3:' + svg_obj.mesh[obj_num].quaternion[3].y)
- 			  
-				if(svg_obj.mesh[obj_num].opacity.length == animation_ntimes){
+        if(svg_obj.mesh[obj_num].opacity.length == animation_ntimes){
 					meshes[obj_num].material.opacity = svg_obj.mesh[obj_num].opacity[time_index];
 				}
 			}
 
 			if(obj_type == 'sphere'){
+				
 				spheres[obj_num].position.x = spheres[obj_num].x_tm[time_index][0];
 				spheres[obj_num].position.y = spheres[obj_num].x_tm[time_index][1];
 				spheres[obj_num].position.z = spheres[obj_num].x_tm[time_index][2];
+
+				// Change opacity with time
+				if(svg_obj.sphere[obj_num].opacity.length == animation_ntimes){
+					//spheres[obj_num].material.opacity = svg_obj.sphere[obj_num].opacity[time_index];
+				}
 			}
 
 			if(obj_type == 'line'){

@@ -230,7 +230,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		con <- svgviewr.new(file=file, window.title=window.title, 
 			animate.duration=animate.duration, animate.reverse=animate.reverse, 
 			animate.repeat=animate.repeat, margin=margin, col=col, show.control=show.control, 
-			start.rotate=start.rotate, layers=layers, debug=debug, conn.type=conn.type)
+			start.rotate=start.rotate, layers=layers, debug=debug, conn.type=conn.type, app.dir.src=app.dir.src)
 
 		if(connection){
 			if(!is.null(layers)) con$layers <- layers

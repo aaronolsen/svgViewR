@@ -2,6 +2,8 @@ svg.ccuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 	ccenter=center, cvector=NULL, cradius.scale=1, col='blue', 
 	emissive=rgb(0.03, 0.15, 0.21), opacity = 1, ontop = FALSE, name='cuboid'){
 
+	## Creates curved cuboid
+
 	## I've written this function to generate separate vertex sets for each face of the 
 	##	cuboid. This makes the face indexing much simpler but uses more vertices than are 
 	## 	necessary. This function could be re-written to use fewer vertices (re-using the 
