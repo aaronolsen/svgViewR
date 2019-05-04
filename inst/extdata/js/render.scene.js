@@ -134,7 +134,7 @@ function addTexture( texture ) {
 		// Move to next image
 		loadSubsequentTextures();
 		
-		printAlert2('')
+		//printAlert2('')
 	}
 }
 
@@ -174,7 +174,7 @@ function addMeshToScene( geometry, materials ) {
 
 	// Add to scene
 	scene.add( meshes[mesh_load_ct] );
-
+	
 	// Apply any initial transformations
 	if(svg_obj.mesh[mesh_load_ct].iposition != undefined){
 
@@ -1717,6 +1717,9 @@ function updateShapes(time_index){
 		//// Apply object updates/transformations
 		var update_obj_length = update_obj.num.length;
 		
+//	printAlert2(obj_num + ',' + svg_obj.mesh[obj_num].opacity)
+//	printAlert2(update_obj.num)
+				
 		for (i = 0; i < update_obj_length; i++){
 
 			// Set object number and type
@@ -1754,6 +1757,7 @@ function updateShapes(time_index){
 			//document.getElementById( "alert" ).innerHTML = svg_obj.mesh[obj_num].rotation[time_index][0];
 
 			if(obj_type == 'mesh'){
+				//printAlert2(svg_obj.mesh[obj_num].opacity.length)
 
 				meshes[obj_num].position.x = svg_obj.mesh[obj_num].position[time_index][0];
 				meshes[obj_num].position.y = svg_obj.mesh[obj_num].position[time_index][1];
@@ -1762,16 +1766,22 @@ function updateShapes(time_index){
 				meshes[obj_num].rotation.x = svg_obj.mesh[obj_num].rotation[time_index][0];
 				meshes[obj_num].rotation.y = svg_obj.mesh[obj_num].rotation[time_index][1];
 				meshes[obj_num].rotation.z = svg_obj.mesh[obj_num].rotation[time_index][2];
-				
+
 				if(svg_obj.mesh[obj_num].opacity.length == animation_ntimes){
 					meshes[obj_num].material.opacity = svg_obj.mesh[obj_num].opacity[time_index];
 				}
 			}
 
 			if(obj_type == 'sphere'){
+				
 				spheres[obj_num].position.x = spheres[obj_num].x_tm[time_index][0];
 				spheres[obj_num].position.y = spheres[obj_num].x_tm[time_index][1];
 				spheres[obj_num].position.z = spheres[obj_num].x_tm[time_index][2];
+
+				// Change opacity with time
+				if(svg_obj.sphere[obj_num].opacity.length == animation_ntimes){
+					//spheres[obj_num].material.opacity = svg_obj.sphere[obj_num].opacity[time_index];
+				}
 			}
 
 			if(obj_type == 'line'){
