@@ -83,7 +83,7 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 				}
 				
 				# Apply to current itmat
-				itmat <- applyTransform(to=svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['itmat']], tmat=tmarr)
+				itmat <- applyTransform_svg(to=svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['itmat']], tmat=tmarr)
 
 				if(ref_types[idx] == 'mesh'){
 				
@@ -146,6 +146,12 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 					rotation <- lapply(seq_len(dim(tmarr)[3]), function(i) -rev(signif(rm2euler(t(tmarr[1:3, 1:3, i]))[[1]], digits=env[['svgviewr_env']][['js_var']][['signif_digits']])))
 					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['rotation']] <- rotation
 
+					# Set quaternion
+					quaternion <- lapply(seq_len(dim(tmarr)[3]), function(i) matrix(-(signif(round(RM2Quat(t(tmarr[1:3, 1:3, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), 4, 1, dimnames=list(c('x','y','z','w'), NULL)))
+					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['quaternion']] <- quaternion
+					
+					#print(quaternion)
+					
 					# Save transformation
 					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['tmat']] <- tmarr
 
