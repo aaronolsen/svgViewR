@@ -20,12 +20,14 @@ var deform_obj = {
     type: new Array()
 };
 
-var animate = false;						// Whether to animate - turned on if animation is loaded
 var bottom_frame_start_y = 0;
 var deform = false;							// Whether to deform any shapes
 var obj_add_ct = 0;							// Set initial object add count
 var mesh_load_ct = 0;						// Set initial mesh load count
 var image_idx_ct = 0;						// 
+var inactive_since = 0;						// Keep track of time for which browser is inactive
+var inactive_start_time = Date.now();		// Set initial inactive start time
+var render_pause = false;					// Whether to pause renderer
 var texture_idx_ct = 0;						// 
 var texture_load_ct = 0;					// 
 var save_as_img_ct = 0;
@@ -275,40 +277,22 @@ function inputTimelineIndex(index) {
 
 	// Pause animation
 	playPauseAnimation('pause');
+	
+	// Play render
+	playPauseRender('play');
 
 	// Slider input
 	if(index.id == 'timeline_cursor_slider_1'){
-
-		//printAlert2(index.value + ',' + animation_duration + ',' + index.id);
 
 		// Set elapsed time based on index		
 		elapsed_ms = (index.value / 100) * animation_duration;
 		
 		// Find closest time index in animation
 		//anim_index = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
-		 anim_index = (index.value/100)*(animation_ntimes- 1);
+
+		// Find proportional time index value
+		anim_index = (index.value/100)*(animation_ntimes- 1);
 	}
-
-// 	if(element.id == 'animation_frame_count_input'){
-// 	
-// 		if(!is_numeric(element.value)) return;
-// 
-// 		anim_n = parseFloat(element.value) - 1;
-// 		
-// 		animateShapes();
-// 	}
-
-
-	
-	
-	//Animation
-	// (index.value/100)*(number_of_iterations - 1)
-	
-	// Render:
-	// (elapsed_ms/animation_duration)*(animation_ntimes - 1)
-	//anim_index = (elapsed_ms/animation_duration)*(animation_ntimes - 1);
-
-
 
 	// Set elapsed time to match
 	elapsed_ms = ((anim_index) / (animation_ntimes-1))*animation_duration;
@@ -325,24 +309,25 @@ function inputTimelineIndex(index) {
 	anim_pause_time = anim_pause_start + elapsed_ms;
 }
 
-
-//Interpolate between two given positions
 function interpolatePos(p0, p1, t){
- //printAlert2("Pos1 " + p0.x + "," + p0.y + "," + p0.z + "," + "Pos2 " + p1.x + "," + p1.y + "," + p1.z );
-  var n , value
-  var p = {x: 0, y:0, z:0}
-  
-  if (t <= 0){
-    return p0;
-  }
-  if (t >= 1){
-    return p1;
-  }
-  p.x = (1 - t)*p0.x + t*p1.x;
-  p.y = (1 - t)*p0.y + t*p1.y;
-  p.z = (1 - t)*p0.z + t*p1.z;
+	//Interpolate between two given positions
+	//printAlert2("Pos1 " + p0.x + "," + p0.y + "," + p0.z + "," + "Pos2 " + p1.x + "," + p1.y + "," + p1.z );
 
-  return p;
+	var n , value;
+	var p = {x: 0, y:0, z:0};
+
+	if (t <= 0){
+		return p0;
+	}
+	if (t >= 1){
+		return p1;
+	}
+
+	p.x = (1 - t)*p0.x + t*p1.x;
+	p.y = (1 - t)*p0.y + t*p1.y;
+	p.z = (1 - t)*p0.z + t*p1.z;
+
+	return p;
 }
 
 
@@ -408,14 +393,6 @@ function invertQuat(quat){
 }
 
 function loadAnimation() {
-
-	if(svg_obj.animate == ''){
-		animate = false;
-		return;
-	}
-
-	// Set animate on
-	animate = true;
 
 	// Set animation times
 	animation_times = svg_obj.animate.times;
@@ -714,7 +691,9 @@ function loadGeometries(){
 }
 
 function loadNextMesh(){
+
 	var i
+
 	if(svg_obj.mesh == undefined){
 		meshes_ready = true;
 		return;
@@ -980,6 +959,9 @@ function onReady(){
 		// On spacebar keyup, start-stop animation
 		if(e.keyCode == 32) playPauseAnimation();
 	}
+	
+	// If no animation, set animate to pause
+	if(animate == false) anim_pause = true;
 
 	// Setup a new scene
 	scene = new THREE.Scene();
@@ -991,8 +973,10 @@ function onReady(){
 	var container = document.getElementById( "container" );
 
 	// Add stats box in top left corner
-	//stats = new Stats();
-	//container.appendChild( stats.dom );
+	if(show_stats){
+		stats = new Stats();
+		container.appendChild( stats.dom );
+	}
 
 	// Setup the renderer
 	renderer = new THREE.WebGLRenderer( {
@@ -1372,21 +1356,70 @@ function parseModel( json, geometry ) {
 
 function playPauseAnimation(state) {
 
+	// If no animation, return
+	if(!animate) return;
+
 	// Set state based on toggle if undefined
 	if(state == undefined) {
 		var state;
-		if(anim_pause) { state = 'play' }else{ state = 'pause' }
+		if(anim_pause){
+			state = 'play'
+		}else{
+			state = 'pause'
+		}
 	}else{
 		if(state == 'pause' && anim_pause) return;
 		if(state == 'play' && !anim_pause) return;
 	}
 
 	if(state == 'play') { 
+
 		anim_pause = false; 
+
+		// Set anim_start so that when animation is unpaused it starts where it "left off"
+		anim_start = anim_pause_start + (Date.now() - anim_pause_time);
+
 	}else{ 
 		anim_pause_time = Date.now();	// time at which the animation was paused
 		anim_pause_start = anim_start; 	// start time when animation was paused
 		anim_pause = true; 
+	}
+}
+
+function playPauseRender(state) {
+
+	// Set state based on toggle if undefined
+	if(state == undefined) {
+		var state;
+		if(render_pause){
+			state = 'play'
+		}else{
+			state = 'pause'
+		}
+	}
+
+	if(state == 'pause' && render_pause) return;
+	if(state == 'play' && !render_pause){
+
+		// Reset inactive since
+		inactive_start_time = Date.now();
+
+		return;
+	}
+
+	if(state == 'play') { 
+
+		// Turn off pause
+		render_pause = false;
+
+		// Reset inactive since
+		inactive_start_time = Date.now();
+
+		// Re-start callback
+		requestAnimationFrame(render);
+
+	}else{ 
+		render_pause = true;
 	}
 }
 
@@ -1554,48 +1587,56 @@ function receiveObjectFromR(object){
 // After loading JSON from our file, we add it to the scene
 var render = function () {
 
-	//document.getElementById( "alert" ).innerHTML = document.getElementById( "alert" ).innerHTML + '.';
-	requestAnimationFrame(render);
-
-	if(animate){
-
-		if(anim_pause){
-
-			// Increase anim_start so that when animation is unpaused it starts where it "left off"
-			anim_start = anim_pause_start + (Date.now() - anim_pause_time);
-
-		}else{
-
-			// Get elapsed time in ms
-			elapsed_ms = Date.now() - anim_start;
+	// Check whether render is paused
+	if(!render_pause) requestAnimationFrame(render);
 	
-			// If exceeds animation duration, reset clock
-			if(elapsed_ms > animation_duration){
-				anim_start = Date.now();
-				elapsed_ms = 0;
-			}
+	// Update inactive since (in seconds)
+	inactive_since = (Date.now() - inactive_start_time) / 1000;
+	
+	// If there is an animation
+	if(!anim_pause){
 
-			// Find closest time point in animation
-			//anim_index = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
-			
-			anim_index = (elapsed_ms/animation_duration)*(animation_ntimes- 1);
+		// Get elapsed time in ms
+		elapsed_ms = Date.now() - anim_start;
 
-			// Update shapes
-			updateShapes(anim_index);
+		// If exceeds animation duration, reset clock
+		if(elapsed_ms > animation_duration){
+			anim_start = Date.now();
+			elapsed_ms = 0;
 		}
 
-		// Update clock
-		if(show_clock){
-			document.getElementById( "clock" ).innerHTML = Math.round(elapsed_ms / 100)*100 + " ms";
-			document.getElementById( "idx" ).innerHTML = anim_index;
-			document.getElementById( "time" ).innerHTML = Math.round((elapsed_ms*play_speed) / 100)*100 + " ms";
-		}
+		// Find closest time point in animation
+		//anim_index = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+
+		// Find proportional time index
+		anim_index = (elapsed_ms / animation_duration)*(animation_ntimes-1);
+
+		// Update shapes
+		updateShapes(anim_index);
 
 		// Update slider position
 		document.getElementById('timeline_cursor_slider_1').value = Math.round(((anim_index) / (animation_ntimes-1))*100);
+
+		// Reset inactive since start time because animation is playing
+		inactive_start_time = Date.now();
 	}
 
-	//stats.update();
+	// If no activity for a period of time, pause rendering
+	if(inactive_since >= 1) playPauseRender('pause');
+
+	// Update clock
+	if(debug){
+		document.getElementById( "inactive_since" ).innerHTML = (Math.round(inactive_since*100) / 100) + " sec";
+	}
+
+	if(show_clock){
+		document.getElementById( "clock" ).innerHTML = Math.round(elapsed_ms / 100)*100 + " ms";
+		document.getElementById( "idx" ).innerHTML = anim_index;
+		document.getElementById( "time" ).innerHTML = Math.round((elapsed_ms*play_speed) / 100)*100 + " ms";
+		document.getElementById( "system_time" ).innerHTML = Date.now();
+	}
+
+	if(show_stats) stats.update();
 	controls.update();
 	renderer.render(scene, camera);
 };
@@ -1790,47 +1831,6 @@ function updateShapes(time_index){
 
 	var def_vars, num, type, i, j, k, nVertices, obj_num, obj_type, set_prop, set_val, tracks_length;
 
-	//// Apply deformation transformations
-	if(deform == true){
-		
-		// Apply object updates/transformations
-		var deform_obj_length = deform_obj.num.length;
-
-		for (i = 0; i < deform_obj_length; i++){
-			
-			// Set object number and type
-			obj_num = deform_obj.num[i];
-			obj_type = deform_obj.type[i];
-
-			if(obj_type == 'mesh'){
-
-				//var nVertices = Object.getOwnPropertyNames(meshes[obj_num].geometry.vertices);
-				nVertices = meshes[obj_num].geometry.vertices.length;
-//document.getElementById( "alert" ).innerHTML = svg_obj.mesh[obj_num].deform[time_index];
-
-				// deform variables
-				def_vars = svg_obj.mesh[obj_num].deform[time_index];
-
-//document.getElementById( "alert" ).innerHTML = def_vars;
-
-				for(i = 0; i < nVertices; i++) {
-					meshes[obj_num].geometry.vertices[i].x = svg_obj.mesh[obj_num].clone_vertices[i].x + def_vars[1]*(svg_obj.mesh[obj_num].clone_vertices[i].x - def_vars[0]);
-					meshes[obj_num].geometry.vertices[i].y = svg_obj.mesh[obj_num].clone_vertices[i].y + def_vars[3]*(svg_obj.mesh[obj_num].clone_vertices[i].y - def_vars[2]);
-					meshes[obj_num].geometry.vertices[i].z = svg_obj.mesh[obj_num].clone_vertices[i].z + def_vars[5]*(svg_obj.mesh[obj_num].clone_vertices[i].z - def_vars[4]);
-				}
-
-				//svg_obj.mesh[obj_num].clone_vertices[i] = geometry.vertices[i].clone();
-
-				// Mark the vertices as needing update
-				meshes[obj_num].geometry.verticesNeedUpdate = true;		
-
-				//anim_pause_time = Date.now();
-				//anim_pause_start = anim_start;
-				//anim_pause = true; 
-			}
-		}
-	}
-
 	//// Apply animation transformations
 	if(animate == true){
 
@@ -1842,7 +1842,6 @@ function updateShapes(time_index){
 		var time_index_ceil;
 		
 //	printAlert2(obj_num + ',' + svg_obj.mesh[obj_num].opacity)
-//	printAlert2(update_obj.num)
 				
 		for (i = 0; i < update_obj_length; i++){
 
@@ -1851,33 +1850,6 @@ function updateShapes(time_index){
 			obj_type = update_obj.type[i];
 
 			//printAlert2('Alert: ' + i + ', ' + obj_num + ', ' + obj_type)
-			//document.getElementById( "alert2" ).innerHTML = document.getElementById( "alert2" ).innerHTML + ',' + i;
-
-			if(obj_type == 'image'){
-
-				// Get texture index
-				texture_idx = svg_obj.image[obj_num].texture_idx;
-			
-				//if(images[obj_num] == undefined) continue;
-				if(texture_idx + 1 > textures[texture_idx].length){
-					continue;
-				}
-
-				//printAlert2('Alert: ' + obj_num + ',' + obj_type + ',' + time_index + ',' + textures[texture_idx].length)
-
-				// Get material from loaded texture
-				//material = new THREE.MeshBasicMaterial({map: textures[texture_idx][time_index], side: THREE.DoubleSide});
-				images[obj_num].material.map = textures[texture_idx][time_index];
-
-				if(obj_num == 0){
-					//printAlert2('Alert: ' + obj_num + ',' + obj_type + ',' + texture_idx + ',' + time_index + ',' + images[obj_num].material.map)
-				}
-				
-				if(svg_obj.image[texture_idx].opacity.length == animation_ntimes){
-					images[obj_num].material.opacity = svg_obj.image[obj_num].opacity[time_index];
-				}
-			}
-
 			//document.getElementById( "alert" ).innerHTML = svg_obj.mesh[obj_num].rotation[time_index][0];
 
 			if(obj_type == 'mesh'){
@@ -1922,8 +1894,33 @@ function updateShapes(time_index){
 				meshes[obj_num].quaternion.set(new_quat.x, new_quat.y, new_quat.z, new_quat.w);
 				
 				//printAlert2('Time1:' + new_quat.y + 'Time3:' + svg_obj.mesh[obj_num].quaternion[3].y)
-        if(svg_obj.mesh[obj_num].opacity.length == animation_ntimes){
+				if(svg_obj.mesh[obj_num].opacity.length == animation_ntimes){
 					meshes[obj_num].material.opacity = svg_obj.mesh[obj_num].opacity[time_index];
+				}
+			}
+
+			if(obj_type == 'image'){
+
+				// Get texture index
+				texture_idx = svg_obj.image[obj_num].texture_idx;
+			
+				//if(images[obj_num] == undefined) continue;
+				if(texture_idx + 1 > textures[texture_idx].length){
+					continue;
+				}
+
+				//printAlert2('Alert: ' + obj_num + ',' + obj_type + ',' + time_index + ',' + textures[texture_idx].length)
+
+				// Get material from loaded texture
+				//material = new THREE.MeshBasicMaterial({map: textures[texture_idx][time_index], side: THREE.DoubleSide});
+				images[obj_num].material.map = textures[texture_idx][time_index];
+
+				if(obj_num == 0){
+					//printAlert2('Alert: ' + obj_num + ',' + obj_type + ',' + texture_idx + ',' + time_index + ',' + images[obj_num].material.map)
+				}
+				
+				if(svg_obj.image[texture_idx].opacity.length == animation_ntimes){
+					images[obj_num].material.opacity = svg_obj.image[obj_num].opacity[time_index];
 				}
 			}
 
@@ -1951,6 +1948,47 @@ function updateShapes(time_index){
 				}
 				// Update vertices
 				lines[obj_num].geometry.verticesNeedUpdate = true;
+			}
+		}
+	}
+
+	//// Apply deformation transformations
+	if(deform == true){
+		
+		// Apply object updates/transformations
+		var deform_obj_length = deform_obj.num.length;
+
+		for (i = 0; i < deform_obj_length; i++){
+			
+			// Set object number and type
+			obj_num = deform_obj.num[i];
+			obj_type = deform_obj.type[i];
+
+			if(obj_type == 'mesh'){
+
+				//var nVertices = Object.getOwnPropertyNames(meshes[obj_num].geometry.vertices);
+				nVertices = meshes[obj_num].geometry.vertices.length;
+//document.getElementById( "alert" ).innerHTML = svg_obj.mesh[obj_num].deform[time_index];
+
+				// deform variables
+				def_vars = svg_obj.mesh[obj_num].deform[time_index];
+
+//document.getElementById( "alert" ).innerHTML = def_vars;
+
+				for(i = 0; i < nVertices; i++) {
+					meshes[obj_num].geometry.vertices[i].x = svg_obj.mesh[obj_num].clone_vertices[i].x + def_vars[1]*(svg_obj.mesh[obj_num].clone_vertices[i].x - def_vars[0]);
+					meshes[obj_num].geometry.vertices[i].y = svg_obj.mesh[obj_num].clone_vertices[i].y + def_vars[3]*(svg_obj.mesh[obj_num].clone_vertices[i].y - def_vars[2]);
+					meshes[obj_num].geometry.vertices[i].z = svg_obj.mesh[obj_num].clone_vertices[i].z + def_vars[5]*(svg_obj.mesh[obj_num].clone_vertices[i].z - def_vars[4]);
+				}
+
+				//svg_obj.mesh[obj_num].clone_vertices[i] = geometry.vertices[i].clone();
+
+				// Mark the vertices as needing update
+				meshes[obj_num].geometry.verticesNeedUpdate = true;		
+
+				//anim_pause_time = Date.now();
+				//anim_pause_start = anim_start;
+				//anim_pause = true; 
 			}
 		}
 	}
