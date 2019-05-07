@@ -2,7 +2,7 @@ svgviewr_env <- new.env(parent = emptyenv())
 
 svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1, 
 	animate.speed = 1, animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
-	times = NULL, time.units = 'sec', clock = FALSE, stats = FALSE, show.control = TRUE, start.rotate = TRUE, 
+	times = NULL, clock = FALSE, stats = FALSE, show.control = TRUE, start.rotate = TRUE, 
 	rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, layers = NULL, connection = TRUE, 
 	mode = c('svg', 'webgl'), close.on.done = TRUE, file.type = NULL, app.dir.src = NULL, debug = FALSE){
 
@@ -146,10 +146,12 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 			svgviewr_env$js_var[['bottom_frame_height_px']] <- 50
 			svgviewr_env$js_var[['bottom_frame_hidden']] <- FALSE
 			svgviewr_env$js_var[['show_clock']] <- TRUE
+			svgviewr_env$js_var[['show_stats']] <- TRUE
 		}else{
 			svgviewr_env$js_var[['bottom_frame_height_px']] <- 0
 			svgviewr_env$js_var[['bottom_frame_hidden']] <- TRUE
 			svgviewr_env$js_var[['show_clock']] <- clock
+			svgviewr_env$js_var[['show_stats']] <- stats
 		}
 
 		# Set javascript variables
@@ -165,9 +167,8 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		svgviewr_env$js_var[['save_as_img_type']] <- file.type
 		svgviewr_env$js_var[['save_as_img_paths']] <- save_as_img_paths
 		svgviewr_env$js_var[['save_as_img_close']] <- close.on.done
-		svgviewr_env$js_var[['show_stats']] <- stats
 		svgviewr_env$js_var[['signif_digits']] <- digits
-		svgviewr_env$js_var[['time_units']] <- time.units
+		svgviewr_env$js_var[['time_units']] <- 'sec'
 		svgviewr_env$js_var[['window_title']] <- window.title
 		svgviewr_env$js_var[['zoomSpeed']] <- zoom.speed
 		
