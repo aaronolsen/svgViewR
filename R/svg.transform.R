@@ -2,18 +2,16 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 
 	# If times is null, set based on dimensions of tmarr
 	if(is.null(times)){
-		if(length(dim(tmarr)) == 4){
-			times <- 1:dim(tmarr)[4]
-		}else if(length(dim(tmarr)) == 3){
-			times <- 1:dim(tmarr)[3]
-		}else if(length(dim(tmarr)) == 2){
-			times <- 1
+		if(length(dim(tmarr)) >= 3){
+			times <- 1:dim(tmarr)[length(dim(tmarr))]
 		}else{
+			times <- 1
 		}
 	}
 
 	# If times do not start at 0, shift to start at 0
-	if(times[1] != 0) times <- times - min(times, na.rm=TRUE)
+	# May need to fix problems downstream
+#	if(times[1] != 0) times <- times - min(times, na.rm=TRUE)
 
 	# Make sure that type is webgl
 	if('svg' == getOption("svgviewr_glo_type")) stop("Transform is currently only available with webgl svgViewR output.")
@@ -21,29 +19,35 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 	# If transformations are all NA, return NULL
 	if(sum(is.na(tmarr)) == length(tmarr)) return(NULL)
 
-	if(length(dim(tmarr)) == 4 || (length(dim(tmarr)) == 3 && !is.null(dimnames(tmarr)[[3]]))){
+	# Check for applyto names in tmarr
+	if(!is.null(dimnames(tmarr)[[3]])){
+	
+		# Set which dimension is names
+		at_dim <- 3
 
 		# Check that applyto length matches tmarr if applyto names in tmarr are NULL
-		if(is.null(dimnames(tmarr)[[3]]) && length(applyto) != dim(tmarr)[3]) 
-			stop(paste0("If dimnames(tmarr)[[3]] is NULL then names of what to apply transformation to should be given through applyto. length(applyto) does not equal dim(tmarr)[3]."))
+		if(is.null(dimnames(tmarr)[[at_dim]]) && length(applyto) != dim(tmarr)[at_dim]) 
+			stop(paste0("If dimnames(tmarr)[[", at_dim, "]] is NULL then names of what to apply transformation to should be given through applyto. length(applyto) does not equal dim(tmarr)[", at_dim, "]."))
 
 		# Set applyto through tmarr dimnames
-		if(applyto == '' && !is.null(dimnames(tmarr)[[3]])) applyto <- dimnames(tmarr)[[3]]
-
-		for(i in 1:dim(tmarr)[3]){
+		if(applyto == '' && !is.null(dimnames(tmarr)[[at_dim]])) applyto <- dimnames(tmarr)[[at_dim]]
+		
+		for(i in 1:dim(tmarr)[at_dim]){
 
 			# Apply each body transform in array
-			if(length(dim(tmarr)) == 3){
-				svg.transform(tmarr=tmarr[, , i], applyto=applyto[i], add=add, regexp=regexp)
-			}else{
+			if(length(dim(tmarr)) == 5){
+				svg.transform(tmarr=tmarr[, , i, , ], applyto=applyto[i], times=times, add=add, regexp=regexp)
+			}else if(length(dim(tmarr)) == 4){
 				svg.transform(tmarr=tmarr[, , i, ], applyto=applyto[i], times=times, add=add, regexp=regexp)
+			}else{
+				svg.transform(tmarr=tmarr[, , i], applyto=applyto[i], add=add, regexp=regexp)
 			}
 		}
 
 	}else{
 	
 		# If 3-D array and 3rd dim has names, use as applyto
-		if(length(dim(tmarr)) == 3 && !is.null(dimnames(tmarr)[[3]])) applyto <- dimnames(tmarr)[[3]]
+		#if(length(dim(tmarr)) == 3 && !is.null(dimnames(tmarr)[[3]])) applyto <- dimnames(tmarr)[[3]]
 		
 		# Get viewer environment
 		env <- as.environment(getOption("svgviewr_glo_env"))
@@ -121,6 +125,9 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 			}
 
 		}else{
+			
+			# Set number of timelines
+			svgviewr_env$js_var[['n_timelines']] <- length(dim(tmarr)) - 2
 
 			# Make sure number of times matches the number of iterations in transformation array
 			if(length(times) != dim(tmarr)[3]) stop(paste0("The number of times in 'times' (", length(times), ") does not match the number of iterations in 'tmarr' (", dim(tmarr)[3], ")."))
@@ -132,27 +139,44 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 
 			# Define number of animation iterations and times if not already defined
 			if(is.null(svgviewr_env$svg$animate$times)) svgviewr_env$svg$animate$times <- times
-
+			
 			# For each object for which position will become 
 			for(idx in applyto_which){
 
 				if(ref_types[idx] == 'mesh'){
 
-					# Set position
-					position <- lapply(seq_len(dim(tmarr)[3]), function(i) t(signif(tmarr[1:3, 4, i], digits=env[['svgviewr_env']][['js_var']][['signif_digits']])))
+					if(length(dim(tmarr)) == 3){
+
+						# Set position
+						position <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(signif(tmarr[1:3, 4, i], digits=env[['svgviewr_env']][['js_var']][['signif_digits']]), c('x', 'y', 'z'))))
+						#if(idx == applyto_which[1]) print(position)
+
+						# Set rotation
+						#rotation <- lapply(seq_len(dim(tmarr)[3]), function(i) -rev(signif(rm2euler(t(tmarr[1:3, 1:3, i]))[[1]], digits=env[['svgviewr_env']][['js_var']][['signif_digits']])))
+
+						# Set quaternion
+						#quaternion <- lapply(seq_len(dim(tmarr)[3]), function(i) matrix(-(signif(round(RM2Quat(t(tmarr[1:3, 1:3, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), 4, 1, dimnames=list(c('x','y','z','w'), NULL)))
+						quaternion <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(-(signif(round(RM2Quat(t(tmarr[1:3, 1:3, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), c('x','y','z','w'))))
+
+					}else{
+						
+						# Set position
+						position <- list()
+						n_dim1 <- dim(tmarr)[3]
+						for(dim1 in 1:n_dim1){
+							position[[dim1]] <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(signif(tmarr[1:3, 4, dim1, i], digits=env[['svgviewr_env']][['js_var']][['signif_digits']]), c('x', 'y', 'z'))))
+						}
+
+						# Set quaternion
+						quaternion <- list()
+						for(dim1 in 1:n_dim1){
+							quaternion[[dim1]] <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(-(signif(round(RM2Quat(t(tmarr[1:3, 1:3, dim1, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), c('x','y','z','w'))))
+						}
+					}
+					
+					# Save transformations
 					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['position']] <- position
-
-					# Set rotation
-					rotation <- lapply(seq_len(dim(tmarr)[3]), function(i) -rev(signif(rm2euler(t(tmarr[1:3, 1:3, i]))[[1]], digits=env[['svgviewr_env']][['js_var']][['signif_digits']])))
-					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['rotation']] <- rotation
-
-					# Set quaternion
-					quaternion <- lapply(seq_len(dim(tmarr)[3]), function(i) matrix(-(signif(round(RM2Quat(t(tmarr[1:3, 1:3, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), 4, 1, dimnames=list(c('x','y','z','w'), NULL)))
 					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['quaternion']] <- quaternion
-					
-					#print(quaternion)
-					
-					# Save transformation
 					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['tmat']] <- tmarr
 
 				}else if(ref_types[idx] == 'sphere'){
