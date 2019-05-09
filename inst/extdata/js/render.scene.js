@@ -707,19 +707,17 @@ function loadNextMesh(){
 		update_obj.type.push('mesh');
 		
 		//Convert to quaternion
-		for(i = 0; i < svg_obj.mesh[mesh_load_ct].quaternion.length; i++){
-			svg_obj.mesh[mesh_load_ct].quaternion[i] = new THREE.Quaternion().set(svg_obj.mesh[mesh_load_ct].quaternion[i][0], 
-				svg_obj.mesh[mesh_load_ct].quaternion[i][1], svg_obj.mesh[mesh_load_ct].quaternion[i][2], 
-				svg_obj.mesh[mesh_load_ct].quaternion[i][3]);
-			
-		}
+		//for(i = 0; i < svg_obj.mesh[mesh_load_ct].quaternion.length; i++){
+			//svg_obj.mesh[mesh_load_ct].quaternion[i] = new THREE.Quaternion().set(svg_obj.mesh[mesh_load_ct].quaternion[i][0], 
+			//	svg_obj.mesh[mesh_load_ct].quaternion[i][1], svg_obj.mesh[mesh_load_ct].quaternion[i][2], 
+			//	svg_obj.mesh[mesh_load_ct].quaternion[i][3]);
+		//}
 		
 		//Convert to position
-		for(i = 0; i < svg_obj.mesh[mesh_load_ct].position.length; i++){
-			svg_obj.mesh[mesh_load_ct].position[i] = new THREE.Vector3().set(svg_obj.mesh[mesh_load_ct].position[i][0], 
-				svg_obj.mesh[mesh_load_ct].position[i][1], svg_obj.mesh[mesh_load_ct].position[i][2]);
-			
-		}
+		//for(i = 0; i < svg_obj.mesh[mesh_load_ct].position.length; i++){
+			//svg_obj.mesh[mesh_load_ct].position[i] = new THREE.Vector3().set(svg_obj.mesh[mesh_load_ct].position[i][0], 
+			//	svg_obj.mesh[mesh_load_ct].position[i][1], svg_obj.mesh[mesh_load_ct].position[i][2]);
+		//}
 		
 	}
 
