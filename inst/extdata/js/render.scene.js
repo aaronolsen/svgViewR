@@ -35,6 +35,16 @@ var meshes_ready = false;					// Initially meshes not ready
 var images_ready = false;					// Initially images not ready
 var image_textures_ready = false;
 
+function fillArray(value, len) {
+  if (len == 0) return [];
+  var a = [value];
+  while (a.length * 2 <= len) a = a.concat(a);
+  if (a.length < len) a = a.concat(a.slice(0, len - a.length));
+  return a;
+}
+
+var anim_index = fillArray(0, n_timelines)
+
 function addFirstTexture(texture){
 
 	var geometry, material, plane;
@@ -210,7 +220,6 @@ function distQuat(a, b){
 	return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) +  Math.pow(a.z - b.z, 2) +  Math.pow(a.w - b.w, 2))
 }
 
-
 function getStyle(el, styleProp) {
   var value, defaultView = (el.ownerDocument || document).defaultView;
   // W3C standard way:
@@ -281,21 +290,22 @@ function inputTimelineIndex(index) {
 	// Play render
 	playPauseRender('play');
 
-	// Slider input
-	if(index.id == 'timeline_cursor_slider_1'){
+	// Set index
+	var index_i;
+	if(index.id == 'timeline_cursor_slider_1') index_i = 0;
+	if(index.id == 'timeline_cursor_slider_2') index_i = 1;
 
-		// Set elapsed time based on index		
-		elapsed_ms = (index.value / 100) * animation_duration;
-		
-		// Find closest time index in animation
-		//anim_index = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+	// Set elapsed time based on index		
+	//elapsed_ms = (index.value[index_i] / 100) * animation_duration;
+	
+	// Find closest time index in animation
+	//anim_index = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
 
-		// Find proportional time index value
-		anim_index = (index.value/100)*(animation_ntimes- 1);
-	}
+	// Find proportional time index value
+	anim_index[index_i] = (index.value/100)*(animation_ntimes- 1);
 
 	// Set elapsed time to match
-	elapsed_ms = ((anim_index) / (animation_ntimes-1))*animation_duration;
+	elapsed_ms = ((anim_index[0]) / (animation_ntimes-1))*animation_duration;
 
 	// Update animation start time
 	anim_start = Date.now() + elapsed_ms;
@@ -1435,6 +1445,7 @@ function setBoundingBox () {
 	// Set initial values to not return NaN
 	var minX = minY = minZ = Infinity;
 	var maxX = maxY = maxZ = -Infinity;
+	var time_index_bb = fillArray(0, n_timelines)
 
 	// If no animation, just iterate once through update
 	if(animate == false){
@@ -1447,8 +1458,11 @@ function setBoundingBox () {
 
 	for(j = 0; j < anim_ntimes; j = j + time_int){
 
+		// Just use first index
+		time_index_bb[0] = j;
+
 		// Transform shapes to first animation index
-		updateShapes(j);
+		updateShapes(time_index_bb);
 
 		// Compute bounding box of transformed objects
 		for(i = 0; i <= spheres.length-1; i++){
@@ -1607,13 +1621,16 @@ var render = function () {
 		//anim_index = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
 
 		// Find proportional time index
-		anim_index = (elapsed_ms / animation_duration)*(animation_ntimes-1);
+		anim_index[0] = (elapsed_ms / animation_duration)*(animation_ntimes-1);
+		
+		// Set anim_index as vector with same length as number of timelines
+		//anim_index = fillArray(anim_index, n_timelines);
 
 		// Update shapes
 		updateShapes(anim_index);
 
 		// Update slider position
-		document.getElementById('timeline_cursor_slider_1').value = Math.round(((anim_index) / (animation_ntimes-1))*100);
+		document.getElementById('timeline_cursor_slider_1').value = Math.round(((anim_index[0]) / (animation_ntimes-1))*100);
 
 		// Reset inactive since start time because animation is playing
 		inactive_start_time = Date.now();
@@ -1661,7 +1678,7 @@ function saveFramesAsImages(save_as_img_ct){
 	if(animate){
 
 		// Update shapes using count as time index (should be same as number of frames)
-		updateShapes(save_as_img_ct);
+		updateShapes([save_as_img_ct]);
 
 		// Update renderer
 		renderer.render(scene, camera);
@@ -1836,8 +1853,10 @@ function updateShapes(time_index){
 		var update_obj_length = update_obj.num.length;
 		var new_quat;
 		var new_pos;
-		var time_index_floor;
-		var time_index_ceil;
+		var time_index_floor = new Array(n_timelines);
+		var time_index_ceil = new Array(n_timelines);
+//		var time_index_floor;
+//		var time_index_ceil;
 		
 //	printAlert2(obj_num + ',' + svg_obj.mesh[obj_num].opacity)
 				
@@ -1861,39 +1880,52 @@ function updateShapes(time_index){
  			//	meshes[obj_num].rotation.y = svg_obj.mesh[obj_num].rotation[time_index][1];
  			//	meshes[obj_num].rotation.z = svg_obj.mesh[obj_num].rotation[time_index][2];
 
-				//Set the floor of the specified time index
-				time_index_floor = Math.floor(time_index);
-				
-				//Update the floor of the specified time index if at the final iteration
-				if(time_index_floor == animation_ntimes - 1){
-					time_index_floor = time_index_floor - 1
+				// Set floor and ceiling from time indices
+				for (j = 0; j < n_timelines; j++){
+
+					// Set the floor of time indices
+					time_index_floor[j] = Math.floor(time_index[j])
+
+					// Update the floor of the specified time index if at final iteration
+					if(time_index_floor[j] == animation_ntimes - 1) time_index_floor[j] = time_index_floor[j] - 1
+
+					// Set the ceiling of the specified time index
+					time_index_ceil[j] = time_index_floor[j] + 1; 	
 				}
 				
-				//Set the ceiling of the specified time index
-				time_index_ceil = time_index_floor + 1; 	
+				printAlert2(time_index_floor + '; ' + time_index_ceil);
 				
+				// Create a quaternion based on user specified time index
+				if(n_timelines == 1){
 
-				// Create a quaternion based on user specified time index			
-				new_quat = interpolateQuats(svg_obj.mesh[obj_num].quaternion[time_index_floor], 
-								svg_obj.mesh[obj_num].quaternion[time_index_ceil], 
-								time_index - time_index_floor);
+					new_quat = interpolateQuats(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]], 
+									svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]], 
+									time_index[0] - time_index_floor[0]);
 								
-				new_pos = interpolatePos(svg_obj.mesh[obj_num].position[time_index_floor], 
-								svg_obj.mesh[obj_num].position[time_index_ceil], 
-								time_index - time_index_floor);
-						
+					new_pos = interpolatePos(svg_obj.mesh[obj_num].position[time_index_floor[0]], 
+									svg_obj.mesh[obj_num].position[time_index_ceil[0]], 
+									time_index[0] - time_index_floor[0]);
+
+				}else if(n_timelines == 2){
+
+					new_quat = interpolateQuats(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_floor[1]], 
+									svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_ceil[1]], 
+									time_index[0] - time_index_floor[0]);
+								
+					new_pos = interpolatePos(svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]], 
+									svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]], 
+									time_index[0] - time_index_floor[0]);
+				}
 								
 				meshes[obj_num].position.set(new_pos.x, new_pos.y, new_pos.z);
-												
-				//printAlert2('Q1:' + svg_obj.mesh[obj_num].quaternion[time_index_ceil].w); printAlert2('Floor:' + time_index_floor + 'Ceil:' + time_index_ceil + 'T:' + [time_index - time_index_floor]); printAlert2('Ceil:' + time_index_ceil);
-				
-				//printAlert2('Posx:' + new_pos.x);
+				//printAlert2('Q1:' + svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]].w); printAlert2('Floor:' + time_index_floor[0] + 'Ceil:' + time_index_ceil[0] + 'T:' + [time_index[0] - time_index_floor[0]]); printAlert2('Ceil:' + time_index_ceil[0]);
 				
 				meshes[obj_num].quaternion.set(new_quat.x, new_quat.y, new_quat.z, new_quat.w);
-				
 				//printAlert2('Time1:' + new_quat.y + 'Time3:' + svg_obj.mesh[obj_num].quaternion[3].y)
+
+				// If opacity is animated
 				if(svg_obj.mesh[obj_num].opacity.length == animation_ntimes){
-					meshes[obj_num].material.opacity = svg_obj.mesh[obj_num].opacity[time_index];
+					meshes[obj_num].material.opacity = svg_obj.mesh[obj_num].opacity[time_index[0]];
 				}
 			}
 
@@ -1907,30 +1939,30 @@ function updateShapes(time_index){
 					continue;
 				}
 
-				//printAlert2('Alert: ' + obj_num + ',' + obj_type + ',' + time_index + ',' + textures[texture_idx].length)
+				//printAlert2('Alert: ' + obj_num + ',' + obj_type + ',' + time_index[0] + ',' + textures[texture_idx].length)
 
 				// Get material from loaded texture
-				//material = new THREE.MeshBasicMaterial({map: textures[texture_idx][time_index], side: THREE.DoubleSide});
-				images[obj_num].material.map = textures[texture_idx][time_index];
+				//material = new THREE.MeshBasicMaterial({map: textures[texture_idx][time_index[0]], side: THREE.DoubleSide});
+				images[obj_num].material.map = textures[texture_idx][time_index[0]];
 
 				if(obj_num == 0){
-					//printAlert2('Alert: ' + obj_num + ',' + obj_type + ',' + texture_idx + ',' + time_index + ',' + images[obj_num].material.map)
+					//printAlert2('Alert: ' + obj_num + ',' + obj_type + ',' + texture_idx + ',' + time_index[0] + ',' + images[obj_num].material.map)
 				}
 				
 				if(svg_obj.image[texture_idx].opacity.length == animation_ntimes){
-					images[obj_num].material.opacity = svg_obj.image[obj_num].opacity[time_index];
+					images[obj_num].material.opacity = svg_obj.image[obj_num].opacity[time_index[0]];
 				}
 			}
 
 			if(obj_type == 'sphere'){
 				
-				spheres[obj_num].position.x = spheres[obj_num].x_tm[time_index][0];
-				spheres[obj_num].position.y = spheres[obj_num].x_tm[time_index][1];
-				spheres[obj_num].position.z = spheres[obj_num].x_tm[time_index][2];
+				spheres[obj_num].position.x = spheres[obj_num].x_tm[time_index[0]][0];
+				spheres[obj_num].position.y = spheres[obj_num].x_tm[time_index[0]][1];
+				spheres[obj_num].position.z = spheres[obj_num].x_tm[time_index[0]][2];
 
 				// Change opacity with time
 				if(svg_obj.sphere[obj_num].opacity.length == animation_ntimes){
-					//spheres[obj_num].material.opacity = svg_obj.sphere[obj_num].opacity[time_index];
+					//spheres[obj_num].material.opacity = svg_obj.sphere[obj_num].opacity[time_index[0]];
 				}
 			}
 
@@ -1939,9 +1971,9 @@ function updateShapes(time_index){
 				// Update each segment
 				k = 0;
 				for(j = 0; j < svg_obj.line[obj_num].nseg*3; j = j + 3){
-					lines[obj_num].geometry.vertices[k].x = lines[obj_num].x_tm[time_index][j];
-					lines[obj_num].geometry.vertices[k].y = lines[obj_num].x_tm[time_index][j+1];
-					lines[obj_num].geometry.vertices[k].z = lines[obj_num].x_tm[time_index][j+2];
+					lines[obj_num].geometry.vertices[k].x = lines[obj_num].x_tm[time_index[0]][j];
+					lines[obj_num].geometry.vertices[k].y = lines[obj_num].x_tm[time_index[0]][j+1];
+					lines[obj_num].geometry.vertices[k].z = lines[obj_num].x_tm[time_index[0]][j+2];
 					k++;
 				}
 				// Update vertices
@@ -1966,10 +1998,10 @@ function updateShapes(time_index){
 
 				//var nVertices = Object.getOwnPropertyNames(meshes[obj_num].geometry.vertices);
 				nVertices = meshes[obj_num].geometry.vertices.length;
-//document.getElementById( "alert" ).innerHTML = svg_obj.mesh[obj_num].deform[time_index];
+//document.getElementById( "alert" ).innerHTML = svg_obj.mesh[obj_num].deform[time_index[0]];
 
 				// deform variables
-				def_vars = svg_obj.mesh[obj_num].deform[time_index];
+				def_vars = svg_obj.mesh[obj_num].deform[time_index[0]];
 
 //document.getElementById( "alert" ).innerHTML = def_vars;
 
