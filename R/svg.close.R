@@ -62,6 +62,9 @@ svg.close <- function(wait = FALSE, quiet = TRUE){
 			# Add directories to app
 			for(i in 1:length(unique_srcs)) svgviewr_env$R.server$add(app = File$new(unique_srcs[i]), name = paste0("app_dir", i))
 		}
+		
+		# If number of timelines is null, set to 0
+		if(is.null(svgviewr_env$js_var[['n_timelines']])) svgviewr_env$js_var[['n_timelines']] <- 0
 
 		# If there is an animation, process animation parameters
 		if(!is.null(svgviewr_env$svg$animate$times)){
