@@ -111,6 +111,7 @@ body {
 .timeline_container {
 	background-color:green;
 	height:25px;
+	margin-bottom:3px;
 }
 .timeline_cursor_container {
 	float:left;
