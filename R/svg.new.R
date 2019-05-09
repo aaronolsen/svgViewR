@@ -143,12 +143,10 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		svgviewr_env$js_var <- list()
 	
 		if(debug){
-			svgviewr_env$js_var[['bottom_frame_height_px']] <- 50
 			svgviewr_env$js_var[['bottom_frame_hidden']] <- FALSE
 			svgviewr_env$js_var[['show_clock']] <- TRUE
 			svgviewr_env$js_var[['show_stats']] <- TRUE
 		}else{
-			svgviewr_env$js_var[['bottom_frame_height_px']] <- 0
 			svgviewr_env$js_var[['bottom_frame_hidden']] <- TRUE
 			svgviewr_env$js_var[['show_clock']] <- clock
 			svgviewr_env$js_var[['show_stats']] <- stats
