@@ -11,7 +11,7 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 		# Source through server address
 		js_src_str <- paste0('\t\t<script src="', server$full_url('extdata'), '/js/', paste0(js_src, collapse=paste0('"></script>\n\t\t<script src="', server$full_url('extdata'), '/js/')), '"></script>\n')
 
-	} else if(js.var[['debug']]){
+	} else if(js.var[['src_link']]){
 
 		# Source from computer filepath
 		js_src_str <- paste0('\t\t<script src="', js.var[['app_dir']], '/js/', paste0(js_src, collapse=paste0('"></script>\n\t\t<script src="', js.var[['app_dir']], '/js/')), '"></script>\n')
@@ -39,7 +39,7 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 		# Source through server address
 		style_str <- paste0('\t\t<link rel="stylesheet" type="text/css" href="', server$full_url('extdata'), '/css/server_stylesheet.css" >\n\n')
 
-	}else if(js.var[['debug']]){
+	} else if(js.var[['src_link']]){
 
 		# Source from computer filepath
 		style_str <- paste0('\t\t<link rel="stylesheet" type="text/css" href="', paste0(js.var[['app_dir']], '/css/', 'server_stylesheet.css'), '" >\n\n')
