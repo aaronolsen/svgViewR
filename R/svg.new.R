@@ -2,9 +2,10 @@ svgviewr_env <- new.env(parent = emptyenv())
 
 svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1, 
 	animate.speed = 1, animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
-	times = NULL, time.units = 'sec', clock = FALSE, stats = FALSE, show.control = TRUE, start.rotate = TRUE, 
-	rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, layers = NULL, connection = TRUE, 
-	mode = c('svg', 'webgl'), close.on.done = TRUE, file.type = NULL, app.dir.src = NULL, debug = FALSE){
+	times = NULL, clock = FALSE, stats = FALSE, show.control = TRUE, start.rotate = TRUE, 
+	interpolate = TRUE, rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, layers = NULL, connection = TRUE, 
+	mode = c('svg', 'webgl'), close.on.done = TRUE, file.type = NULL, app.dir.src = NULL, 
+	debug = FALSE, src.link = NULL){
 
 	digits <- 6
 	
@@ -143,20 +144,27 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		svgviewr_env$js_var <- list()
 	
 		if(debug){
-			svgviewr_env$js_var[['bottom_frame_height_px']] <- 50
 			svgviewr_env$js_var[['bottom_frame_hidden']] <- FALSE
 			svgviewr_env$js_var[['show_clock']] <- TRUE
+			svgviewr_env$js_var[['show_stats']] <- TRUE
 		}else{
-			svgviewr_env$js_var[['bottom_frame_height_px']] <- 0
 			svgviewr_env$js_var[['bottom_frame_hidden']] <- TRUE
 			svgviewr_env$js_var[['show_clock']] <- clock
+			svgviewr_env$js_var[['show_stats']] <- stats
 		}
 
 		# Set javascript variables
 		svgviewr_env$js_var[['anim_pause']] <- FALSE	# Start with animation playing
 		svgviewr_env$js_var[['bg_col']] <- setNames(webColor(col, format='0'), NULL)
 		svgviewr_env$js_var[['debug']] <- debug
+		if(debug){
+			svgviewr_env$js_var[['src_link']] <- TRUE
+		}else{
+			svgviewr_env$js_var[['src_link']] <- FALSE
+		}
+		if(!is.null(src.link)) svgviewr_env$js_var[['src_link']] <- src.link
 		svgviewr_env$js_var[['file']] <- file[1]
+		svgviewr_env$js_var[['interpolate']] <- interpolate
 		svgviewr_env$js_var[['panSpeed']] <- pan.speed
 		svgviewr_env$js_var[['play_speed']] <- animate.speed
 		svgviewr_env$js_var[['rotateSpeed']] <- rotate.speed
@@ -165,9 +173,8 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		svgviewr_env$js_var[['save_as_img_type']] <- file.type
 		svgviewr_env$js_var[['save_as_img_paths']] <- save_as_img_paths
 		svgviewr_env$js_var[['save_as_img_close']] <- close.on.done
-		svgviewr_env$js_var[['show_stats']] <- stats
 		svgviewr_env$js_var[['signif_digits']] <- digits
-		svgviewr_env$js_var[['time_units']] <- time.units
+		svgviewr_env$js_var[['time_units']] <- 'sec'
 		svgviewr_env$js_var[['window_title']] <- window.title
 		svgviewr_env$js_var[['zoomSpeed']] <- zoom.speed
 		

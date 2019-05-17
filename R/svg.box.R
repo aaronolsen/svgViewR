@@ -106,7 +106,8 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 		if(is.null(name)){ shape_name <- 'frame.panel' }else{ shape_name <- name }
 		for(i in 1:length(polygons)){
 			svgviewr_env$svg$line[[length(svgviewr_env$svg$line)+1]] <- list('type'='line', 
-				'name'=shape_name, 'x'=t(polygons[[i]]), col=setNames(webColor(axis.col), NULL), lwd=grid.lwd)
+				'name'=shape_name, 'x'=t(polygons[[i]]), col=setNames(webColor(axis.col), NULL), lwd=grid.lwd, 
+				'depthTest'=TRUE)
 		}
 
 		# Add grid
@@ -115,7 +116,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 			grids_in <- grids[grids_type == 'in']
 			for(grid in grids_in) svgviewr_env$svg$line[[length(svgviewr_env$svg$line)+1]] <- 
 				list('type'='line', 'name'=shape_name, 'x'=t(grid), 'col'=setNames(webColor(grid.col), NULL), 
-				'lwd'=grid.lwd)
+				'lwd'=grid.lwd, 'depthTest'=TRUE)
 		}
 
 		# Add ticks
@@ -124,7 +125,7 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 			for(i in 1:length(ticks$ticks)){
 				svgviewr_env$svg$line[[length(svgviewr_env$svg$line)+1]] <- list('type'='line', 
 					'name'=shape_name, 'x'=t(ticks$ticks[[i]]), 'col'=setNames(webColor(axis.col), NULL), 
-					'lwd'=grid.lwd)
+					'lwd'=grid.lwd, 'depthTest'=TRUE)
 			}
 		}
 		

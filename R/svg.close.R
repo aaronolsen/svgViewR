@@ -62,9 +62,15 @@ svg.close <- function(wait = FALSE, quiet = TRUE){
 			# Add directories to app
 			for(i in 1:length(unique_srcs)) svgviewr_env$R.server$add(app = File$new(unique_srcs[i]), name = paste0("app_dir", i))
 		}
+		
+		# If number of timelines is null, set to 0
+		if(is.null(svgviewr_env$js_var[['n_timelines']])) svgviewr_env$js_var[['n_timelines']] <- 0
 
 		# If there is an animation, process animation parameters
 		if(!is.null(svgviewr_env$svg$animate$times)){
+
+			# Turn on animate
+			svgviewr_env$js_var[['animate']] <- TRUE
 
 			# Get time units
 			time_units <- svgviewr_env$js_var[['time_units']]
@@ -79,6 +85,10 @@ svg.close <- function(wait = FALSE, quiet = TRUE){
 				svgviewr_env$svg$animate$times <- svgviewr_env$svg$animate$times*1000
 			}
 			
+			# Set timeline start and end
+			svgviewr_env$js_var[['timeline_start']] <- min(svgviewr_env$svg$animate$times)
+			svgviewr_env$js_var[['timeline_end']] <- max(svgviewr_env$svg$animate$times)
+
 			# Apply play speed factor
 			svgviewr_env$svg$animate$times <- svgviewr_env$svg$animate$times*(1/svgviewr_env$js_var[['play_speed']])
 			
@@ -88,6 +98,9 @@ svg.close <- function(wait = FALSE, quiet = TRUE){
 			svgviewr_env$js_var[['animation_end']] <- max(svgviewr_env$svg$animate$times)
 			svgviewr_env$js_var[['animation_ntimes']] <- length(svgviewr_env$svg$animate$times)
 			svgviewr_env$js_var[['animation_duration']] <- svgviewr_env$js_var[['animation_end']] - svgviewr_env$js_var[['animation_start']]
+
+		}else{
+			svgviewr_env$js_var[['animate']] <- FALSE
 		}
 		
 		# Check save as image parameters

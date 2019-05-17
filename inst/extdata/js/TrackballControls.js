@@ -354,7 +354,10 @@ THREE.TrackballControls = function ( object, domElement ) {
 	// listeners
 
 	function keydown( event ) {
-	
+
+		// Keep render active
+		playPauseRender('play');
+
 		// Set key_down to true
 		key_down = true;
 
@@ -432,6 +435,9 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 	function keyup( event ) {
 	
+		// Keep render active
+		playPauseRender('play');
+
 		key_down = false;
 
 		if ( _this.enabled === false ) return;
@@ -445,6 +451,9 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 	function mousedown( event ) {
 	
+		// Keep render active
+		playPauseRender('play');
+
 		// If bottom frame is not hidden, check whether mouse is over timeline
 		if(bottom_frame_hidden === false && event.pageY > bottom_frame_start_y){
 
@@ -492,6 +501,9 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 	function mousemove( event ) {
 
+		// Keep render active
+		playPauseRender('play');
+
 		if ( _this.enabled === false ) return;
 
 		event.preventDefault();
@@ -515,6 +527,9 @@ THREE.TrackballControls = function ( object, domElement ) {
 	}
 
 	function mouseup( event ) {
+
+		// Keep render active
+		playPauseRender('play');
 
 		if ( _this.enabled === false ) return;
 
@@ -540,6 +555,9 @@ THREE.TrackballControls = function ( object, domElement ) {
 	}
 
 	function mousewheel( event ) {
+
+		// Keep render active
+		playPauseRender('play');
 
 		if ( _this.enabled === false ) return;
 
@@ -572,6 +590,9 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 	function touchstart( event ) {
 
+		// Keep render active
+		playPauseRender('play');
+
 		if ( _this.enabled === false ) return;
 
 		switch ( event.touches.length ) {
@@ -602,6 +623,9 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 	function touchmove( event ) {
 
+		// Keep render active
+		playPauseRender('play');
+
 		if ( _this.enabled === false ) return;
 
 		event.preventDefault();
@@ -629,6 +653,9 @@ THREE.TrackballControls = function ( object, domElement ) {
 	}
 
 	function touchend( event ) {
+
+		// Keep render active
+		playPauseRender('play');
 
 		if ( _this.enabled === false ) return;
 
