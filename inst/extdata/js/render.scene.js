@@ -294,8 +294,8 @@ function inputTimelineIndex(index) {
 	var index_i;
 	if(index.id == 'timeline_cursor_slider_1') index_i = 0;
 	if(index.id == 'timeline_cursor_slider_2') index_i = 1;
-	
-	if(interpolate){
+
+  if(interpolate){
 		// Find proportional time index value
 		anim_index[index_i] = (index.value/100)*(animation_ntimes- 1);
 	}else{
@@ -304,7 +304,7 @@ function inputTimelineIndex(index) {
 		// Find closest time index in animation
 		anim_index[index_i] = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
 	}	
-
+  
 	// Set elapsed time to match
 	elapsed_ms = ((anim_index[0]) / (animation_ntimes-1))*animation_duration;
 
@@ -326,10 +326,9 @@ function interpolatePos(p0, p1, t){
 	//Interpolate between two given positions
 	//printAlert2("Pos1 " + p0.x + "," + p0.y + "," + p0.z + "," + "Pos2 " + p1.x + "," + p1.y + "," + p1.z );
 
-	var n , value;
-	var p = {x: 0, y:0, z:0};
+  var n , value;
 
-	if (t <= 0){
+  if (t <= 0){
 		return p0;
 	}
 	if (t >= 1){
@@ -1647,7 +1646,7 @@ var render = function () {
 
 	// If no activity for a period of time, pause rendering
 	if(inactive_since >= 1) playPauseRender('pause');
-
+ 
 	// Update clock
 	if(debug){
 		document.getElementById( "inactive_since" ).innerHTML = (Math.round(inactive_since*100) / 100) + " sec";
@@ -1928,6 +1927,7 @@ function updateShapes(time_index){
 									svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_floor[1]],
 									svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]], 
 									time_index[0] - time_index_floor[0], time_index[1] - time_index_floor[1]);
+
 				}
 								
 				meshes[obj_num].position.set(new_pos.x, new_pos.y, new_pos.z);
