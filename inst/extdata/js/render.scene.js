@@ -295,14 +295,18 @@ function inputTimelineIndex(index) {
 	if(index.id == 'timeline_cursor_slider_1') index_i = 0;
 	if(index.id == 'timeline_cursor_slider_2') index_i = 1;
 
-	// Set elapsed time based on index		
-	//elapsed_ms = (index.value[index_i] / 100) * animation_duration;
-	
-	// Find closest time index in animation
-	//anim_index = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+	if(interpolate){
 
-	// Find proportional time index value
-	anim_index[index_i] = (index.value/100)*(animation_ntimes- 1);
+		// Find proportional time index value
+		anim_index[index_i] = (index.value/100)*(animation_ntimes- 1);
+	}else{
+
+		// Set elapsed time based on index		
+		elapsed_ms = (index.value / 100) * animation_duration;
+	
+		// Find closest time index in animation
+		anim_index[index_i] = nearestTimeIndex( elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+	}
 
 	// Set elapsed time to match
 	elapsed_ms = ((anim_index[0]) / (animation_ntimes-1))*animation_duration;
@@ -1617,11 +1621,13 @@ var render = function () {
 			elapsed_ms = 0;
 		}
 
-		// Find closest time point in animation
-		//anim_index = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
-
-		// Find proportional time index
-		anim_index[0] = (elapsed_ms / animation_duration)*(animation_ntimes-1);
+		if(interpolate){
+			// Find proportional time index
+			anim_index[0] = (elapsed_ms / animation_duration)*(animation_ntimes-1);
+		}else{
+			// Find closest time point in animation
+			anim_index[0] = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+		}
 		
 		// Set anim_index as vector with same length as number of timelines
 		//anim_index = fillArray(anim_index, n_timelines);
@@ -1859,7 +1865,24 @@ function updateShapes(time_index){
 //		var time_index_ceil;
 		
 //	printAlert2(obj_num + ',' + svg_obj.mesh[obj_num].opacity)
-				
+
+		if(!interpolate){
+			//Math.round(time)
+		}
+
+		// Set floor and ceiling from time indices
+		for (j = 0; j < n_timelines; j++){
+
+			// Set the floor of time indices
+			time_index_floor[j] = Math.floor(time_index[j])
+
+			// Update the floor of the specified time index if at final iteration
+			if(time_index_floor[j] == animation_ntimes - 1) time_index_floor[j] = time_index_floor[j] - 1
+
+			// Set the ceiling of the specified time index
+			time_index_ceil[j] = time_index_floor[j] + 1; 	
+		}
+
 		for (i = 0; i < update_obj_length; i++){
 
 			// Set object number and type
@@ -1880,18 +1903,6 @@ function updateShapes(time_index){
  			//	meshes[obj_num].rotation.y = svg_obj.mesh[obj_num].rotation[time_index][1];
  			//	meshes[obj_num].rotation.z = svg_obj.mesh[obj_num].rotation[time_index][2];
 
-				// Set floor and ceiling from time indices
-				for (j = 0; j < n_timelines; j++){
-
-					// Set the floor of time indices
-					time_index_floor[j] = Math.floor(time_index[j])
-
-					// Update the floor of the specified time index if at final iteration
-					if(time_index_floor[j] == animation_ntimes - 1) time_index_floor[j] = time_index_floor[j] - 1
-
-					// Set the ceiling of the specified time index
-					time_index_ceil[j] = time_index_floor[j] + 1; 	
-				}
 				
 				printAlert2(time_index_floor + '; ' + time_index_ceil);
 				
