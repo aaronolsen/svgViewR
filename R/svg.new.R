@@ -3,8 +3,8 @@ svgviewr_env <- new.env(parent = emptyenv())
 svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1, 
 	animate.speed = 1, animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
 	times = NULL, clock = FALSE, stats = FALSE, show.control = TRUE, start.rotate = TRUE, 
-	rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, layers = NULL, connection = TRUE, 
-	mode = c('svg', 'webgl'), close.on.done = TRUE, file.type = NULL, app.dir.src = NULL, 
+  interpolate = TRUE, rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, layers = NULL, connection = TRUE, 
+  mode = c('svg', 'webgl'), close.on.done = TRUE, file.type = NULL, app.dir.src = NULL, 
 	debug = FALSE, src.link = NULL){
 
 	digits <- 6
@@ -164,6 +164,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		}
 		if(!is.null(src.link)) svgviewr_env$js_var[['src_link']] <- src.link
 		svgviewr_env$js_var[['file']] <- file[1]
+		svgviewr_env$js_var[['interpolate']] <- interpolate
 		svgviewr_env$js_var[['panSpeed']] <- pan.speed
 		svgviewr_env$js_var[['play_speed']] <- animate.speed
 		svgviewr_env$js_var[['rotateSpeed']] <- rotate.speed
