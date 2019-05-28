@@ -92,6 +92,38 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 		# Create sequence of times, convert from ms to sec
 		timeline_time_seq <- seq(svgviewr_env$js_var[['timeline_start']], svgviewr_env$js_var[['timeline_end']], length=timeline_n_values) / 1000
 		
+		# Format values
+		timeline_time_seq_f <- rep(NA, length(timeline_time_seq))
+
+		# Set number of digits to start with
+		tseq_n_digits <- 3
+
+		# Try adding digits if first two values are identical
+		n_trys <- 0
+		i <- 1
+		while(i <= length(timeline_time_seq)){
+
+			# Set value		
+			value <- signif(timeline_time_seq[i], digits=tseq_n_digits)
+		
+			# Format value of numeric value
+			if(nchar(value) == 1){
+				if(!grepl('[.]', value)) value <- paste0(value, '.')
+				value <- paste0(value, '0')
+			}
+			if(nchar(value) >= tseq_n_digits+1 && substr(value, 2, 2) == '.') value <- substr(value, 1, tseq_n_digits)
+			
+			timeline_time_seq_f[i] <- value
+			
+			if(i == 2 && n_trys < 5 && as.numeric(timeline_time_seq_f[1]) == as.numeric(timeline_time_seq_f[2])){
+				tseq_n_digits <- tseq_n_digits + 1
+				n_trys <- n_trys + 1
+				i <- 1
+			}else{
+				i <- i + 1
+			}
+		}
+
 		# Set which ticks are bold
 		tick_is_bold <- rep(FALSE, timeline_n_values)
 		tick_is_bold[c(1, timeline_n_values)] <- TRUE
@@ -129,17 +161,7 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 						<div id="timeline_axis_', tl_num, '" class="timeline_axis" >
 							<div class="timeline_axis_space_left"></div>')
 
-			for(i in 1:length(timeline_time_seq)){
-
-				# Set value		
-				value <- signif(timeline_time_seq[i], digits=3)
-			
-				# Format value of numeric value
-				if(nchar(value) == 1){
-					if(!grepl('[.]', value)) value <- paste0(value, '.')
-					value <- paste0(value, '0')
-				}
-				if(nchar(value) >= 4 && substr(value, 2, 2) == '.') value <- substr(value, 1, 3)
+			for(i in 1:length(timeline_time_seq_f)){
 			
 				# Create tick divs
 				if(tick_is_bold[i]){
@@ -159,7 +181,7 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 
 				body_html <- paste0(body_html, '
 							<div class="', value_class, '">\n\t\t\t\t\t\t\t', before_value, '
-								<div class="timeline_axis_value">', value, '</div>
+								<div class="timeline_axis_value">', timeline_time_seq_f[i], '</div>
 							</div>'
 				)
 
