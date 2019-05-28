@@ -295,7 +295,7 @@ function inputTimelineIndex(index) {
 	if(index.id == 'timeline_cursor_slider_1') index_i = 0;
 	if(index.id == 'timeline_cursor_slider_2') index_i = 1;
 
-  if(interpolate){
+	if(interpolate){
 		// Find proportional time index value
 		anim_index[index_i] = (index.value/100)*(animation_ntimes- 1);
 	}else{
@@ -314,7 +314,7 @@ function inputTimelineIndex(index) {
 	// Update shapes
 	updateShapes(anim_index);
 	
-	printAlert2(anim_index);
+	//printAlert2(anim_index);
 
 	// Animation pause time just needs to be greater than animation pause start by the amount of elapsed time
 	// Then when animation starts again, it will start from input index
@@ -958,7 +958,11 @@ function onObjectsReady(){
 function onReady(){
 
 	// Set bottom frame height from R write
-	document.getElementById( "bottom_frame" ).style.height = bottom_frame_height_px + 'px';
+	if(bottom_frame_hidden){
+		document.getElementById( "bottom_frame" ).style.height = '0px';
+	}else{
+		document.getElementById( "bottom_frame" ).style.height = bottom_frame_height_px + 'px';
+	}
 
 	// Set where bottom frame starts
 	bottom_frame_start_y = window.innerHeight - bottom_frame_height_px;
