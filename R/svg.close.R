@@ -230,7 +230,7 @@ svg.close <- function(wait = FALSE, quiet = TRUE){
 		file <- getOption("svg_glo_con")
 	
 		# Close
-		svgviewr.new(file=file, conn.type='close', layers=file$layers, debug=file$debug)
+		svgviewr.new(file=file, conn.type='close', layers=file$layers, debug=file$debug, app.dir.src=file$app.dir.src)
 	}
 
 	# If wait is TRUE don't return function until signaled

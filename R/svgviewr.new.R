@@ -13,7 +13,7 @@ svgviewr.new <- function(file, window.title="SVG Viewer", animate.duration = 1,
 	#  /Applications/XAMPP/xamppfiles/htdocs/data_analysis/r_package_development/svgViewR/inst/extdata/
 
 	# Set path to package
-	if(!is.null(app.dir.src)){
+	if(is.null(app.dir.src)){
 		fdir <- NULL
 		if(is.null(fdir)){
 			fdir <- tryCatch({
