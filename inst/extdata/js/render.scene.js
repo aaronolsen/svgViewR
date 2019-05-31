@@ -146,7 +146,6 @@ function addTexture( texture ) {
 		// Move to next image
 		loadSubsequentTextures();
 		
-		//printAlert2('')
 	}
 }
 
@@ -304,7 +303,9 @@ function inputTimelineIndex(index) {
 		// Find closest time index in animation
 		anim_index[index_i] = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
 	}	
-  
+//    	anim_index[0] = 1.5; 
+//  	anim_index[1] = 0.5;
+ 	
 	// Set elapsed time to match
 	elapsed_ms = ((anim_index[0]) / (animation_ntimes-1))*animation_duration;
 
@@ -314,7 +315,7 @@ function inputTimelineIndex(index) {
 	// Update shapes
 	updateShapes(anim_index);
 	
-	printAlert2(anim_index);
+	//printAlert2(anim_index);
 
 	// Animation pause time just needs to be greater than animation pause start by the amount of elapsed time
 	// Then when animation starts again, it will start from input index
@@ -327,6 +328,7 @@ function interpolatePos(p0, p1, t){
 	//printAlert2("Pos1 " + p0.x + "," + p0.y + "," + p0.z + "," + "Pos2 " + p1.x + "," + p1.y + "," + p1.z );
 
   var n , value;
+  var p = {x: 0, y:0, z:0}
 
   if (t <= 0){
 		return p0;
@@ -335,10 +337,10 @@ function interpolatePos(p0, p1, t){
 		return p1;
 	}
 
-	p.x = (1 - t)*p0.x + t*p1.x;
-	p.y = (1 - t)*p0.y + t*p1.y;
-	p.z = (1 - t)*p0.z + t*p1.z;
-
+	p.x = (1 - t)*(p0.x) + t*(p1.x);
+	p.y = (1 - t)*(p0.y) + t*(p1.y);
+	p.z = (1 - t)*(p0.z) + t*(p1.z);
+		
 	return p;
 }
 
@@ -836,7 +838,7 @@ function loadNextTexture(){
 		
 		//printAlert2(image_idx_ct + ',' + texture_load_ct + ',' + app_dir[svg_obj.image[image_idx_ct].src_idx] + '/' + svg_obj.image[image_idx_ct].fname[texture_load_ct])
 
-		printAlert2(svg_obj.image[image_idx_ct].fname[texture_load_ct]);
+		//printAlert2(svg_obj.image[image_idx_ct].fname[texture_load_ct]);
 
 		// Load texture
 		var loader = new THREE.TextureLoader();
@@ -1437,6 +1439,10 @@ function printAlert2(text){
 	document.getElementById( "alert2" ).innerHTML = text;
 }
 
+function printObject(object){
+   	 document.getElementById("alert2").innerHTML = Object.values(object);
+}
+
 function setBoundingBox () {
 
 	// Geometry is the same as when read in - not updated with position/rotation
@@ -1848,6 +1854,8 @@ function updateCameraPosition(){
 	//controls.update();
 }
 
+
+
 function updateShapes(time_index){
 
 	//document.getElementById( "alert" ).innerHTML = document.getElementById( "alert" ).innerHTML + ',' + time_index;
@@ -1863,6 +1871,14 @@ function updateShapes(time_index){
 		var new_pos;
 		var time_index_floor = new Array(n_timelines);
 		var time_index_ceil = new Array(n_timelines);
+		
+   		var ratio_x;
+   		var ratio_y;
+   		var interpolate_x1;
+   		var interpolate_y2;
+   		var interpolateBilinear;
+   		
+   		  
 //		var time_index_floor;
 //		var time_index_ceil;
 		
@@ -1902,6 +1918,7 @@ function updateShapes(time_index){
 				}
 				
 				//printAlert2(time_index_floor + '; ' + time_index_ceil);
+				//time_index + ';' + 
 				
 				// Create a quaternion based on user specified time index
 				if(n_timelines == 1){
@@ -1914,21 +1931,43 @@ function updateShapes(time_index){
 									svg_obj.mesh[obj_num].position[time_index_ceil[0]], 
 									time_index[0] - time_index_floor[0]);
 
-				}else if(n_timelines == 2){
+				}else if(n_timelines == 2){					
+		 
+					ratio_x = time_index[0] - time_index_floor[0];
+					ratio_y = time_index[1] - time_index_floor[1];
+					
+// 					ratio_x = 0.5
+// 					ratio_y = 0.5
+    
+					interpolate_x1 = interpolateQuats(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_floor[1]], 
+										svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_floor[1]], ratio_x);  
+										                        
+					interpolate_x2 = interpolateQuats(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_ceil[1]],
+										svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_ceil[1]], 
+										ratio_x)
+                    
+					new_quat = interpolateQuats(interpolate_x1, interpolate_x2, ratio_y);
+    	
+    	
+					interpolate_Pos1 = interpolatePos(svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]], 
+										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_floor[1]], ratio_x);
+										              
+					interpolate_Pos2 = interpolatePos(svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_ceil[1]],
+										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]], 
+										ratio_x)
+    	
+					new_pos = interpolatePos(interpolate_Pos1, interpolate_Pos2, ratio_y);
+					
+					
+// 					if (obj_num == 10) printObject(new_pos);
+					
+					
+					if (obj_num == 10) printObject(svg_obj.mesh[obj_num].position[2][1]);
 
-					new_quat = interpolateQuats(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_floor[1]], 
-									svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_ceil[1]],
-									svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_floor[1]],
-									svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_ceil[1]], 
-									time_index[0] - time_index_floor[0], time_index[1] - time_index_floor[1]);
-								
-					new_pos = interpolatePos(svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]], 
-									svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_ceil[1]],
-									svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_floor[1]],
-									svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]], 
-									time_index[0] - time_index_floor[0], time_index[1] - time_index_floor[1]);
-
+// 					printObject(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_floor[1]]);
+				
 				}
+				
 								
 				meshes[obj_num].position.set(new_pos.x, new_pos.y, new_pos.z);
 				//printAlert2('Q1:' + svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]].w); printAlert2('Floor:' + time_index_floor[0] + 'Ceil:' + time_index_ceil[0] + 'T:' + [time_index[0] - time_index_floor[0]]); printAlert2('Ceil:' + time_index_ceil[0]);
