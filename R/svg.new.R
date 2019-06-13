@@ -3,9 +3,9 @@ svgviewr_env <- new.env(parent = emptyenv())
 svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1, 
 	animate.speed = 1, animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
 	times = NULL, clock = FALSE, stats = FALSE, show.control = TRUE, start.rotate = TRUE, 
-  interpolate = TRUE, rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, layers = NULL, connection = TRUE, 
-  mode = c('svg', 'webgl'), close.on.done = TRUE, file.type = NULL, app.dir.src = NULL, 
-	debug = FALSE, src.link = NULL){
+	interpolate = FALSE, timeline = FALSE, rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, 
+	layers = NULL, connection = TRUE, mode = c('svg', 'webgl'), close.on.done = TRUE, 
+	file.type = NULL, app.dir.src = NULL, debug = FALSE, src.link = NULL){
 
 	digits <- 6
 	
@@ -144,13 +144,17 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		svgviewr_env$js_var <- list()
 	
 		if(debug){
-			svgviewr_env$js_var[['bottom_frame_hidden']] <- FALSE
 			svgviewr_env$js_var[['show_clock']] <- TRUE
 			svgviewr_env$js_var[['show_stats']] <- TRUE
 		}else{
-			svgviewr_env$js_var[['bottom_frame_hidden']] <- TRUE
 			svgviewr_env$js_var[['show_clock']] <- clock
 			svgviewr_env$js_var[['show_stats']] <- stats
+		}
+		
+		if(timeline){
+			svgviewr_env$js_var[['bottom_frame_hidden']] <- FALSE
+		}else{
+			svgviewr_env$js_var[['bottom_frame_hidden']] <- TRUE
 		}
 
 		# Set javascript variables
@@ -243,6 +247,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 			if(!is.null(layers)) con$layers <- layers
 			#if(!is.null(fdir)) con$fdir <- fdir
 			if(!is.null(debug)) con$debug <- debug
+			if(!is.null(app.dir.src)) con$app.dir.src <- app.dir.src
 		}
 
 		# Save connection through options to enable global access
