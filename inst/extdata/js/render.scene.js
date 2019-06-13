@@ -292,19 +292,48 @@ function inputTimelineIndex(index) {
 
 	// Set index
 	var index_i;
-	if(index.id == 'timeline_cursor_slider_1') index_i = 0;
-	if(index.id == 'timeline_cursor_slider_2') index_i = 1;
+	if(index.id == 'timeline_slider_1' || index.id == 'timeline_value_1') index_i = 0;
+	if(index.id == 'timeline_slider_2' || index.id == 'timeline_value_2') index_i = 1;
+	
+	// Create copy
+	index_value = index.value;
 
+	// Do nothing if empty input string
+	if(index_value == '') return;
+
+	// Value (text) input
+	if(index.id == 'timeline_value_1' || index.id == 'timeline_value_2'){
+	
+		// If value is outside of min/max range set to min/max
+		if(index_value < timeline_start_disp) index_value = timeline_start_disp;
+		if(index_value > timeline_end_disp) index_value = timeline_end_disp;
+		
+		// Convert value to range from 0 to 100 to match slider output
+		index_value = Math.round(((index_value - timeline_start_disp) / timeline_duration_disp) * 100);
+		//return;
+	}
+	
+	//return;
+
+	// Set to index
 	if(interpolate){
+
 		// Find proportional time index value
-		anim_index[index_i] = (index.value/100)*(animation_ntimes- 1);
+		//anim_index[index_i] = ((index_value-1)/98)*(animation_ntimes- 1);
+		anim_index[index_i] = (index_value / 100)*(animation_ntimes - 1);
+
 	}else{
+
 		// Set elapsed time based on index		
-		elapsed_ms = (index.value/ 100) * animation_duration;
+		//elapsed_ms = animation_start + ((index_value-1)/98) * animation_duration;
+		elapsed_ms = animation_start + (index_value / 100) * animation_duration;
+
 		// Find closest time index in animation
 		anim_index[index_i] = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
-	}	
+	}
   
+//printAlert2(index_value + ',' + elapsed_ms + ',' + anim_index[index_i] + ',' + animation_start)
+
 	// Set elapsed time to match
 	elapsed_ms = ((anim_index[0]) / (animation_ntimes-1))*animation_duration;
 
@@ -873,11 +902,8 @@ function nearestTimeIndex( time, start, end, duration, nTimes ){
 	// Find normalized time (0 to 1)
 	var time_norm = (time-start) / duration;
 	
-	// Scale to -0.5, times-0.5
-	var time_idx = Math.round(time_norm*(nTimes)-0.5);
-	if(time_idx >= nTimes) time_idx = time_idx - 1;
-	
-	//document.getElementById("js_out").innerHTML += time_norm*(nTimes)-0.5 + '<br>';
+	// Convert to time index
+	var time_idx = Math.round(time_norm*(nTimes-1));
 	
 	return(time_idx);
 }
@@ -956,6 +982,8 @@ function onObjectsReady(){
 
 // Set frames per second for motion
 function onReady(){
+
+	var i, elem_id;
 
 	// Set bottom frame height from R write
 	if(bottom_frame_hidden){
@@ -1386,6 +1414,8 @@ function playPauseAnimation(state) {
 		if(state == 'play' && !anim_pause) return;
 	}
 
+	var control_icon_play = document.getElementById('timeline_play_icon_1');
+
 	if(state == 'play') { 
 
 		anim_pause = false; 
@@ -1393,10 +1423,22 @@ function playPauseAnimation(state) {
 		// Set anim_start so that when animation is unpaused it starts where it "left off"
 		anim_start = anim_pause_start + (Date.now() - anim_pause_time);
 
-	}else{ 
+		// Set play/pause icon to pause
+		control_icon_play.innerHTML = '&#9612; &#9612;';
+		//control_icon_play.style.fontSize = '0.8em';
+		//control_icon_play.style.lineHeight = '19px';
+		//control_icon_play.style.letterSpacing = '-1px';
+
+	}else{
 		anim_pause_time = Date.now();	// time at which the animation was paused
 		anim_pause_start = anim_start; 	// start time when animation was paused
-		anim_pause = true; 
+		anim_pause = true;
+
+		// Set play/pause icon to play
+		control_icon_play.innerHTML = '&#9654;';
+		//control_icon_play.style.fontSize = '1.2em';
+		//control_icon_play.style.lineHeight = '23px';
+		//control_icon_play.style.letterSpacing = '-1px';
 	}
 }
 
@@ -1615,19 +1657,19 @@ var render = function () {
 	if(!anim_pause){
 
 		// Get elapsed time in ms
-		elapsed_ms = Date.now() - anim_start;
+		elapsed_ms = animation_start + Date.now() - anim_start;
 
 		// If exceeds animation duration, reset clock
-		if(elapsed_ms > animation_duration){
+		if(elapsed_ms > animation_end){
 			anim_start = Date.now();
 			elapsed_ms = 0;
 		}
-
 	
 		if(interpolate){
 			// Find proportional time index
 			anim_index[0] = (elapsed_ms / animation_duration)*(animation_ntimes-1);
 		}else{
+
 			// Find closest time point in animation
 			anim_index[0] = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
 		}
@@ -1643,9 +1685,12 @@ var render = function () {
 	}
 	
 	if(animate){
+
 		// Update slider position
-		document.getElementById('timeline_cursor_slider_1').value = Math.round(((anim_index[0]) / (animation_ntimes-1))*100);
-		//printAlert2(Math.round(((anim_index[0]) / (animation_ntimes-1))*100));
+		document.getElementById('timeline_slider_1').value = Math.round(((anim_index[0]) / (animation_ntimes-1))*100);
+
+		// Update input value
+		document.getElementById('timeline_value_1').value = timeline_start_disp + timeline_duration_disp*((anim_index[0]) / (animation_ntimes-1));
 	}
 
 	// If no activity for a period of time, pause rendering
