@@ -377,20 +377,22 @@ function interpolate(q0, q1, t){
 }
 
 //Linear Interpolation
-function interpolate1D(q1, q2, x){
-		return interpolate(q1, q2, x);					
+function interpolate1D(q1,q2,x){
+	return interpolate(q1,q2,x);					
 }
+
 //Bilinear Interpolation
-function interpolate2D(q1, q2, q3, q4, x, y){
-		var s = interpolate1D(q1,q2,x);
-		var t = interpolate1D(q3,q4,x);			
-		return interpolate1D(s, t, y);	
+function interpolate2D(q1,q2,q3,q4,x,y){
+	var s = interpolate1D(q1,q2,x);
+	var t = interpolate1D(q3,q4,x);			
+	return interpolate1D(s,t,y);	
 }
+
 //Trilinear Interpolation
-function interpolate3D(q1,q2,q3,q4,q5,q6,q7,q8, x, y, z){
-		var s = interpolate2D(q1,q2,q3,q4,x,y);
-		var t = interpolate2D(q5,q6,q7,q8,x,y);
-		return interpolate1D(s,t,z);
+function interpolate3D(q1,q2,q3,q4,q5,q6,q7,q8,x,y,z){
+	var s = interpolate2D(q1,q2,q3,q4,x,y);		
+	var t = interpolate2D(q5,q6,q7,q8,x,y);
+	return interpolate1D(s,t,z);
 }
 
 //Given a quaternion, invert its x, y, z, and w values
@@ -1895,10 +1897,9 @@ function updateShapes(time_index){
 				}
 				
 				//printAlert2(time_index_floor + '; ' + time_index_ceil);
-				
+				ratio_x = time_index[0] - time_index_floor[0];
 				// Create a quaternion based on user specified time index
 				if(n_timelines == 1){
-					ratio_x = time_index[0] - time_index_floor[0];
 					new_quat = interpolate1D(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]], 
 									svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]], ratio_x)
 					new_pos = interpolate1D(svg_obj.mesh[obj_num].position[time_index_floor[0]], 
@@ -1906,7 +1907,6 @@ function updateShapes(time_index){
 
 
 				}else if(n_timelines == 2){	
-					ratio_x = time_index[0] - time_index_floor[0];
 					ratio_y = time_index[1] - time_index_floor[1];
 					// Find the new quaternion
 					new_quat = interpolate2D(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_floor[1]], 
@@ -1925,29 +1925,28 @@ function updateShapes(time_index){
 // 					printObject(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_floor[1]]);
 				
 				} else if(n_timelines == 3){
-					ratio_x = time_index[0] - time_index_floor[0];
 					ratio_y = time_index[1] - time_index_floor[1];
 					ratio_z = time_index[2] - time_index_floor[2];
 				
-// 					new_quat = interpolate3D(svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]][time_index_floor[2]], 
-// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_floor[1]][time_index_floor[2]],
-// 										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_ceil[1]][time_index_ceil[2]],
-// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]][time_index_ceil[2]], 
-// 										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]][time_index_floor[2]], 
-// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_floor[1]][time_index_floor[2]],
-// 										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_ceil[1]][time_index_ceil[2]],
-// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]][time_index_ceil[2]], 
-// 										ratio_x, ratio_y, ratio_z);
-//				
-// 					new_pos = interpolate3D(svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]][time_index_floor[2]], 
-// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_floor[1]][time_index_floor[2]],
-// 										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_ceil[1]][time_index_ceil[2]],
-// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]][time_index_ceil[2]], 
-// 										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]][time_index_floor[2]], 
-// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_floor[1]][time_index_floor[2]],
-// 										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_ceil[1]][time_index_ceil[2]],
-// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]][time_index_ceil[2]], 
-// 										ratio_x, ratio_y, ratio_z);
+					new_quat = interpolate3D(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_floor[1]][time_index_floor[2]], 
+										svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_floor[1]][time_index_floor[2]],
+										svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_ceil[1]][time_index_floor[2]],
+										svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_ceil[1]][time_index_floor[2]], 
+										svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_floor[1]][time_index_ceil[2]], 
+										svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_floor[1]][time_index_ceil[2]],
+										svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_ceil[1]][time_index_ceil[2]],
+										svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_ceil[1]][time_index_ceil[2]], 
+										ratio_x, ratio_y, ratio_z);
+			
+					new_pos = interpolate3D(svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]][time_index_floor[2]], 
+										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_floor[1]][time_index_floor[2]],
+										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_ceil[1]][time_index_floor[2]],
+										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]][time_index_floor[2]], 
+										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]][time_index_ceil[2]], 
+										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_floor[1]][time_index_ceil[2]],
+										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_ceil[1]][time_index_ceil[2]],
+										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]][time_index_ceil[2]], 
+										ratio_x, ratio_y, ratio_z);
 				}
 								
 				meshes[obj_num].position.set(new_pos.x, new_pos.y, new_pos.z);
