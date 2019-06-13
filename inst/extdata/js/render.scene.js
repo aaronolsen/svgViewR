@@ -329,6 +329,7 @@ function inputTimelineIndex(index) {
 
 		// Find closest time index in animation
 		anim_index[index_i] = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+	}
 
     //printAlert2(index_value + ',' + elapsed_ms + ',' + anim_index[index_i] + ',' + animation_start)
 
