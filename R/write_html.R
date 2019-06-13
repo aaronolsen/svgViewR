@@ -156,7 +156,7 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 					<div id="timeline_axis_units_', tl_num, '" class="timeline_axis_units" >', timeline_units, '</div>
 					<div id="timeline_cursor_container_', tl_num, '" class="timeline_cursor_container" >
 						<div id="timeline_cursor_window_', tl_num, '" class="timeline_cursor_window" >
-							<input id="timeline_cursor_slider_', tl_num, '" type="range" title="Click to skip to frame" class="timeline_cursor_slider" oninput="inputTimelineIndex(this);" value="0" >
+							<input id="timeline_slider_', tl_num, '" type="range" title="Click to skip to frame" class="timeline_slider" oninput="inputTimelineIndex(this);" value="0" >
 						</div>
 						<div id="timeline_axis_', tl_num, '" class="timeline_axis" >
 							<div class="timeline_axis_space_left"></div>')
@@ -192,12 +192,36 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 				}
 			}
 
+			# Set timeline step
+			if(js.var[['interpolate']]){
+				timeline_step <- js.var[['timeline_duration_disp']] / 100
+			}else{
+				timeline_step <- js.var[['timeline_duration_disp']] / (js.var[['animation_ntimes']]-1)
+			}
+			timeline_step <- signif(timeline_step, 4)
+
+			# Timeline direct value input
 			body_html <- paste0(body_html, '
 						</div>
 					</div>
-					<div id="timeline_cursor_value_', tl_num, '" class="timeline_cursor_value" >Value</div>
-					<div id="timeline_cursor_input_', tl_num, '" class="timeline_cursor_input" >Input</div>
-					<div id="timeline_playback_buttons_', tl_num, '" class="timeline_playback_buttons" >Playback</div>
+					<div id="timeline_value_', tl_num, '_div" class="timeline_value_div" >
+						<input id="timeline_value_', tl_num, '" type="number" oninput="inputTimelineIndex(this)" 
+							title="Enter number to skip to frame" class="timeline_value_input" 
+							min="', js.var[['timeline_start_disp']], '" max="', js.var[['timeline_end_disp']], 
+							'" step="', timeline_step, '" value="', js.var[['timeline_start_disp']], '">
+					</div>')
+
+			body_html <- paste0(body_html, '
+					<div id="timeline_playback_buttons_', tl_num, '" class="timeline_playback_buttons" >
+						<div id="timeline_playback_rw_', tl_num, '" class="timeline_playback_button" >R</div>
+						<div id="timeline_playback_advb_', tl_num, '" class="timeline_playback_button" >B</div>
+						<div id="timeline_playback_play_', tl_num, '" class="timeline_playback_button" >
+							<a id="timeline_play_icon_', tl_num, '" style="font-size: 1.2em; line-height: 0px; letter-spacing: -1px;">▶</a>
+						</div>
+						<div id="timeline_playback_advf_', tl_num, '" class="timeline_playback_button" >A</div>
+						<div id="timeline_playback_ff_', tl_num, '" class="timeline_playback_button" >F</div>
+					</div>
+
 					<div id="timeline_speed_value_', tl_num, '" class="timeline_speed_value" >Speed</div>
 					<div id="timeline_speed_input_', tl_num, '" class="timeline_speed_input" >Input</div>
 				</div>\n')
@@ -206,7 +230,7 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 	}else{
 
 		# Bottom frame height 0 if no timeline
-		js.var['bottom_frame_height_px'] <- 0
+		js.var[['bottom_frame_height_px']] <- 0
 	}
 
 	# Close bottom frame div
