@@ -146,7 +146,6 @@ function addTexture( texture ) {
 		// Move to next image
 		loadSubsequentTextures();
 		
-		//printAlert2('')
 	}
 }
 
@@ -330,99 +329,96 @@ function inputTimelineIndex(index) {
 
 		// Find closest time index in animation
 		anim_index[index_i] = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
-	}
-  
-//printAlert2(index_value + ',' + elapsed_ms + ',' + anim_index[index_i] + ',' + animation_start)
 
-	// Set elapsed time to match
-	elapsed_ms = ((anim_index[0]) / (animation_ntimes-1))*animation_duration;
+    //printAlert2(index_value + ',' + elapsed_ms + ',' + anim_index[index_i] + ',' + animation_start)
 
-	// Update animation start time
-	anim_start = Date.now() + elapsed_ms;
+    // Set elapsed time to match
+    elapsed_ms = ((anim_index[0]) / (animation_ntimes-1))*animation_duration;
 
-	// Update shapes
-	updateShapes(anim_index);
-	
-	//printAlert2(anim_index);
+    // Update animation start time
+    anim_start = Date.now() + elapsed_ms;
 
-	// Animation pause time just needs to be greater than animation pause start by the amount of elapsed time
-	// Then when animation starts again, it will start from input index
-	anim_pause_start = anim_start;
-	anim_pause_time = anim_pause_start + elapsed_ms;
+    // Update shapes
+    updateShapes(anim_index);
+
+    //printAlert2(anim_index);
+
+    // Animation pause time just needs to be greater than animation pause start by the amount of elapsed time
+    // Then when animation starts again, it will start from input index
+    anim_pause_start = anim_start;
+    anim_pause_time = anim_pause_start + elapsed_ms;
 }
 
-function interpolatePos(p0, p1, t){
-	//Interpolate between two given positions
-	//printAlert2("Pos1 " + p0.x + "," + p0.y + "," + p0.z + "," + "Pos2 " + p1.x + "," + p1.y + "," + p1.z );
-
-  var n , value;
-
-  if (t <= 0){
-		return p0;
-	}
-	if (t >= 1){
-		return p1;
-	}
-
-	p.x = (1 - t)*p0.x + t*p1.x;
-	p.y = (1 - t)*p0.y + t*p1.y;
-	p.z = (1 - t)*p0.z + t*p1.z;
-
-	return p;
-}
-
-
-//Interpolate between two given quaternions
-function interpolateQuats(q0, q1, t){
+//Interpolate between two given quaternions or positions
+function interpolate(q0, q1, t){
 //printAlert2("Quaternion1 " + q0.x + "," + q0.y + "," + q0.z + "," + q0.w + "  Quaternion2 " + q1.x + "," + q1.y + "," + q1.z + "," + q1.w);
 //printAlert2("Distance1: " + distQuat(q0, q1) + "  Distance2: " + distQuat(q0, invertQuat(q1)))
   var n , value
-  var q = {w: 0, x: 0, y:0, z:0}
-  
+  var q; 
   if (t <= 0){
     return q0;
   }
   if (t >= 1){
     return q1;
   }
+  //Check if the passed object q is a position
+  if (typeof q0 == 'object' && q0.w == undefined){
+  	q = {x: 0, y:0, z:0}
+  	q.x = (1 - t)*(q0.x) + t*(q1.x);
+	q.y = (1 - t)*(q0.y) + t*(q1.y);
+	q.z = (1 - t)*(q0.z) + t*(q1.z);
+	return q;
+  } 
+  //If q is a quaternion and not a position:
+  else{
+  	q = {w: 0, x: 0, y:0, z:0}
+  	if (distQuat(q0, invertQuat(q1)) < distQuat(q0, q1)){
+  		q1 = invertQuat(q1);
+  	}
+  	q.w = (1 - t)*q0.w + t*q1.w;
+  	q.x = (1 - t)*q0.x + t*q1.x;
+  	q.y = (1 - t)*q0.y + t*q1.y;
+  	q.z = (1 - t)*q0.z + t*q1.z;
   
-  if (distQuat(q0, invertQuat(q1)) < distQuat(q0, q1)){
-  	q1 = invertQuat(q1);
-  }
+  	value = q.w*q.w + q.x*q.x + q.y*q.y + q.z*q.z;
   
-  q.w = (1 - t)*q0.w + t*q1.w;
-  q.x = (1 - t)*q0.x + t*q1.x;
-  q.y = (1 - t)*q0.y + t*q1.y;
-  q.z = (1 - t)*q0.z + t*q1.z;
-  
-  value = q.w*q.w + q.x*q.x + q.y*q.y + q.z*q.z;
-  
-  if (value > 0){
-    if (q.w < 0){
-      n = -Math.sqrt(value);
-    }
-    else{
-      n = Math.sqrt(value);
-    }
-
-  q.w = q.w / n
-  q.x = q.x / n
-  q.y = q.y / n
-  q.z = q.z / n
-  
-  }
-  
-  else {
-    q.w = 1
-    q.x = 0
-    q.y = 0
-    q.z = 0
-  }
-  
-  return q;
+  	if (value > 0){
+    	if (q.w < 0){
+      	n = -Math.sqrt(value);
+    	} else{
+      	n = Math.sqrt(value);
+    	}
+  		q.w = q.w / n
+  		q.x = q.x / n
+  		q.y = q.y / n
+  		q.z = q.z / n
+  	} else {
+    		q.w = 1
+    		q.x = 0
+    		q.y = 0
+    		q.z = 0
+  		}
+  		return q;
+	}
 }
 
-  
+//Linear Interpolation
+function interpolate1D(q1, q2, x){
+		return interpolate(q1, q2, x);					
+}
+//Bilinear Interpolation
+function interpolate2D(q1, q2, q3, q4, x, y){
+		var s = interpolate1D(q1,q2,x);
+		var t = interpolate1D(q3,q4,x);			
+		return interpolate1D(s, t, y);	
+}
+//Trilinear Interpolation
+function interpolate3D(q1,q2,q3,q4,q5,q6,q7,q8, x, y, z){
+		var s = interpolate2D(q1,q2,q3,q4,x,y);
+		var t = interpolate2D(q5,q6,q7,q8,x,y);
+		return interpolate1D(s,t,z);
+}
+
 //Given a quaternion, invert its x, y, z, and w values
 function invertQuat(quat){
  var q = {w: 0, x: 0, y:0, z:0}
@@ -865,7 +861,7 @@ function loadNextTexture(){
 		
 		//printAlert2(image_idx_ct + ',' + texture_load_ct + ',' + app_dir[svg_obj.image[image_idx_ct].src_idx] + '/' + svg_obj.image[image_idx_ct].fname[texture_load_ct])
 
-		printAlert2(svg_obj.image[image_idx_ct].fname[texture_load_ct]);
+		//printAlert2(svg_obj.image[image_idx_ct].fname[texture_load_ct]);
 
 		// Load texture
 		var loader = new THREE.TextureLoader();
@@ -1483,6 +1479,10 @@ function printAlert2(text){
 	document.getElementById( "alert2" ).innerHTML = text;
 }
 
+function printObject(object){
+   	 document.getElementById("alert2").innerHTML = Object.values(object);
+}
+
 function setBoundingBox () {
 
 	// Geometry is the same as when read in - not updated with position/rotation
@@ -1897,10 +1897,10 @@ function updateCameraPosition(){
 	//controls.update();
 }
 
+
 function updateShapes(time_index){
 
 	//document.getElementById( "alert" ).innerHTML = document.getElementById( "alert" ).innerHTML + ',' + time_index;
-
 	var def_vars, num, type, i, j, k, nVertices, obj_num, obj_type, set_prop, set_val, tracks_length;
 
 	//// Apply animation transformations
@@ -1912,11 +1912,9 @@ function updateShapes(time_index){
 		var new_pos;
 		var time_index_floor = new Array(n_timelines);
 		var time_index_ceil = new Array(n_timelines);
-//		var time_index_floor;
-//		var time_index_ceil;
-		
-//	printAlert2(obj_num + ',' + svg_obj.mesh[obj_num].opacity)
-				
+   		var ratio_x;
+   		var ratio_y;
+   		
 		for (i = 0; i < update_obj_length; i++){
 
 			// Set object number and type
@@ -1928,14 +1926,6 @@ function updateShapes(time_index){
 
 			if(obj_type == 'mesh'){
 				//printAlert2(svg_obj.mesh[obj_num].opacity.length)
-
-			//	meshes[obj_num].position.x = svg_obj.mesh[obj_num].position[time_index][0];
-			//	meshes[obj_num].position.y = svg_obj.mesh[obj_num].position[time_index][1];
-			//	meshes[obj_num].position.z = svg_obj.mesh[obj_num].position[time_index][2];
-
- 			//	meshes[obj_num].rotation.x = svg_obj.mesh[obj_num].rotation[time_index][0];
- 			//	meshes[obj_num].rotation.y = svg_obj.mesh[obj_num].rotation[time_index][1];
- 			//	meshes[obj_num].rotation.z = svg_obj.mesh[obj_num].rotation[time_index][2];
 
 				// Set floor and ceiling from time indices
 				for (j = 0; j < n_timelines; j++){
@@ -1954,29 +1944,56 @@ function updateShapes(time_index){
 				
 				// Create a quaternion based on user specified time index
 				if(n_timelines == 1){
+					ratio_x = time_index[0] - time_index_floor[0];
+					new_quat = interpolate1D(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]], 
+									svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]], ratio_x)
+					new_pos = interpolate1D(svg_obj.mesh[obj_num].position[time_index_floor[0]], 
+									svg_obj.mesh[obj_num].position[time_index_ceil[0]], ratio_x)
 
-					new_quat = interpolateQuats(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]], 
-									svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]], 
-									time_index[0] - time_index_floor[0]);
-								
-					new_pos = interpolatePos(svg_obj.mesh[obj_num].position[time_index_floor[0]], 
-									svg_obj.mesh[obj_num].position[time_index_ceil[0]], 
-									time_index[0] - time_index_floor[0]);
 
-				}else if(n_timelines == 2){
-
-					new_quat = interpolateQuats(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_floor[1]], 
-									svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_ceil[1]],
-									svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_floor[1]],
-									svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_ceil[1]], 
-									time_index[0] - time_index_floor[0], time_index[1] - time_index_floor[1]);
-								
-					new_pos = interpolatePos(svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]], 
-									svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_ceil[1]],
-									svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_floor[1]],
-									svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]], 
-									time_index[0] - time_index_floor[0], time_index[1] - time_index_floor[1]);
-
+				}else if(n_timelines == 2){	
+					ratio_x = time_index[0] - time_index_floor[0];
+					ratio_y = time_index[1] - time_index_floor[1];
+					// Find the new quaternion
+					new_quat = interpolate2D(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_floor[1]], 
+										svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_floor[1]],
+										svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_ceil[1]],
+										svg_obj.mesh[obj_num].quaternion[time_index_ceil[0]][time_index_ceil[1]], 
+										ratio_x, ratio_y);
+					// Find the new position
+					new_pos = interpolate2D(svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]], 
+										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_floor[1]],
+										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_ceil[1]],
+										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]], 
+										ratio_x, ratio_y);	
+										
+					//if (obj_num == 10) printObject(svg_obj.mesh[obj_num].position[2][1]);
+// 					printObject(svg_obj.mesh[obj_num].quaternion[time_index_floor[0]][time_index_floor[1]]);
+				
+				} else if(n_timelines == 3){
+					ratio_x = time_index[0] - time_index_floor[0];
+					ratio_y = time_index[1] - time_index_floor[1];
+					ratio_z = time_index[2] - time_index_floor[2];
+				
+// 					new_quat = interpolate3D(svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]][time_index_floor[2]], 
+// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_floor[1]][time_index_floor[2]],
+// 										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_ceil[1]][time_index_ceil[2]],
+// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]][time_index_ceil[2]], 
+// 										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]][time_index_floor[2]], 
+// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_floor[1]][time_index_floor[2]],
+// 										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_ceil[1]][time_index_ceil[2]],
+// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]][time_index_ceil[2]], 
+// 										ratio_x, ratio_y, ratio_z);
+//				
+// 					new_pos = interpolate3D(svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]][time_index_floor[2]], 
+// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_floor[1]][time_index_floor[2]],
+// 										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_ceil[1]][time_index_ceil[2]],
+// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]][time_index_ceil[2]], 
+// 										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_floor[1]][time_index_floor[2]], 
+// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_floor[1]][time_index_floor[2]],
+// 										svg_obj.mesh[obj_num].position[time_index_floor[0]][time_index_ceil[1]][time_index_ceil[2]],
+// 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]][time_index_ceil[2]], 
+// 										ratio_x, ratio_y, ratio_z);
 				}
 								
 				meshes[obj_num].position.set(new_pos.x, new_pos.y, new_pos.z);
