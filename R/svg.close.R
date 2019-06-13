@@ -84,10 +84,18 @@ svg.close <- function(wait = FALSE, quiet = TRUE){
 				svgviewr_env$js_var[['time_units']] <- 'msec'
 				svgviewr_env$svg$animate$times <- svgviewr_env$svg$animate$times*1000
 			}
-			
+
 			# Set timeline start and end
 			svgviewr_env$js_var[['timeline_start']] <- min(svgviewr_env$svg$animate$times)
 			svgviewr_env$js_var[['timeline_end']] <- max(svgviewr_env$svg$animate$times)
+			svgviewr_env$js_var[['timeline_duration']] <- svgviewr_env$js_var[['timeline_end']] - svgviewr_env$js_var[['timeline_start']]
+
+			# Set timeline variables to match display/interface values
+			if(time_units == 'sec'){
+				svgviewr_env$js_var[['timeline_start_disp']] <- svgviewr_env$js_var[['timeline_start']] / 1000
+				svgviewr_env$js_var[['timeline_end_disp']] <- svgviewr_env$js_var[['timeline_end']] / 1000
+				svgviewr_env$js_var[['timeline_duration_disp']] <- svgviewr_env$js_var[['timeline_duration']] / 1000
+			}
 
 			# Apply play speed factor
 			svgviewr_env$svg$animate$times <- svgviewr_env$svg$animate$times*(1/svgviewr_env$js_var[['play_speed']])
@@ -230,7 +238,7 @@ svg.close <- function(wait = FALSE, quiet = TRUE){
 		file <- getOption("svg_glo_con")
 	
 		# Close
-		svgviewr.new(file=file, conn.type='close', layers=file$layers, debug=file$debug)
+		svgviewr.new(file=file, conn.type='close', layers=file$layers, debug=file$debug, app.dir.src=file$app.dir.src)
 	}
 
 	# If wait is TRUE don't return function until signaled

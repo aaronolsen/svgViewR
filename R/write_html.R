@@ -92,6 +92,38 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 		# Create sequence of times, convert from ms to sec
 		timeline_time_seq <- seq(svgviewr_env$js_var[['timeline_start']], svgviewr_env$js_var[['timeline_end']], length=timeline_n_values) / 1000
 		
+		# Format values
+		timeline_time_seq_f <- rep(NA, length(timeline_time_seq))
+
+		# Set number of digits to start with
+		tseq_n_digits <- 3
+
+		# Try adding digits if first two values are identical
+		n_trys <- 0
+		i <- 1
+		while(i <= length(timeline_time_seq)){
+
+			# Set value		
+			value <- signif(timeline_time_seq[i], digits=tseq_n_digits)
+		
+			# Format value of numeric value
+			if(nchar(value) == 1){
+				if(!grepl('[.]', value)) value <- paste0(value, '.')
+				value <- paste0(value, '0')
+			}
+			if(nchar(value) >= tseq_n_digits+1 && substr(value, 2, 2) == '.') value <- substr(value, 1, tseq_n_digits)
+			
+			timeline_time_seq_f[i] <- value
+			
+			if(i == 2 && n_trys < 5 && as.numeric(timeline_time_seq_f[1]) == as.numeric(timeline_time_seq_f[2])){
+				tseq_n_digits <- tseq_n_digits + 1
+				n_trys <- n_trys + 1
+				i <- 1
+			}else{
+				i <- i + 1
+			}
+		}
+
 		# Set which ticks are bold
 		tick_is_bold <- rep(FALSE, timeline_n_values)
 		tick_is_bold[c(1, timeline_n_values)] <- TRUE
@@ -124,22 +156,12 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 					<div id="timeline_axis_units_', tl_num, '" class="timeline_axis_units" >', timeline_units, '</div>
 					<div id="timeline_cursor_container_', tl_num, '" class="timeline_cursor_container" >
 						<div id="timeline_cursor_window_', tl_num, '" class="timeline_cursor_window" >
-							<input id="timeline_cursor_slider_', tl_num, '" type="range" title="Click to skip to frame" class="timeline_cursor_slider" oninput="inputTimelineIndex(this);" value="0" >
+							<input id="timeline_slider_', tl_num, '" type="range" title="Click to skip to frame" class="timeline_slider" oninput="inputTimelineIndex(this);" value="0" >
 						</div>
 						<div id="timeline_axis_', tl_num, '" class="timeline_axis" >
 							<div class="timeline_axis_space_left"></div>')
 
-			for(i in 1:length(timeline_time_seq)){
-
-				# Set value		
-				value <- signif(timeline_time_seq[i], digits=3)
-			
-				# Format value of numeric value
-				if(nchar(value) == 1){
-					if(!grepl('[.]', value)) value <- paste0(value, '.')
-					value <- paste0(value, '0')
-				}
-				if(nchar(value) >= 4 && substr(value, 2, 2) == '.') value <- substr(value, 1, 3)
+			for(i in 1:length(timeline_time_seq_f)){
 			
 				# Create tick divs
 				if(tick_is_bold[i]){
@@ -159,7 +181,7 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 
 				body_html <- paste0(body_html, '
 							<div class="', value_class, '">\n\t\t\t\t\t\t\t', before_value, '
-								<div class="timeline_axis_value">', value, '</div>
+								<div class="timeline_axis_value">', timeline_time_seq_f[i], '</div>
 							</div>'
 				)
 
@@ -170,12 +192,36 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 				}
 			}
 
+			# Set timeline step
+			if(js.var[['interpolate']]){
+				timeline_step <- js.var[['timeline_duration_disp']] / 100
+			}else{
+				timeline_step <- js.var[['timeline_duration_disp']] / (js.var[['animation_ntimes']]-1)
+			}
+			timeline_step <- signif(timeline_step, 4)
+
+			# Timeline direct value input
 			body_html <- paste0(body_html, '
 						</div>
 					</div>
-					<div id="timeline_cursor_value_', tl_num, '" class="timeline_cursor_value" >Value</div>
-					<div id="timeline_cursor_input_', tl_num, '" class="timeline_cursor_input" >Input</div>
-					<div id="timeline_playback_buttons_', tl_num, '" class="timeline_playback_buttons" >Playback</div>
+					<div id="timeline_value_', tl_num, '_div" class="timeline_value_div" >
+						<input id="timeline_value_', tl_num, '" type="number" oninput="inputTimelineIndex(this)" 
+							title="Enter number to skip to frame" class="timeline_value_input" 
+							min="', js.var[['timeline_start_disp']], '" max="', js.var[['timeline_end_disp']], 
+							'" step="', timeline_step, '" value="', js.var[['timeline_start_disp']], '">
+					</div>')
+
+			body_html <- paste0(body_html, '
+					<div id="timeline_playback_buttons_', tl_num, '" class="timeline_playback_buttons" >
+						<div id="timeline_playback_rw_', tl_num, '" class="timeline_playback_button" >R</div>
+						<div id="timeline_playback_advb_', tl_num, '" class="timeline_playback_button" >B</div>
+						<div id="timeline_playback_play_', tl_num, '" class="timeline_playback_button" >
+							<a id="timeline_play_icon_', tl_num, '" style="font-size: 1.2em; line-height: 0px; letter-spacing: -1px;">▶</a>
+						</div>
+						<div id="timeline_playback_advf_', tl_num, '" class="timeline_playback_button" >A</div>
+						<div id="timeline_playback_ff_', tl_num, '" class="timeline_playback_button" >F</div>
+					</div>
+
 					<div id="timeline_speed_value_', tl_num, '" class="timeline_speed_value" >Speed</div>
 					<div id="timeline_speed_input_', tl_num, '" class="timeline_speed_input" >Input</div>
 				</div>\n')
@@ -184,7 +230,7 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 	}else{
 
 		# Bottom frame height 0 if no timeline
-		js.var['bottom_frame_height_px'] <- 0
+		js.var[['bottom_frame_height_px']] <- 0
 	}
 
 	# Close bottom frame div
