@@ -312,8 +312,6 @@ function inputTimelineIndex(index) {
 		//return;
 	}
 	
-	//return;
-
 	// Set to index
 	if(interpolate){
 
@@ -351,7 +349,7 @@ function inputTimelineIndex(index) {
 }
 
 //Interpolate between two given quaternions or positions
-function interpolate(q0, q1, t){
+function interpolateVec(q0, q1, t){
 //printAlert2("Quaternion1 " + q0.x + "," + q0.y + "," + q0.z + "," + q0.w + "  Quaternion2 " + q1.x + "," + q1.y + "," + q1.z + "," + q1.w);
 //printAlert2("Distance1: " + distQuat(q0, q1) + "  Distance2: " + distQuat(q0, invertQuat(q1)))
   var n , value
@@ -405,7 +403,7 @@ function interpolate(q0, q1, t){
 
 //Linear Interpolation
 function interpolate1D(q1,q2,x){
-	return interpolate(q1,q2,x);					
+	return interpolateVec(q1,q2,x);					
 }
 
 //Bilinear Interpolation
@@ -1421,6 +1419,8 @@ function playPauseAnimation(state) {
 
 		// Set anim_start so that when animation is unpaused it starts where it "left off"
 		anim_start = anim_pause_start + (Date.now() - anim_pause_time);
+		
+		printAlert2(anim_start)
 
 		// Set play/pause icon to pause
 		control_icon_play.innerHTML = '&#9612; &#9612;';
@@ -1429,6 +1429,7 @@ function playPauseAnimation(state) {
 		//control_icon_play.style.letterSpacing = '-1px';
 
 	}else{
+
 		anim_pause_time = Date.now();	// time at which the animation was paused
 		anim_pause_start = anim_start; 	// start time when animation was paused
 		anim_pause = true;
@@ -1660,14 +1661,15 @@ var render = function () {
 	if(!anim_pause){
 
 		// Get elapsed time in ms
-		elapsed_ms = animation_start + Date.now() - anim_start;
+		//elapsed_ms = animation_start + Date.now() - anim_start;
+		elapsed_ms = Date.now() - anim_start;
 
 		// If exceeds animation duration, reset clock
-		if(elapsed_ms > animation_end){
+		if(elapsed_ms > animation_duration){
 			anim_start = Date.now();
 			elapsed_ms = 0;
 		}
-	
+
 		if(interpolate){
 			// Find proportional time index
 			anim_index[0] = (elapsed_ms / animation_duration)*(animation_ntimes-1);
