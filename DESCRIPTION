@@ -6,7 +6,7 @@ Version: 1.3.1
 Depends: R (>= 3.2.4)
 Imports: grid, rjson, Rook, methods, Rcpp (>= 0.9.9)
 LinkingTo: Rcpp
-Author: Aaron Olsen
+Author: Aaron Olsen, Alejandro Romero
 Maintainer: Aaron Olsen <aarolsen@gmail.com>
 Repository: CRAN
 URL: https://aaronolsen.github.io/tutorials/visualization3d.html
