@@ -156,7 +156,7 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 					<div id="timeline_axis_units_', tl_num, '" class="timeline_axis_units" >', timeline_units, '</div>
 					<div id="timeline_cursor_container_', tl_num, '" class="timeline_cursor_container" >
 						<div id="timeline_cursor_window_', tl_num, '" class="timeline_cursor_window" >
-							<input id="timeline_slider_', tl_num, '" type="range" title="Click to skip to frame" class="timeline_slider" oninput="inputTimelineIndex(this);" value="0" >
+							<input id="timeline_slider_', tl_num, '" type="range" title="Click to skip to frame" class="timeline_slider" oninput="inputTimelineIndex(this, ', tl_num-1, ', \'slider\');" value="0" >
 						</div>
 						<div id="timeline_axis_', tl_num, '" class="timeline_axis" >
 							<div class="timeline_axis_space_left"></div>')
@@ -205,7 +205,7 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 						</div>
 					</div>
 					<div id="timeline_value_', tl_num, '_div" class="timeline_value_div" >
-						<input id="timeline_value_', tl_num, '" type="number" oninput="inputTimelineIndex(this)" 
+						<input id="timeline_value_', tl_num, '" type="number" oninput="inputTimelineIndex(this, ', tl_num-1, ', \'value\')" 
 							title="Enter number to skip to frame" class="timeline_value_input" 
 							min="', js.var[['timeline_start_disp']], '" max="', js.var[['timeline_end_disp']], 
 							'" step="', timeline_step, '" value="', js.var[['timeline_start_disp']], '">
