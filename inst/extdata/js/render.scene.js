@@ -281,18 +281,13 @@ function indexOfMax(arr) {
     return maxIndex;
 }
 
-function inputTimelineIndex(index) {
+function inputTimelineIndex(index, num, type) {
 
 	// Pause animation
 	playPauseAnimation('pause');
 	
 	// Play render
 	playPauseRender('play');
-
-	// Set index
-	var index_i;
-	if(index.id == 'timeline_slider_1' || index.id == 'timeline_value_1') index_i = 0;
-	if(index.id == 'timeline_slider_2' || index.id == 'timeline_value_2') index_i = 1;
 	
 	// Create copy
 	index_value = index.value;
@@ -301,7 +296,7 @@ function inputTimelineIndex(index) {
 	if(index_value == '') return;
 
 	// Value (text) input
-	if(index.id == 'timeline_value_1' || index.id == 'timeline_value_2'){
+	if(type == 'value'){
 	
 		// If value is outside of min/max range set to min/max
 		if(index_value < timeline_start_disp) index_value = timeline_start_disp;
@@ -316,8 +311,7 @@ function inputTimelineIndex(index) {
 	if(interpolate){
 
 		// Find proportional time index value
-		//anim_index[index_i] = ((index_value-1)/98)*(animation_ntimes- 1);
-		anim_index[index_i] = (index_value / 100)*(animation_ntimes - 1);
+		anim_index[num] = (index_value / 100)*(animation_ntimes - 1);
 
 	}else{
 
@@ -326,10 +320,10 @@ function inputTimelineIndex(index) {
 		elapsed_ms = animation_start + (index_value / 100) * animation_duration;
 
 		// Find closest time index in animation
-		anim_index[index_i] = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+		anim_index[num] = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
 	}
 
-    //printAlert2(index_value + ',' + elapsed_ms + ',' + anim_index[index_i] + ',' + animation_start)
+    //printAlert2(index_value + ',' + elapsed_ms + ',' + anim_index[num] + ',' + animation_start)
 
     // Set elapsed time to match
     elapsed_ms = ((anim_index[0]) / (animation_ntimes-1))*animation_duration;
@@ -1504,8 +1498,15 @@ function setBoundingBox () {
 		var anim_ntimes = 1;
 		var time_int = 1;
 	}else{
+
+		// Set number of times
 		var anim_ntimes = animation_ntimes;
+
+		// Get time interval to take bounding measurements from 5 even distributed time points
 		var time_int = Math.round(animation_ntimes/5);
+
+		// Make sure interval is not 0
+		if(time_int == 0) time_int = 1;
 	}
 
 	for(j = 0; j < anim_ntimes; j = j + time_int){
