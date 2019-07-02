@@ -94,7 +94,6 @@ applyTransform_svg <- function(to, tmat, assoc = NULL){
 				}
 		
 				return(pts)
-
 			}
 
 		}else if(length(dim(pts)) == 3){
