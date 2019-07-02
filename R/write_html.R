@@ -213,13 +213,29 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 
 			body_html <- paste0(body_html, '
 					<div id="timeline_playback_buttons_', tl_num, '" class="timeline_playback_buttons" >
-						<div id="timeline_playback_rw_', tl_num, '" class="timeline_playback_button" >R</div>
-						<div id="timeline_playback_advb_', tl_num, '" class="timeline_playback_button" >B</div>
-						<div id="timeline_playback_play_', tl_num, '" class="timeline_playback_button" >
-							<a id="timeline_play_icon_', tl_num, '" style="font-size: 1.2em; line-height: 0px; letter-spacing: -1px;">▶</a>
+						<div title="Skip to beginning" class="timeline_playback_button" onClick="javascript:skipToAnimationFrame(\'b\', \'', tl_num-1, '\');">
+							<a class="timeline_playback_stb">
+								<span class="timeline_playback_vb">&#9614;</span>&#9664;
+							</a><a class="timeline_playback_play">&#9664;</a>
 						</div>
-						<div id="timeline_playback_advf_', tl_num, '" class="timeline_playback_button" >A</div>
-						<div id="timeline_playback_ff_', tl_num, '" class="timeline_playback_button" >F</div>
+						<div title="Previous frame" class="timeline_playback_button" onClick="javascript:skipToAnimationFrame(\'p\', \'', tl_num-1, '\');">
+							<a class="timeline_playback_pf">
+								<span class="timeline_playback_vb">&#9614;</span>&#9664;
+							</a>
+						</div>
+						<div title="Play/pause animation" id="timeline_playback_play_', tl_num, '" class="timeline_playback_button" onClick="javascript:playPauseAnimation();">
+							<a id="timeline_play_icon_', tl_num, '" class="timeline_playback_play">
+								&#9654;
+							</a>
+						</div>
+						<div class="timeline_playback_button" onClick="javascript:skipToAnimationFrame(\'n\', \'', tl_num-1, '\');">
+							<a class="timeline_playback_nf">
+								&#9654;<span class="timeline_playback_vb">&#9614;</span>
+							</a>
+						</div>
+						<div class="timeline_playback_button" onClick="javascript:skipToAnimationFrame(\'e\', \'', tl_num-1, '\');">
+							<a class="timeline_playback_stel">&#9654;</a><a class="timeline_playback_ste">&#9654;<span class="timeline_playback_vb">&#9614;</span></a>
+						</div>
 					</div>
 
 					<div id="timeline_speed_value_', tl_num, '" class="timeline_speed_value" >Speed</div>
