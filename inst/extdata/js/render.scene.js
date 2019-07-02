@@ -8,7 +8,7 @@ var spheres = new Array( );
 var sprites = new Array( );
 
 // Declare global variables
-var anim_index, anim_start, anim_pause, animation_times, animations, anim_pause_time, camera, controls;
+var anim_index, anim_start, animation_times, animations, anim_pause_time, camera, controls;
 var elapsed_ms, image_name, image_obj;
 var image_opacity, mesh_name, mesh_opacity, mesh_color, renderer, scene, stats;
 var update_obj = {
@@ -215,6 +215,27 @@ function addMeshToScene( geometry, materials ) {
 }
 
 //Given points a and b, find the distance between these points
+function dataURItoBlob(dataURI) {
+
+    // convert base64/URLEncoded data component to raw binary data held in a string
+    var byteString;
+    if (dataURI.split(',')[0].indexOf('base64') >= 0)
+        byteString = atob(dataURI.split(',')[1]);
+    else
+        byteString = unescape(dataURI.split(',')[1]);
+
+    // separate out the mime component
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+    // write the bytes of the string to a typed array
+    var ia = new Uint8Array(byteString.length);
+    for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([ia], {type:mimeString});
+}
+
 function distQuat(a, b){
 	return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) +  Math.pow(a.z - b.z, 2) +  Math.pow(a.w - b.w, 2))
 }
@@ -317,13 +338,11 @@ function inputTimelineIndex(index, num, type) {
 
 		// Set elapsed time based on index		
 		//elapsed_ms = animation_start + ((index_value-1)/98) * animation_duration;
-		elapsed_ms = animation_start + (index_value / 100) * animation_duration;
+		elapsed_ms = (index_value / 100) * animation_duration;
 
 		// Find closest time index in animation
-		anim_index[num] = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
+		anim_index[num] = nearestTimeIndex(elapsed_ms, animation_duration, animation_ntimes);
 	}
-
-    //printAlert2(index_value + ',' + elapsed_ms + ',' + anim_index[num] + ',' + animation_start)
 
     // Set elapsed time to match
     elapsed_ms = ((anim_index[0]) / (animation_ntimes-1))*animation_duration;
@@ -657,7 +676,7 @@ function loadGeometries(){
 		for(i = 0; i < num_objects; i++){
 		
 			// If position is NA, skip
-			if(svg_obj.sphere[i].x[0] == 'NA') continue;
+			//if(svg_obj.sphere[i].x[0] == 'NA') continue;
 
 			// Create sphere
 			geometry = new THREE.SphereGeometry( radius=svg_obj.sphere[i].radius, widthSegments=svg_obj.sphere[i].wseg, heightSegments=svg_obj.sphere[i].hseg ) ;
@@ -884,21 +903,24 @@ function nearestPow2( aSize ){
 	return Math.pow( 2, Math.round( Math.log( aSize ) / Math.log( 2 ) ) ); 
 }
 
-function nearestTimeIndex( time, start, end, duration, nTimes ){
+function nearestTimeIndex( time, duration, nTimes ){
 	
 	//
-	if(time < start) return(0);
-	if(time > end) return(nTimes-1);
+	//if(time < start) return(0);
+	//if(time > end) return(nTimes-1);
+
+	if(time < 0) return(0);
+	if(time > duration) return(nTimes-1)
 	
 	// Find normalized time (0 to 1)
-	var time_norm = (time-start) / duration;
+	//var time_norm = (time-start) / duration;
+	var time_norm = time / duration;
 	
 	// Convert to time index
 	var time_idx = Math.round(time_norm*(nTimes-1));
 	
 	return(time_idx);
 }
-
 
 //
 function onObjectsReady(){
@@ -1405,22 +1427,12 @@ function playPauseAnimation(state) {
 		if(state == 'play' && !anim_pause) return;
 	}
 
-	var control_icon_play = document.getElementById('timeline_play_icon_1');
-
 	if(state == 'play') { 
 
 		anim_pause = false; 
 
 		// Set anim_start so that when animation is unpaused it starts where it "left off"
 		anim_start = anim_pause_start + (Date.now() - anim_pause_time);
-		
-		printAlert2(anim_start)
-
-		// Set play/pause icon to pause
-		control_icon_play.innerHTML = '&#9612; &#9612;';
-		//control_icon_play.style.fontSize = '0.8em';
-		//control_icon_play.style.lineHeight = '19px';
-		//control_icon_play.style.letterSpacing = '-1px';
 
 	}else{
 
@@ -1429,11 +1441,14 @@ function playPauseAnimation(state) {
 		anim_pause = true;
 
 		// Set play/pause icon to play
-		control_icon_play.innerHTML = '&#9654;';
-		//control_icon_play.style.fontSize = '1.2em';
-		//control_icon_play.style.lineHeight = '23px';
-		//control_icon_play.style.letterSpacing = '-1px';
+		for (i = 1; i <= n_timelines; i++){
+			control_icon_play = document.getElementById('timeline_play_icon_' + i);
+			control_icon_play.innerHTML = '&#9654;';
+		}
 	}
+
+	// Update animation timeline icons
+	updateAnimationIcons(state);
 }
 
 function playPauseRender(state) {
@@ -1630,8 +1645,14 @@ function tryRender () {
 
 	}else{
 
-		// Set animation start time
-		if(!anim_pause) anim_start = Date.now();
+		if(animate == true){
+
+			// Set animation start time
+			if(!anim_pause) anim_start = Date.now();
+
+			// Update animation icons
+			updateAnimationIcons();
+		}
 
 		// Render scene
 		render();
@@ -1652,51 +1673,58 @@ function receiveObjectFromR(object){
 // After loading JSON from our file, we add it to the scene
 var render = function () {
 
+	var i;
+
 	// Check whether render is paused
 	if(!render_pause) requestAnimationFrame(render);
 	
 	// Update inactive since (in seconds)
 	inactive_since = (Date.now() - inactive_start_time) / 1000;
-	
-	// If animation is playing 
-	if(!anim_pause){
-
-		// Get elapsed time in ms
-		//elapsed_ms = animation_start + Date.now() - anim_start;
-		elapsed_ms = Date.now() - anim_start;
-
-		// If exceeds animation duration, reset clock
-		if(elapsed_ms > animation_duration){
-			anim_start = Date.now();
-			elapsed_ms = 0;
-		}
-
-		if(interpolate){
-			// Find proportional time index
-			anim_index[0] = (elapsed_ms / animation_duration)*(animation_ntimes-1);
-		}else{
-
-			// Find closest time point in animation
-			anim_index[0] = nearestTimeIndex(elapsed_ms, animation_start, animation_end, animation_duration, animation_ntimes);
-		}
-
-		// Set anim_index as vector with same length as number of timelines
-		//anim_index = fillArray(anim_index, n_timelines);
-
-		// Update shapes
-		updateShapes(anim_index);
-
-		// Reset inactive since start time because animation is playing
-		inactive_start_time = Date.now();
-	}
-	
+	// If there is an animation
 	if(animate){
 
-		// Update slider position
-		document.getElementById('timeline_slider_1').value = Math.round(((anim_index[0]) / (animation_ntimes-1))*100);
+		// If animation is playing 
+		if(!anim_pause){
 
-		// Update input value
-		document.getElementById('timeline_value_1').value = timeline_start_disp + timeline_duration_disp*((anim_index[0]) / (animation_ntimes-1));
+			// Get elapsed time in ms
+			elapsed_ms = Date.now() - anim_start;
+
+			// If exceeds animation duration, reset clock
+			if(elapsed_ms > animation_duration){
+				anim_start = Date.now();
+				elapsed_ms = 0;
+			}
+
+			for (i = 1; i <= n_timelines; i++){
+				if(interpolate){
+					// Find proportional time index
+					anim_index[i-1] = (elapsed_ms / animation_duration)*(animation_ntimes-1);
+				}else{
+
+					// Find closest time point in animation
+					anim_index[i-1] = nearestTimeIndex(elapsed_ms, animation_duration, animation_ntimes);
+				}
+			}
+
+			// Set anim_index as vector with same length as number of timelines
+			//anim_index = fillArray(anim_index, n_timelines);
+
+			// Update shapes
+			updateShapes(anim_index);
+
+			// Reset inactive since start time because animation is playing
+			inactive_start_time = Date.now();
+		}
+	
+		// Update timeline slider and value entry box
+		for (i = 1; i <= n_timelines; i++){
+
+			// Update slider position
+			document.getElementById('timeline_slider_' + i).value = Math.round(((anim_index[i-1]) / (animation_ntimes-1))*100);
+
+			// Update input value
+			document.getElementById('timeline_value_' + i).value = Math.round(timeline_start_disp + timeline_duration_disp*((anim_index[i-1]) / (animation_ntimes-1))*100)/100;
+		}
 	}
 
 	// If no activity for a period of time, pause rendering
@@ -1805,25 +1833,91 @@ function sendObjectToR(object){
 	xhr.send(fd);
 }
 
-function dataURItoBlob(dataURI) {
+function skipToAnimationFrame(to, num){
 
-    // convert base64/URLEncoded data component to raw binary data held in a string
-    var byteString;
-    if (dataURI.split(',')[0].indexOf('base64') >= 0)
-        byteString = atob(dataURI.split(',')[1]);
-    else
-        byteString = unescape(dataURI.split(',')[1]);
+	// Check that there is an animation
+	if(animate == false) return;
+	
+	// Pause animation
+	playPauseAnimation('pause');
+	
+	// Play render
+	playPauseRender('play');
+	
+	// Get current closest time index
+	if(to == 'p' || to == 'n'){
 
-    // separate out the mime component
-    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+		var current_idx = nearestTimeIndex(elapsed_ms, animation_duration, animation_ntimes);
 
-    // write the bytes of the string to a typed array
-    var ia = new Uint8Array(byteString.length);
-    for (var i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-    }
+		// Set new index
+		if(to == 'p') anim_index[num] = current_idx - 1;
+		if(to == 'n') anim_index[num] = current_idx + 1;
+	
+		// Make sure new index is within bounds
+		if(anim_index[num] < 0) anim_index[num] = 0;
+		if(anim_index[num] > animation_ntimes-1) anim_index[num] = animation_ntimes-1;
 
-    return new Blob([ia], {type:mimeString});
+	}else{
+
+		if(to == 'b') anim_index[num] = 0;
+		if(to == 'e') anim_index[num] = animation_ntimes - 1;
+	}
+	
+    // Set elapsed time to match
+    elapsed_ms = (anim_index[num] / (animation_ntimes-1))*animation_duration;
+
+    // Update animation start time
+    anim_start = Date.now() + elapsed_ms;
+
+    // Update shapes
+    updateShapes(anim_index);
+}
+
+function updateAnimationIcons(state){
+
+	var i;
+	var control_icon_play;
+
+	// Set state based on toggle if undefined
+	if(state == undefined) {
+		var state;
+		if(anim_pause){
+			state = 'pause'
+		}else{
+			state = 'play'
+		}
+	}
+
+	if(state == 'play') { 
+
+		// Set play/pause icon to pause
+		for (i = 1; i <= n_timelines; i++){
+
+			control_icon_play = document.getElementById('timeline_play_icon_' + i);
+			control_icon_play.innerHTML = '&#9613;&#9613;';						// From thick to thin: 9612, 9613, 9614
+
+			control_icon_play.style.fontSize = '0.8em';
+			control_icon_play.style.verticalAlign = 'top';
+			control_icon_play.style.margin = '0% 0% 0% 10%';
+			control_icon_play.style.lineHeight = '1.6em';
+			control_icon_play.style.letterSpacing = '-1.6em';
+		}
+
+	}else{
+
+		// Set play/pause icon to play
+		for (i = 1; i <= n_timelines; i++){
+
+			control_icon_play = document.getElementById('timeline_play_icon_' + i);
+			control_icon_play.innerHTML = '&#9654;';
+
+			control_icon_play.style.fontSize = '1.2em';
+			control_icon_play.style.margin = '0em';
+			control_icon_play.style.verticalAlign = 'baseline';
+			control_icon_play.style.lineHeight = '0em';
+			control_icon_play.style.letterSpacing = '0em';
+		}
+	}
 }
 
 function updateCameraPosition(){
@@ -2038,6 +2132,7 @@ function updateShapes(time_index){
 
 			if(obj_type == 'sphere'){
 				
+				//printAlert2(obj_num + ',' + spheres[obj_num].x_tm[time_index[0]])
 				spheres[obj_num].position.x = spheres[obj_num].x_tm[time_index[0]][0];
 				spheres[obj_num].position.y = spheres[obj_num].x_tm[time_index[0]][1];
 				spheres[obj_num].position.z = spheres[obj_num].x_tm[time_index[0]][2];

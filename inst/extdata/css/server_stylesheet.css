@@ -140,8 +140,45 @@ body {
 	background-color:purple;
 }
 .timeline_playback_buttons {
+	cursor: default;
 	width:10%;
 	background-color:brown;
+}
+a.timeline_playback_nf {
+	font-size:1.2em;
+	line-height: 0em;
+	letter-spacing: -0.2em;
+	margin-right:60%;
+}
+a.timeline_playback_pf {
+	font-size:1.2em;
+	line-height: 0em;
+	letter-spacing: -1em;
+	margin-right:60%;
+}
+a.timeline_playback_stb {
+	font-size:1.2em;
+	line-height: 0em;
+	letter-spacing: -1em;
+	margin-right:40%;
+}
+a.timeline_playback_ste, a.timeline_playback_stel {
+	font-size:1.2em;
+	line-height: 0em;
+	letter-spacing: -0.2em;
+	margin-right:40%;
+}
+a.timeline_playback_stel {
+	letter-spacing: -1em;
+}
+.timeline_playback_vb {
+	font-size:0.75em;
+	vertical-align:0.1em;
+}
+a.timeline_playback_play {
+	font-size:1.2em;
+	line-height: 0em;
+	letter-spacing: 0em;
 }
 .timeline_speed_input {
 	width:1.5%;
