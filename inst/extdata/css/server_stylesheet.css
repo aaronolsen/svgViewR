@@ -2,7 +2,6 @@
 /*****                                 General style                                *****/
 /****************************************************************************************/
 a {
-	color: #0af;
 }
 body {
 	color: white;
@@ -20,6 +19,11 @@ body {
 	height:0px;
 	color:white;
 	background-color:gray;
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer */
+	-khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
+	-webkit-user-select: none; /* Chrome, Safari, and Opera */
+	-webkit-touch-callout: none; /* Disable Android and iOS callouts*/
 }
 .alert, .alert2, .clock, .idx, .time, .system_time, .inactive_since {
 	position:absolute;
@@ -47,7 +51,7 @@ body {
 
 .timeline_axis {
 	height:65%;
-	background-color:white;
+	background-color:;
 }
 .timeline_axis_space, .timeline_axis_space_left, .timeline_axis_tick, .timeline_axis_tick_tall, .timeline_axis_tick_value, .timeline_axis_tick_value_left, .timeline_axis_vspace, .timeline_axis_tall_vspace, .timeline_axis_tick_value_right, .timeline_axis_value {
 	float:left;
@@ -61,11 +65,11 @@ body {
 	width:100%;
 }
 .timeline_axis_tick {
-	color:#999999;
+	color:rgb(220,220,220);
 	height:35%;
 }
 .timeline_axis_tick_tall {
-	color:black;
+	color:rgb(250,250,250);
 	height:42%;
 }
 .timeline_axis_tick_value_left {
@@ -75,26 +79,26 @@ body {
 	text-align:right;
 }
 .timeline_axis_tall_vspace {
-	background-color:white;
+	background-color:gray;
 	height:8%;
 	width:100%;
 }
 .timeline_axis_vspace {
-	background-color:white;
+	background-color:gray;
 	height:15%;
 	width:100%;
 }
 .timeline_axis_value, .timeline_axis_value_tall {
-	color:black;
+	color:white;
 	font-size:10px;
 	line-height:7px;
 	width:100%;
-	background-color:white;
+	background-color:gray;
 }
 .timeline_axis_value {
 	height:50%;
 }
-.timeline_axis_in, .timeline_axis_units, .timeline_value_div, .timeline_label, .timeline_playback_buttons, .timeline_speed_input, .timeline_speed_value {
+.timeline_axis_in, .timeline_axis_units, .timeline_speed_div, .timeline_speed_label, .timeline_value_div, .timeline_label, .timeline_playback_buttons {
 	float:left;
 	margin:4px 0.05% 0% 0.05%;
 	height:17px;
@@ -106,29 +110,45 @@ body {
 	background-color:;
 	text-align:left;
 	padding-left:3px;
-	width:5%;
+	width:3%;
 }
 .timeline_container {
-	background-color:green;
+	background-color:;
 	height:25px;
 	margin-bottom:3px;
 }
 .timeline_cursor_container {
 	float:left;
+	background-color:;
 	height:100%;
-	margin:0px 1px 0px 1px;
+	margin:2px 1px 0px 1px;
 	width:59%;
+}
+.timeline_value_input {
+	width:60%;
+}
+.timeline_speed_input {
+	width:80%;
+}
+.timeline_speed_label {
+	width:4%;
+	margin-left:1%;
+	background-color:;
+}
+.timeline_speed_div {
+	width:3%;
+	background-color:;
 }
 .timeline_value_div {
 	width:5%;
 	background-color:;
 }
 .timeline_cursor_window {
-	background-color:orange;
+	background-color:;
 	height:35%;
 }
 .timeline_label {
-	background-color:pink;
+	background-color:;
 	margin-left:0.2%;
 	text-align:left;
 	width:12%;
@@ -137,12 +157,12 @@ body {
 	float:left;
 	margin:0px 1% 0% 1%;
 	width:18%;
-	background-color:purple;
+	background-color:;
 }
 .timeline_playback_buttons {
 	cursor: default;
 	width:10%;
-	background-color:brown;
+	background-color:;
 }
 a.timeline_playback_nf {
 	font-size:1.2em;
@@ -180,14 +200,6 @@ a.timeline_playback_play {
 	line-height: 0em;
 	letter-spacing: 0em;
 }
-.timeline_speed_input {
-	width:1.5%;
-	background-color:lime;
-}
-.timeline_speed_value {
-	width:5%;
-	background-color:teal;
-}
 
 /***********************************  Cursor slider   ***********************************/
 .timeline_slider {
@@ -202,7 +214,7 @@ a.timeline_playback_play {
 	-webkit-appearance: none;
 	height: 8px;
 	width: 6px;
-	background: #888888;
+	background: rgb(150,150,150);
 	border-radius: 3px;
 	margin-top: 0px;
 	box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
@@ -212,7 +224,7 @@ a.timeline_playback_play {
 	height: 8px;
 	margin:0px;
 	box-shadow: 0px 0px 0px #000000, 0px 0px 0px #0d0d0d;
-	background: rgb(200,200,200);
+	background: rgb(230,230,230);
 	border-radius: 3px;
 }
 input[type=range]:focus {
