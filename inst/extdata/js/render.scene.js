@@ -342,13 +342,14 @@ function inputTimelineIndex(index, num, type) {
 	
 	// Create copy
 	index_value = index.value;
+	var index_value_input = index_value;
 
 	// Do nothing if empty input string
 	if(index_value == '') return;
 
 	// Value (text) input
 	if(type == 'value'){
-		
+	
 		// If value is outside of min/max range set to min/max
 		if(index_value < timeline_start_disp) index_value = timeline_start_disp;
 		if(index_value > timeline_end_disp) index_value = timeline_end_disp;
@@ -369,6 +370,8 @@ function inputTimelineIndex(index, num, type) {
 		// Set elapsed time based on index		
 		//elapsed_ms = animation_start + ((index_value-1)/98) * animation_duration;
 		elapsed_ms = (index_value / 100) * animation_duration;
+
+		//printAlert2(index_value_input + ',' + anim_index[num] + ',' + nearestTimeIndex(elapsed_ms, animation_duration, animation_ntimes))
 
 		// Find closest time index in animation
 		anim_index[num] = nearestTimeIndex(elapsed_ms, animation_duration, animation_ntimes);
@@ -474,6 +477,7 @@ function invertQuat(quat){
 }
 
 function loadAnimation() {
+
 	// Fill animation times
 	var i;
 	for(i=0; i < svg_obj.animate.times.length; i++) animation_times[i] = svg_obj.animate.times[i];
@@ -1086,11 +1090,14 @@ function onReady(){
 	// Load coordinate objects
 	loadGeometries();
 	
-	// Load animation
-	loadAnimation();
+	if(animate){
+
+		// Load animation
+		loadAnimation();
 	
-	// Set animation speed at start
-	changeAnimationSpeed(play_speed, 0)
+		// Set animation speed at start
+		changeAnimationSpeed(play_speed, 0)
+	}
 
 	// Load deformation
 	loadDeformation();
@@ -1754,10 +1761,10 @@ var render = function () {
 		for (i = 1; i <= n_timelines; i++){
 
 			// Update slider position
-			document.getElementById('timeline_slider_' + i).value = Math.round(((anim_index[i-1]) / (animation_ntimes-1))*100);
+			document.getElementById('timeline_slider_' + i).value = ((anim_index[i-1]) / (animation_ntimes-1))*100;
 
 			// Update input value
-			document.getElementById('timeline_value_' + i).value = timeline_start_disp + Math.round(timeline_duration_disp*((anim_index[i-1]) / (animation_ntimes-1))*100)/100;
+			document.getElementById('timeline_value_' + i).value = timeline_start_disp + Math.round(timeline_duration_disp*((anim_index[i-1]) / (animation_ntimes-1))*1000)/1000;
 		}
 	}
 
