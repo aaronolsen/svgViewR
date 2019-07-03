@@ -65,10 +65,10 @@
 \tabular{ll}{
 Package: \tab svgViewR\cr
 Type: \tab Package\cr
-Version: \tab 1.3.1\cr
-Date: \tab 2018-10-15\cr
+Version: \tab 1.4\cr
+Date: \tab 2019-07-03\cr
 License: \tab GPL (>= 2)\cr}}
 \author{
-Aaron Olsen
+Aaron Olsen, Alejandro Romero
 Maintainer: Aaron Olsen <aarolsen@gmail.com>
 }
