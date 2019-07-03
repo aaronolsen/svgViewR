@@ -4,7 +4,7 @@ svg.deform <- function(dmarr, applyto = '', times = NULL, regexp = FALSE){
 	if(times[1] != 0) times <- times - min(times, na.rm=TRUE)
 
 	# Make sure that type is webgl
-	if('svg' == getOption("svgviewr_glo_type")) stop("Deform is currently only available with webgl svgViewR output.")
+	if('svg' == getOption("svgviewr_glo_type")) stop("'webgl' mode must be used to enable mesh drawing. This can be done by adding the following parameter to the svg.new() function call: mode='webgl'. This will become the default mode by version 1.4.")
 	
 	# Get viewer environment
 	env <- as.environment(getOption("svgviewr_glo_env"))

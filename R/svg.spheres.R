@@ -5,7 +5,7 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0
 	if(length(x) == 0) return(NULL)
 
 	# Make sure that type is webgl
-	if('svg' == getOption("svgviewr_glo_type")) stop("Sphere drawing is currently only available with webgl svgViewR output.")
+	if('svg' == getOption("svgviewr_glo_type")) stop("'webgl' mode must be used to enable mesh drawing. This can be done by adding the following parameter to the svg.new() function call: mode='webgl'. This will become the default mode by version 1.4.")
 
 	# Get viewer environment
 	env <- as.environment(getOption("svgviewr_glo_env"))

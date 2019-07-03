@@ -2,7 +2,7 @@ svg.sphere <- function(center = NULL, ends = NULL, radius = NULL, width = NULL, 
 	col='blue', emissive=rgb(0.03, 0.15, 0.21), opacity = 1, name = 'sphere', seg = 40, ontop = FALSE){
 
 	# Make sure that type is webgl
-	#if('live' != getOption("svgviewr_glo_type")) stop("Sphere drawing is currently only available with webgl svgViewR output.")
+	if('svg' == getOption("svgviewr_glo_type")) stop("'webgl' mode must be used to enable mesh drawing. This can be done by adding the following parameter to the svg.new() function call: mode='webgl'. This will become the default mode by version 1.4.")
 
 	# Types of input
 	#	sphere: center, radius

@@ -5,7 +5,7 @@ svg.carrow <- function(center, axis, point.radius=NULL, radius=NULL, point.radiu
 	name='carrow'){
 
 	# Make sure that type is webgl
-	if('svg' == getOption("svgviewr_glo_type")) stop("Curved arrow drawing is currently only available with webgl svgViewR output.")
+	if('svg' == getOption("svgviewr_glo_type")) stop("'webgl' mode must be used to enable mesh drawing. This can be done by adding the following parameter to the svg.new() function call: mode='webgl'. This will become the default mode by version 1.4.")
 	
 	if(is.null(point.radius) && is.null(radius)) stop("Both 'point.radius' and 'radius' are NULL. One must be non-NULL.")
 	

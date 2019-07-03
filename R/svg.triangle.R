@@ -2,7 +2,7 @@ svg.triangle <- function(corners, col='blue', seg=1, emissive=rgb(0.03, 0.15, 0.
 	ontop = FALSE, return.shape = FALSE, plot = TRUE){
 
 	# Make sure that type is webgl
-	if('svg' == getOption("svgviewr_glo_type")) stop("Triangle drawing is currently only available with webgl svgViewR output.")
+	if('svg' == getOption("svgviewr_glo_type")) stop("'webgl' mode must be used to enable mesh drawing. This can be done by adding the following parameter to the svg.new() function call: mode='webgl'. This will become the default mode by version 1.4.")
 	
 	# Create points along edges of triangle
 	if(seg > 1){

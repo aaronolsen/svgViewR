@@ -5,7 +5,7 @@ svg.farrow <- function(ends=NULL, center=NULL, length=NULL, width.prop=0.05, wid
 	plot=TRUE){
 
 	# Make sure that type is webgl
-	if('svg' == getOption("svgviewr_glo_type")) stop("Flat arrow drawing is currently only available with webgl svgViewR output.")
+	if('svg' == getOption("svgviewr_glo_type")) stop("'webgl' mode must be used to enable mesh drawing. This can be done by adding the following parameter to the svg.new() function call: mode='webgl'. This will become the default mode by version 1.4.")
 	
 	# Can input separate segments for shaft and head, if not repeat
 	if(length(seg) == 1) seg <- rep(seg, 2)
