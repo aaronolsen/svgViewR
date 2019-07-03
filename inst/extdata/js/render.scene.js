@@ -1,4 +1,5 @@
 // Start arrays for drawn objects
+var animation_times = new Array( );
 var arrows = new Array( );
 var lines = new Array( );
 var meshes = new Array( );
@@ -8,7 +9,7 @@ var spheres = new Array( );
 var sprites = new Array( );
 
 // Declare global variables
-var anim_index, anim_start, animation_times, animations, anim_pause_time, camera, controls;
+var anim_index, anim_start, animations, anim_pause_time, camera, controls;
 var elapsed_ms, image_name, image_obj;
 var image_opacity, mesh_name, mesh_opacity, mesh_color, renderer, scene, stats;
 var update_obj = {
@@ -214,7 +215,36 @@ function addMeshToScene( geometry, materials ) {
 	}
 }
 
-//Given points a and b, find the distance between these points
+function changeAnimationSpeed(speed, num){
+
+	var i;
+
+	if(speed == 0) return;
+
+	// Set play speed
+	play_speed = speed;
+	
+	// Update times based on new play speed
+	for(i=0; i < animation_times.length; i++) animation_times[i] = svg_obj.animate.times[i] * (1 / play_speed);
+	
+	// Update animation time parameters
+	animation_start = Math.min(...animation_times)
+	animation_end = Math.max(...animation_times)
+	animation_duration = animation_end - animation_start
+
+    // Set elapsed time to match
+    elapsed_ms = ((anim_index[0]) / (animation_ntimes-1))*animation_duration;
+
+    // Update animation start timing so that animation resumes from same position whether playing or paused
+	if(anim_pause){
+		anim_start = Date.now() + elapsed_ms;
+		anim_pause_start = anim_start;
+		anim_pause_time = anim_pause_start + elapsed_ms;
+	}else{
+		anim_start = Date.now() - elapsed_ms;
+	}
+}
+
 function dataURItoBlob(dataURI) {
 
     // convert base64/URLEncoded data component to raw binary data held in a string
@@ -318,7 +348,7 @@ function inputTimelineIndex(index, num, type) {
 
 	// Value (text) input
 	if(type == 'value'){
-	
+		
 		// If value is outside of min/max range set to min/max
 		if(index_value < timeline_start_disp) index_value = timeline_start_disp;
 		if(index_value > timeline_end_disp) index_value = timeline_end_disp;
@@ -444,9 +474,9 @@ function invertQuat(quat){
 }
 
 function loadAnimation() {
-
-	// Set animation times
-	animation_times = svg_obj.animate.times;
+	// Fill animation times
+	var i;
+	for(i=0; i < svg_obj.animate.times.length; i++) animation_times[i] = svg_obj.animate.times[i];
 }
 
 function loadDeformation() {
@@ -1058,6 +1088,9 @@ function onReady(){
 	
 	// Load animation
 	loadAnimation();
+	
+	// Set animation speed at start
+	changeAnimationSpeed(play_speed, 0)
 
 	// Load deformation
 	loadDeformation();
@@ -1680,6 +1713,7 @@ var render = function () {
 	
 	// Update inactive since (in seconds)
 	inactive_since = (Date.now() - inactive_start_time) / 1000;
+
 	// If there is an animation
 	if(animate){
 
@@ -1723,7 +1757,7 @@ var render = function () {
 			document.getElementById('timeline_slider_' + i).value = Math.round(((anim_index[i-1]) / (animation_ntimes-1))*100);
 
 			// Update input value
-			document.getElementById('timeline_value_' + i).value = Math.round(timeline_start_disp + timeline_duration_disp*((anim_index[i-1]) / (animation_ntimes-1))*100)/100;
+			document.getElementById('timeline_value_' + i).value = timeline_start_disp + Math.round(timeline_duration_disp*((anim_index[i-1]) / (animation_ntimes-1))*100)/100;
 		}
 	}
 
@@ -1871,6 +1905,11 @@ function skipToAnimationFrame(to, num){
 
     // Update shapes
     updateShapes(anim_index);
+
+    // Animation pause time just needs to be greater than animation pause start by the amount of elapsed time
+    // Then when animation starts again, it will start from input index
+    anim_pause_start = anim_start;
+    anim_pause_time = anim_pause_start + elapsed_ms;
 }
 
 function updateAnimationIcons(state){
