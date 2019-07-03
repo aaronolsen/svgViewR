@@ -98,7 +98,7 @@ svg.close <- function(wait = FALSE, quiet = TRUE){
 			}
 
 			# Apply play speed factor
-			svgviewr_env$svg$animate$times <- svgviewr_env$svg$animate$times*(1/svgviewr_env$js_var[['play_speed']])
+			#svgviewr_env$svg$animate$times <- svgviewr_env$svg$animate$times*(1/svgviewr_env$js_var[['play_speed']])
 			
 			# Set js variables
 			svgviewr_env$js_var[['browser_open']] <- TRUE
