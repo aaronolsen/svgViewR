@@ -140,7 +140,7 @@ body {
 	background-color:;
 }
 .timeline_value_div {
-	width:5%;
+	width:5.5%;
 	background-color:;
 }
 .timeline_cursor_window {
@@ -151,7 +151,7 @@ body {
 	background-color:;
 	margin-left:0.2%;
 	text-align:left;
-	width:12%;
+	width:11%;
 }
 .timeline_playback_button {
 	float:left;
