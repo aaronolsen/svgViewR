@@ -211,14 +211,15 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 							'" step="', timeline_step, '" value="', js.var[['timeline_start_disp']], '">
 					</div>')
 
+			# Timeline playback controls
 			body_html <- paste0(body_html, '
 					<div id="timeline_playback_buttons_', tl_num, '" class="timeline_playback_buttons" >
-						<div title="Skip to beginning" class="timeline_playback_button" onClick="javascript:skipToAnimationFrame(\'b\', \'', tl_num-1, '\');">
+						<div title="Skip to the beginning" class="timeline_playback_button" onClick="javascript:skipToAnimationFrame(\'b\', \'', tl_num-1, '\');">
 							<a class="timeline_playback_stb">
 								<span class="timeline_playback_vb">&#9614;</span>&#9664;
 							</a><a class="timeline_playback_play">&#9664;</a>
 						</div>
-						<div title="Previous frame" class="timeline_playback_button" onClick="javascript:skipToAnimationFrame(\'p\', \'', tl_num-1, '\');">
+						<div title="Previous (key)frame" class="timeline_playback_button" onClick="javascript:skipToAnimationFrame(\'p\', \'', tl_num-1, '\');">
 							<a class="timeline_playback_pf">
 								<span class="timeline_playback_vb">&#9614;</span>&#9664;
 							</a>
@@ -228,18 +229,24 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 								&#9654;
 							</a>
 						</div>
-						<div class="timeline_playback_button" onClick="javascript:skipToAnimationFrame(\'n\', \'', tl_num-1, '\');">
+						<div title="Next (key)frame" class="timeline_playback_button" onClick="javascript:skipToAnimationFrame(\'n\', \'', tl_num-1, '\');">
 							<a class="timeline_playback_nf">
 								&#9654;<span class="timeline_playback_vb">&#9614;</span>
 							</a>
 						</div>
-						<div class="timeline_playback_button" onClick="javascript:skipToAnimationFrame(\'e\', \'', tl_num-1, '\');">
+						<div title="Skip to the end" class="timeline_playback_button" onClick="javascript:skipToAnimationFrame(\'e\', \'', tl_num-1, '\');">
 							<a class="timeline_playback_stel">&#9654;</a><a class="timeline_playback_ste">&#9654;<span class="timeline_playback_vb">&#9614;</span></a>
 						</div>
-					</div>
+					</div>\n')
 
-					<div id="timeline_speed_value_', tl_num, '" class="timeline_speed_value" >Speed</div>
-					<div id="timeline_speed_input_', tl_num, '" class="timeline_speed_input" >Input</div>
+			# Animation speed settings
+			body_html <- paste0(body_html, '
+					<div class="timeline_speed_label" >Speed:</div>
+					<div id="timeline_speed_', tl_num, '_div" class="timeline_speed_div" >
+						<input id="timeline_speed_', tl_num, '" type="number" oninput="changeAnimationSpeed(this.value, ', tl_num-1, ')" 
+							title="Set speed of animation playback" class="timeline_speed_input" 
+							min="0.1" max="10" step="0.1" value="', js.var[['play_speed']], '" >
+					</div>
 				</div>\n')
 		}
 
@@ -264,9 +271,9 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 	if(js.var[['show_clock']]){
 		body_html <- paste0(body_html, '
 		<div class="system_time" >\n\t\t\tSystem time (ms): <span id="system_time" ></span>\n\t\t</div>
-		<div class="clock" >\n\t\t\tClock: <span id="clock" ></span>\n\t\t</div>
+		<div class="clock" >\n\t\t\telapsed_ms: <span id="clock" ></span>\n\t\t</div>
 		<div class="idx" >\n\t\t\tIndex: <span id="idx" ></span>\n\t\t</div>
-		<div class="time" >\n\t\t\tTime: <span id="time" ></span>\n\t\t</div>
+		<div class="time" >\n\t\t\telapsed_ms*play_speed: <span id="time" ></span>\n\t\t</div>
 		\n')
 	}
 
