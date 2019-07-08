@@ -150,8 +150,8 @@ bestAlign_svg <- function(m1, m2, m3 = NULL, sign = NULL){
 			m2r_cprod <- uvector_svg(cprod_svg(m2r[2, ]-m2r[1, ], m2r[3, ]-m2r[1, ]))
 		
 			# FIND DISTANCE FROM CPROD VECTOR TO OTHER POINTS
-			dpp <- dppt(m2c_cprod, m2c[4:min(7,nrow(m2c)), ])
-			dpp_r <- dppt(m2r_cprod, m2r[4:min(7,nrow(m2r)), ])
+			dpp <- dppt_svg(m2c_cprod, m2c[4:min(7,nrow(m2c)), ])
+			dpp_r <- dppt_svg(m2r_cprod, m2r[4:min(7,nrow(m2r)), ])
 		
 			# CHIRALITY HAS FLIPPED, FLIP 3RD COLUMN OF SVD$v AND RE-TRANSFORM
 			if(sum(round(abs(dpp - dpp_r), 7)) > 0.001){
