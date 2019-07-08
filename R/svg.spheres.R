@@ -52,8 +52,11 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0
 			svgviewr_env$ref$num <- c(svgviewr_env$ref$num, add_at)
 			svgviewr_env$ref$type <- c(svgviewr_env$ref$type, 'sphere')
 
-			# Add animation
-			svgviewr_env[['svg']][['sphere']][[add_at]][['x_tm']] <- lapply(seq_len(dim(x)[3]), function(iter) x[i,,iter])
+			# Add animated x
+			svgviewr_env[['svg']][['sphere']][[add_at]][['x_animated']] <- lapply(seq_len(dim(x)[3]), function(iter) as.list(setNames(signif(x[i,,iter], digits=env[['svgviewr_env']][['js_var']][['signif_digits']]), c('x', 'y', 'z'))))
+			
+			# Set number of timelines
+			svgviewr_env$js_var[['n_timelines']] <- 1
 		}
 	}
 
