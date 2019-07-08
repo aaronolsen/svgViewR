@@ -33,7 +33,7 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 			}else{
 
 				# Read OBJ as string
-				obj_list <- read_obj_str(paste(suppressWarnings(readLines(file)), collapse="*"))
+				obj_list <- read_obj_str(paste(paste(suppressWarnings(readLines(file)), collapse="*"), '*'))
 
 				## Format faces for threejs
 				# Convert to matrix
@@ -102,7 +102,7 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 			}else{
 
 				# Read OBJ as string
-				obj_list <- read_obj_str(paste(suppressWarnings(readLines(file)), collapse="*"))
+				obj_list <- read_obj_str(paste(paste(suppressWarnings(readLines(file)), collapse="*"), '*'))
 
 				## Format faces for threejs
 				# Convert to matrix
