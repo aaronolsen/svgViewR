@@ -4,7 +4,7 @@
 \description{A function taking coordinates given in various ways and joining the corresponding points with line segments in an SVG Viewer.}
 \usage{
 svg.lines(x, y=NULL, col="black", z.index=0, layer="", name="line", label="", 
-          lwd=1, opacity=1, file=NULL)
+          lwd=1, opacity=1, seg=1, ontop=FALSE, file=NULL)
 }
 \arguments{
   \item{x}{A vector, matrix or array of 2D or 3D coordinates to be joined by a line or lines. Coordinates input as an array will be animated.}
@@ -16,6 +16,8 @@ svg.lines(x, y=NULL, col="black", z.index=0, layer="", name="line", label="",
   \item{label}{A label to be added to the SVG object in SVG tag.}
   \item{lwd}{The thickness of the line(s).}
   \item{opacity}{A number between \code{0} and \code{1} indicating the opacity of the line(s).}
+  \item{seg}{The number of segments to use in drawing the line.}
+  \item{ontop}{Whether the line should appear on top of all other objects in the viewer (to manually set order in cases of incorrect ordering due to partial opacities).}
   \item{file}{File path (having the extenstion ".html") to add lines to a current SVG Viewer file. By default (i.e. \code{NULL}) lines are added to the SVG Viewer opened by \code{\link{svg.new}}.}
 }
 \details{

@@ -4,24 +4,26 @@
 \description{Creates a new Viewer file as an HTML document to which objects can be added, with optional specification of various animation parameters.}
 \usage{
 svg.new(file = NULL, window.title="svgViewR", animate.duration = 1, 
-        animate.speed = 1, animate.reverse = FALSE, 
-        animate.repeat = -1, margin = 20, col = "white", 
-        time.units = 'sec', clock = FALSE, stats = FALSE, 
-        show.control = TRUE, start.rotate = TRUE, 
-        rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, 
-        layers = NULL, connection = TRUE, mode = c('svg', 'webgl'), 
-        debug = FALSE)
+        animate.speed = 1, interpolate = TRUE, timeline = TRUE, mode = c('svg', 'webgl'), 
+        animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
+        times = NULL, clock = FALSE, stats = FALSE, show.control = TRUE, 
+        start.rotate = TRUE, rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, 
+        layers = NULL, connection = TRUE, close.on.done = TRUE, 
+        file.type = NULL, app.dir.src = NULL, debug = FALSE, src.link = NULL)
 }
 \arguments{
   \item{file}{File path and name (having the extenstion ".html") where Viewer will be created. If file is \code{NULL} then the viewer will open over a local server in the default web browser and mode 'webgl' will be automatically selected.}
   \item{window.title}{The Viewer title, visible at the top of the web browser window.}
   \item{animate.duration}{Only used in 'svg' mode. The approximate duration in seconds of the animation. When the number of objects to be displayed is large, the actual duration might exceed this number.}
   \item{animate.speed}{Only used in 'webgl' mode. The relative speed at which the animation will playback. For example, to play the animation at half the real speed, \code{animate.speed} would be 0.5.}
+  \item{interpolate}{Whether transformations should be interpolated between input transformations (i.e. keyframes).}
+  \item{timeline}{If the visualization includes an animation, whether the timeline is viewable. The timeline includes controls for navigating through the animation (play, pause, change animation speed, etc.).}
+  \item{mode}{Whether to draw using the old mode ('svg') or the new mode ('webgl'). See details.}
   \item{animate.reverse}{A logical indicating whether the animation is to be played in reverse after each iteration. Only used in 'svg' mode.}
   \item{animate.repeat}{An integer specifying the number of times the animation will repeat. A value of \code{-1} will cause the animation to repeat indefinitely. Only used in 'svg' mode.}
   \item{margin}{Margin when resizing visualization to fit the browser window.}
   \item{col}{Viewer background color.}
-  \item{time.units}{The units for the times specified in any transformation.}
+  \item{times}{If including animated shapes without svg.transform, this parameter can be used to input time points corresponding to each frame of the animation.}
   \item{clock}{Whether a clock should be visible or not.}
   \item{stats}{Whether processing stats should be visible or not.}
   \item{show.control}{Whether control panel should be visible or not. Only used in 'svg' mode.}
@@ -31,8 +33,11 @@ svg.new(file = NULL, window.title="svgViewR", animate.duration = 1,
   \item{pan.speed}{How much the camera pans in response to mouse click and drag. Only used in 'webgl' mode.}
   \item{layers}{Not yet fully enabled.}
   \item{connection}{Whether to open a file connection or create a closed file.}
-  \item{mode}{Whether to draw using the old mode ('svg') or the new mode ('webgl'). See details.}
-  \item{debug}{Used for debugging.}
+  \item{close.on.done}{If screenshots are being saved as images, whether browser should close after saving out screenshots as images.}
+  \item{file.type}{If screenshots are being saved as images, the type of image (e.g. jpeg, jpg, tiff, png).}
+  \item{app.dir.src}{A filepath to the code source files for use when running package from source (used for debugging only).}
+  \item{debug}{Whether to run viewer in debug mode (used for debugging only).}
+  \item{src.link}{Whether to include javascript code as a source links rather than directly embedded in html file (used for debugging only).}
 }
 \details{
 This function is used to initialize a new Viewer. Before adding shapes to a Viewer, this function is called to create the HTML file to which the objects can be added. svgViewR is currently undergoing a significant overhaul. The previous plotting using SVG (scalable vector graphics) is being replaced with visualizations created using WebGL (the Web Graphics Library) and the javascript library three.js. All backward compatability with the svg format should be maintained. To use the new plotting mode, set the \code{mode} parameter to 'webgl'. Plotting in the 'webgl' mode is limited as I have only begun implementing it.
