@@ -1,16 +1,16 @@
-readOBJ <- function(file){
+readOBJ <- function(file, scaling = 1){
 
 	# Read lines
 	read_lines <- suppressWarnings(readLines(con=file))
 	
 	# Paste into string
-	obj_str <- paste(read_lines, collapse="*")
+	obj_str <- paste0(paste0(read_lines, collapse="*"), '*')
 
 	# Use C++ function to read string
 	read_obj <- read_obj_str(obj_str)
 	
 	# Convert to matrix
-	vertices <- matrix(read_obj$vertices, nrow=length(read_obj$vertices)/3, ncol=3, byrow=TRUE)
+	vertices <- matrix(read_obj$vertices, nrow=length(read_obj$vertices)/3, ncol=3, byrow=TRUE)*scaling
 	
 	# Get vertex normals
 	normals <- read_lines[grepl('^vn ', read_lines)]
