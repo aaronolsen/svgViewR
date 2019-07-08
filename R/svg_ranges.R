@@ -70,17 +70,17 @@ svg_ranges <- function(x = NULL){
 				}else if(svgviewr_env$ref$type[oi] == 'sphere'){
 
 					# Get limits
-					if(is.null(obj$x_tm)){
+					if(is.null(obj$x_animated)){
 						lim <- rbind(obj$x + obj$radius*c(1,1,1), obj$x - obj$radius*c(1,1,1))
 					}else{
 
 						# All NA values
-						if(sum(!is.na(unlist(obj$x_tm))) == 0){
+						if(sum(!is.na(unlist(obj$x_animated))) == 0){
 							corners <- NULL
 							next
 						}
 
-						mat_lim <- apply(matrix(unlist(obj$x_tm), ncol = 3, byrow = TRUE), 2, 'range', na.rm=TRUE)
+						mat_lim <- apply(matrix(unlist(obj$x_animated), ncol = 3, byrow = TRUE), 2, 'range', na.rm=TRUE)
 						lim <- rbind(mat_lim[1,] + obj$radius*c(1,1,1), mat_lim[1,] - obj$radius*c(1,1,1), 
 							mat_lim[2,] + obj$radius*c(1,1,1), mat_lim[2,] - obj$radius*c(1,1,1))
 						lim <- apply(lim, 2, 'range', na.rm=TRUE)
