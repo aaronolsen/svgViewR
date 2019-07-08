@@ -14,7 +14,9 @@ Rcpp::List read_obj_str( std::vector< std::string > string) {
 	bool char1_l = FALSE;
 	bool char1_v = FALSE;
 	bool char2_n = FALSE;
+	bool debug = FALSE;
 	int	str_type = 0;
+	int num_slash = 0;
 	std::string f_string;
 	std::string l_string;
 	std::string v_string;
@@ -38,23 +40,31 @@ Rcpp::List read_obj_str( std::vector< std::string > string) {
 			str_char = string[i].substr( j, 1 );
 
 //		Rcpp::Rcout << "{" << str_char << "}";
+			if(debug) Rcpp::Rcout << "type=" << str_type << ", char=" << str_char << ", ";
+
+			if(str_char == " " && num_slash == 6){
+				if(debug) Rcpp::Rcout << "\n";
+				continue;
+			}
 
 			switch(str_type){
 				case 1:
 
-//		Rcpp::Rcout << "[" << f_string << "]\n";
-
+					if(debug) Rcpp::Rcout << f_string << " (" << num_slash << ")";
+					
 					if(str_char == " " || str_char == "f" || str_char == "#" || str_char == "*"){
 					
 						// Add to vector
 						f_vec.push_back( std::stod(f_string) );
-				
+			
 						// Clear f_string
 						f_string = "";
 
 					}else{
 
 						if(str_char == "/"){
+						
+							num_slash = num_slash + 1;
 				
 							if(char1_b){
 
@@ -71,7 +81,7 @@ Rcpp::List read_obj_str( std::vector< std::string > string) {
 							}
 
 						}else{
-				
+
 							// Add character to string
 							f_string = f_string + str_char;
 						}
@@ -101,6 +111,8 @@ Rcpp::List read_obj_str( std::vector< std::string > string) {
 
 				case 3:
 
+					if(debug) Rcpp::Rcout << v_string;
+
 					if(str_char == " " || str_char == "v" || str_char == "#" || str_char == "*"){
 					
 	//		Rcpp::Rcout << "[" << v_string << "]\n";
@@ -121,7 +133,7 @@ Rcpp::List read_obj_str( std::vector< std::string > string) {
 
 				case 4:
 
-					if(str_char == " " || str_char == "v" || str_char == "#" || str_char == "*"){
+					if(str_char == " " || str_char == "vn" || str_char == "#" || str_char == "*"){
 					
 	//		Rcpp::Rcout << vn_string << "\n";
 
@@ -140,11 +152,20 @@ Rcpp::List read_obj_str( std::vector< std::string > string) {
 					break;
 			}
 
+			if(debug) Rcpp::Rcout << "\n";
+
 			if(str_char == "#") continue;
 
+			// New line
 			if(str_char == "*"){
+				num_slash = 0;
 				str_type = 0;
 				char0_s = TRUE;
+				continue;
+			}
+			
+			if(str_type == 0 && str_char == "v"){
+				char1_v = TRUE;
 				continue;
 			}
 
@@ -190,6 +211,8 @@ Rcpp::List read_obj_str( std::vector< std::string > string) {
 			}
 		}
     }
+
+	if(debug) Rcpp::Rcout << "\nEnd\n";
     
 	return Rcpp::List::create(Rcpp::Named("normals") = vn_vec,
 		Rcpp::Named("vertices") = v_vec, Rcpp::Named("faces") = f_vec, 
