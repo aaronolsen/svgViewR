@@ -212,13 +212,15 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['tmat']] <- tmarr
 
 				}else if(ref_types[idx] == 'sphere'){
-		
-					# Apply transformation to coordinate
-					x_tm <- apply_transform_svg(to=svgviewr_env$svg[[ref_types[idx]]][[ref_nums[idx]]][['x']], 
-						tmat=tmarr)
+				
+					# Get transformed positions
+					x_position <- applyTransform(to=svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['x']], tmat=tmarr)
+					
+					# Convert into list
+					position <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(signif(x_position[i,], digits=env[['svgviewr_env']][['js_var']][['signif_digits']]), c('x', 'y', 'z'))))
 
-					# Transform center
-					svgviewr_env$svg[[ref_types[idx]]][[ref_nums[idx]]][['x_tm']] <- lapply(seq_len(nrow(x_tm)), function(i) x_tm[i,])
+					# Save transformations
+					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['x_animated']] <- position
 
 				}else if(ref_types[idx] == 'line'){
 
