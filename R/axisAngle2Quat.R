@@ -3,7 +3,7 @@ axisAngle2Quat <- function(axis, angle){
 	## From: https://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
 
 	# Make sure axis is normalized
-	axis <- uvector(axis)
+	axis <- uvector_svg(axis)
 
 	angle2 <- angle / 2
 

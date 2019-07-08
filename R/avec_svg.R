@@ -38,8 +38,8 @@ avec_svg <- function(u, v, axis=NULL, about.axis=FALSE, max.pi=FALSE){
 		if(about.axis){
 
 			# DETERMINE ANGLE BETWEEN VECTORS ABOUT AXIS
-			up <- pointPlaneProj(uu, c(0,0,0), axis)
-			vp <- pointPlaneProj(vu, c(0,0,0), axis)
+			up <- pointPlaneProj_svg(uu, c(0,0,0), axis)
+			vp <- pointPlaneProj_svg(vu, c(0,0,0), axis)
 			
 			if(sqrt(sum(up * up)) == 0 || sqrt(sum(vp * vp)) == 0) return(0)
 
@@ -63,7 +63,7 @@ avec_svg <- function(u, v, axis=NULL, about.axis=FALSE, max.pi=FALSE){
 			um <- sqrt(sum(u^2))
 			vm <- sqrt(sum(u^2))
 			
-			if(dppt_svg((uu %*% tMatrixEP(cprod_uv, angle))*vm, v) <= dppt_svg((uu %*% tMatrixEP(cprod_uv, -angle))*vm, v)){
+			if(dppt_svg((uu %*% tMatrixEP_svg(cprod_uv, angle))*vm, v) <= dppt_svg((uu %*% tMatrixEP_svg(cprod_uv, -angle))*vm, v)){
 				return(angle)
 			}else{
 				return(-angle)
