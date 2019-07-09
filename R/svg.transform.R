@@ -214,7 +214,7 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 				}else if(ref_types[idx] == 'sphere'){
 				
 					# Get transformed positions
-					x_position <- applyTransform(to=svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['x']], tmat=tmarr)
+					x_position <- applyTransform_svg(to=svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['x']], tmat=tmarr)
 					
 					# Convert into list
 					position <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(signif(x_position[i,], digits=env[['svgviewr_env']][['js_var']][['signif_digits']]), c('x', 'y', 'z'))))
