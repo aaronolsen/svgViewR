@@ -55,7 +55,9 @@ Rcpp::List read_obj_str( std::vector< std::string > string) {
 					if(str_char == " " || str_char == "f" || str_char == "#" || str_char == "*"){
 					
 						// Add to vector
-						f_vec.push_back( std::stod(f_string) );
+						//f_vec.push_back( std::stod(f_string) );
+						f_vec.push_back( atof(f_string.c_str()) );
+						
 			
 						// Clear f_string
 						f_string = "";
@@ -69,7 +71,8 @@ Rcpp::List read_obj_str( std::vector< std::string > string) {
 							if(char1_b){
 
 								// Add to vector
-								f_vec.push_back( std::stod(f_string) );
+								//f_vec.push_back( std::stod(f_string) );
+								f_vec.push_back( atof(f_string.c_str()) );
 				
 								// Clear f_string
 								f_string = "";
@@ -96,7 +99,8 @@ Rcpp::List read_obj_str( std::vector< std::string > string) {
 					if(str_char == " " || str_char == "l" || str_char == "#" || str_char == "*"){
 					
 						// Add to vector
-						l_vec.push_back( std::stod(l_string) );
+						//l_vec.push_back( std::stod(l_string) );
+						l_vec.push_back( atof(l_string.c_str()) );
 				
 						// Clear l_string
 						l_string = "";
@@ -118,7 +122,8 @@ Rcpp::List read_obj_str( std::vector< std::string > string) {
 	//		Rcpp::Rcout << "[" << v_string << "]\n";
 
 						// Add to vector
-						v_vec.push_back( std::stod(v_string) );
+						//v_vec.push_back( std::stod(v_string) );
+						v_vec.push_back( atof(v_string.c_str()) );
 				
 						// Clear v_string
 						v_string = "";
@@ -138,7 +143,8 @@ Rcpp::List read_obj_str( std::vector< std::string > string) {
 	//		Rcpp::Rcout << vn_string << "\n";
 
 						// Add to vector
-						vn_vec.push_back( std::stod(vn_string) );
+						//vn_vec.push_back( std::stod(vn_string) );
+						vn_vec.push_back( atof(vn_string.c_str()) );
 				
 						// Clear v_string
 						vn_string = "";
