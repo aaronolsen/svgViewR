@@ -37,6 +37,7 @@ The graphical parameters \code{col}, \code{z.index}, \code{layer}, \code{label},
 \code{\link{svg.points}}
 }
 \examples{
+\dontrun{
 ## Transform a circle into an ellipse
 # Create new viewer
 svg.new(file='svgviewr.html', animate.reverse=TRUE, animate.duration=1)
@@ -62,4 +63,5 @@ svg.pathsC(1:dim(x)[1], col.fill="blue", opacity.fill=0.1,
 svg.close()
 
 # Open svgviewr.html to visualize
+}
 }
