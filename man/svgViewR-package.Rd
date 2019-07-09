@@ -100,7 +100,7 @@
 
 \docType{package}
 \title{3D Animated Interactive Visualizations using SVG}
-\description{The \code{svgViewR} package allows users to create 3D animated, interactive visualizations that can be viewed in a web browser.}
+\description{The \code{svgViewR} package allows users to create 3D animated, interactive visualizations that can be viewed in a web browser. Please see \href{https://aaronolsen.github.io/tutorials/visualization3d.html}{svgViewR tutorials} for examples of how to use this package.}
 \details{
 \tabular{ll}{
 Package: \tab svgViewR\cr
@@ -109,6 +109,5 @@ Version: \tab 1.4\cr
 Date: \tab 2019-07-03\cr
 License: \tab GPL (>= 2)\cr}}
 \author{
-Aaron Olsen, Alejandro Romero
-Maintainer: Aaron Olsen <aarolsen@gmail.com>
+Aaron Olsen (maintainer, <aarolsen@gmail.com>), Alejandro Romero
 }

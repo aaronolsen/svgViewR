@@ -8,7 +8,7 @@ svg.mesh(file=NULL,
          col='#F5F5F5', emissive='black', opacity=1, ontop=FALSE, get.lim=TRUE)
 }
 \arguments{
-  \item{file}{A mesh file in the .obj or .json. Input of a .json file will be slightly faster than for an .obj file (see \code{\link{objToJSON}} on how to convert an .obj to .json format). If \code{\link{svg.new}} is called without a filename (loading the Viewer as a local server), you will be prompted to create a .json file since the server must read a .json file.}
+  \item{file}{A mesh file in the .obj or .json.}
   \item{name}{The name of the mesh. By default, the filename is used (without the file extension). This is used when applying transformations to drawn objects.}
   \item{col}{The mesh color.}
   \item{emissive}{The mesh emissive color.}
