@@ -11,6 +11,14 @@ body {
 	margin: 0px;
 	overflow: hidden;
 }
+.control_panel {
+	position:absolute;
+	top:0px;
+	right:0px;
+	margin:10px;
+	background-color:gray;
+	text-align:left;
+}
 .bottom_frame {
 	position:absolute;
 	visibility:none;
@@ -43,6 +51,16 @@ body {
 	position: absolute;
 	top: 0px; width: 100%;
 	padding: 5px;
+}
+
+/****************************************************************************************/
+/*****                              Control panel style                             *****/
+/****************************************************************************************/
+
+.visibility_row {
+	float:left;
+	background-color:;
+	margin:2px 0px 2px 0px;
 }
 
 /****************************************************************************************/

@@ -59,6 +59,39 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 	# Start body html
 	body_html <- paste0('<div id="container" style="background-color:green;" ></div>\n')
 
+	# Add control panel
+	if(svgviewr_env$js_var[['panel']]){
+
+		# Get unique names of all objects
+		names_unique <- sort(svgviewr_env$ref$names)
+		
+		if(length(names_unique) > 0){
+
+			# Set height and width of panel
+			height <- min(c(200, length(names_unique)*20))
+			width <- min(c(300, round(max(nchar(names_unique))*8) + 15))
+
+			# Open control panel div
+			body_html <- paste0(body_html, '\t\t<div id="control_panel" class="control_panel" style="height:', height, 'px;width:', width, 'px;">\n')
+		
+			#
+			for(i in 1:length(names_unique)){
+
+				# Start row
+				body_html <- paste0(body_html, '\t\t\t<div class="visibility_row">\n')
+
+				# Add checkbox and name of element
+				body_html <- paste0(body_html, '\t\t\t\t<input type="checkbox" onchange="toggleVisibility(this)" name="visibility_box_1" value="', names_unique[i], '" checked>', names_unique[i], '\n')
+
+				# End row
+				body_html <- paste0(body_html, '\t\t\t</div>\n')
+			}
+
+			# Close control panel div
+			body_html <- paste0(body_html, '\t\t</div>\n')
+		}
+	}
+
 	# Open bottom frame div
 	body_html <- paste0(body_html, '\t\t<div id="bottom_frame" class="bottom_frame" >\n')
 

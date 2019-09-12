@@ -961,7 +961,7 @@ function onObjectsReady(){
 		for(i = 0; i < cameras_length; i++){
 			
 			// Setup the camera
-			camera = new THREE.PerspectiveCamera( fov=45, aspect=window_dims.width / window_dims.height, near=0.1, far=svg_obj.camera[i].far );
+			camera = new THREE.PerspectiveCamera( fov=45, aspect=window_dims.width / window_dims.height, near=camera_near, far=svg_obj.camera[i].far );
 
 			// Set camera position
 			camera.position.set(svg_obj.camera[i].x[0], svg_obj.camera[i].x[1], svg_obj.camera[i].x[2]);
@@ -986,7 +986,7 @@ function onObjectsReady(){
 	}else{
 
 		// Setup a camera
-		camera = new THREE.PerspectiveCamera( fov=45, aspect=window_dims.width / window_dims.height, near=0.1, far=bbox_size*20 );
+		camera = new THREE.PerspectiveCamera( fov=45, aspect=window_dims.width / window_dims.height, near=camera_near, far=bbox_size*20 );
 
 		// Set camera to controls
 		controls = new THREE.TrackballControls( camera );
@@ -1633,8 +1633,7 @@ function setBoundingBox () {
 	bbox_center = [ bbox_scale[0]/2 + bbox_new.min.x, bbox_scale[1]/2 + bbox_new.min.y, bbox_scale[2]/2 + bbox_new.min.z ];
 	bbox_size = (bbox_scale[0] + bbox_scale[1] + bbox_scale[2]) / 3;
 
-//alert(minX + ',' + minY + ',' + minZ)
-//alert(maxX + ',' + maxY + ',' + maxZ)
+	//alert(minX + ',' + minY + ',' + minZ + ',' + maxX + ',' + maxY + ',' + maxZ)
 
 	// Draw bounding box as wireframe
 	if(false){
@@ -1916,6 +1915,38 @@ function skipToAnimationFrame(to, num){
     anim_pause_time = anim_pause_start + elapsed_ms;
 }
 
+function toggleVisibility(box_elem){
+
+	var i, opacity;
+
+	if(box_elem.checked){
+		change_to = true;
+	}else{
+		change_to = false;
+	}
+
+	if(svg_obj.mesh != undefined){
+		for (i = 0; i < meshes.length; i++){
+			if(meshes[i].name == box_elem.value) meshes[i].visible = change_to;
+		}
+	}
+	if(svg_obj.image != undefined){
+		for (i = 0; i < images.length; i++){
+			if(images[i].name == box_elem.value) images[i].visible = change_to;
+		}
+	}
+	if(svg_obj.line != undefined){
+		for (i = 0; i < lines.length; i++){
+			if(lines[i].name == box_elem.value) lines[i].visible = change_to;
+		}
+	}
+	if(svg_obj.sphere != undefined){
+		for (i = 0; i < spheres.length; i++){
+			if(spheres[i].name == box_elem.value) spheres[i].visible = change_to;
+		}
+	}
+}
+
 function updateAnimationIcons(state){
 
 	var i;
@@ -2071,20 +2102,16 @@ function updateShapes(time_index){
 		}
 
 		// Set ratios for interpolation
-		if(n_timelines == 1){
-			ratio_x = time_index[0] - time_index_floor[0];
-		} else if(n_timelines == 2){
-			ratio_y = time_index[1] - time_index_floor[1];
-		} else if(n_timelines == 3){
-			ratio_z = time_index[2] - time_index_floor[2];
-		}
+		ratio_x = time_index[0] - time_index_floor[0];
+		if(n_timelines > 1) ratio_y = time_index[1] - time_index_floor[1];
+		if(n_timelines > 2) ratio_z = time_index[2] - time_index_floor[2];
 
 		for (i = 0; i < update_obj_length; i++){
 
 			// Set object number and type
 			obj_num = update_obj.num[i];
 			obj_type = update_obj.type[i];
-			
+
 			if(obj_type == 'mesh'){
 
 				// Create a quaternion based on user specified time index
@@ -2132,7 +2159,7 @@ function updateShapes(time_index){
 										svg_obj.mesh[obj_num].position[time_index_ceil[0]][time_index_ceil[1]][time_index_ceil[2]], 
 										ratio_x, ratio_y, ratio_z);
 				}
-								
+				
 				meshes[obj_num].position.set(new_pos.x, new_pos.y, new_pos.z);
 				meshes[obj_num].quaternion.set(new_quat.x, new_quat.y, new_quat.z, new_quat.w);
 
