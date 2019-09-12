@@ -599,7 +599,7 @@ function loadGeometries(){
 			}
 
 			// Set name and number of segments
-			line.name = 'line' + i;
+			line.name = svg_obj.line[i].name;
 
 			// Add to meshes
 			lines.push(line)
@@ -751,7 +751,7 @@ function loadGeometries(){
 			}
 
 			// Set name
-			mesh.name = 'sphere' + n;
+			mesh.name = svg_obj.sphere[i].name;
 		
 			// Apply any initial transformations
 			if(svg_obj.sphere[i].iposition != undefined){
@@ -1928,11 +1928,6 @@ function toggleVisibility(box_elem){
 	if(svg_obj.mesh != undefined){
 		for (i = 0; i < meshes.length; i++){
 			if(meshes[i].name == box_elem.value) meshes[i].visible = change_to;
-		}
-	}
-	if(svg_obj.image != undefined){
-		for (i = 0; i < images.length; i++){
-			if(images[i].name == box_elem.value) images[i].visible = change_to;
 		}
 	}
 	if(svg_obj.line != undefined){

@@ -63,12 +63,12 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 	if(svgviewr_env$js_var[['panel']]){
 
 		# Get unique names of all objects
-		names_unique <- sort(svgviewr_env$ref$names)
+		names_unique <- sort(unique(svgviewr_env$ref$names))
 		
 		if(length(names_unique) > 0){
 
 			# Set height and width of panel
-			height <- min(c(200, length(names_unique)*20))
+			height <- min(c(200, length(names_unique)*20) + 0)
 			width <- min(c(300, round(max(nchar(names_unique))*8) + 15))
 
 			# Open control panel div
