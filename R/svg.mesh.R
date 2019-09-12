@@ -1,5 +1,5 @@
 svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit(file, '/')[[1]], 1)), 
-	col = '#F5F5F5', emissive = 'black', opacity = 1, ontop = FALSE, get.lim = TRUE){
+	col = '#F5F5F5', emissive = 'black', opacity = 1, ontop = FALSE, get.lim = TRUE, scaling = 1){
 
 	# Make sure that type is webgl
 	if('svg' == getOption("svgviewr_glo_type")) stop("'webgl' mode must be used to enable mesh drawing. This can be done by adding the following parameter to the svg.new() function call: mode='webgl'. This will become the default mode by version 1.4.")
@@ -45,8 +45,13 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 				obj_list$faces <- t(faces)
 			}
 			
+			# Apply scaling to vertices
+			obj_list$vertices <- obj_list$vertices*scaling
+
 			# Add mesh properties to input parameters
 			for(prop_name in names(obj_list)) input_params[[prop_name]] <- obj_list[[prop_name]]
+			
+			#input_params[['vertices']] <- input_params[['vertices']]*scaling
 
 			input_params[['scale']] <- 1
 
@@ -103,7 +108,7 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 
 				# Read OBJ as string
 				obj_list <- read_obj_str(paste(paste(suppressWarnings(readLines(file)), collapse="*"), '*'))
-
+				
 				## Format faces for threejs
 				# Convert to matrix
 				obj_faces <- matrix(obj_list$faces, nrow=length(obj_list$faces)/6, ncol=6, byrow=TRUE)
@@ -114,8 +119,14 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 				obj_list$faces <- t(faces)
 			}
 			
+			# Apply scaling to vertices
+			obj_list$vertices <- obj_list$vertices*scaling
+
 			# Add mesh properties to input parameters
 			for(prop_name in names(obj_list)) input_params[[prop_name]] <- obj_list[[prop_name]]
+
+			# Apply scaling to vertices
+			#input_params[['vertices']] <- input_params[['vertices']]*scaling
 
 			input_params[['scale']] <- 1
 		}
