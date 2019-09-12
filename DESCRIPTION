@@ -1,8 +1,8 @@
 Package: svgViewR
 Date: 2019-07-03
-Title: 3D Animated Interactive Visualizations Using SVG
+Title: 3D Animated Interactive Visualizations Using SVG and WebGL
 Description: Creates 3D animated, interactive visualizations that can be viewed in a web browser.
-Version: 1.4
+Version: 1.4.1
 Depends: R (>= 3.2.4)
 Imports: grid, rjson, Rook, methods, Rcpp (>= 0.9.9)
 LinkingTo: Rcpp
