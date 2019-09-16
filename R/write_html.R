@@ -69,7 +69,7 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 
 			# Set height and width of panel
 			height <- min(c(200, length(names_unique)*20) + 0)
-			width <- min(c(300, round(max(nchar(names_unique))*8) + 15))
+			width <- min(c(300, max(nchar(names_unique))*10 + 15))
 
 			# Open control panel div
 			body_html <- paste0(body_html, '\t\t<div id="control_panel" class="control_panel" style="height:', height, 'px;width:', width, 'px;">\n')
