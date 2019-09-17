@@ -1,9 +1,11 @@
-webColor <- function(col, format=c('#hex', '0xhex', '0', '0x')){
+webColor <- function(col, format=c('#hex', '0xhex', '0', '0x'), rev=FALSE){
 
 	# Example inputs
 	# webColor(c('green', 'red'), format='0xhex')
 	# webColor('#1A1A1A', format='0xhex')
 	# webColor(rgb(0.1,0.1,0.1), format='0xhex')
+	
+	if(rev) return(paste0('#', substr(col, 3, nchar(col))))
 	
 	if(length(col) > 1) return(sapply(col, webColor, format=format))
 	

@@ -160,7 +160,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		}else{
 			svgviewr_env$js_var[['bottom_frame_hidden']] <- TRUE
 		}
-
+		
 		# Set javascript variables
 		svgviewr_env$js_var[['anim_pause']] <- FALSE	# Start with animation playing
 		svgviewr_env$js_var[['bg_col']] <- setNames(webColor(col, format='0'), NULL)
@@ -174,7 +174,6 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		svgviewr_env$js_var[['file']] <- file[1]
 		svgviewr_env$js_var[['interpolate']] <- interpolate
 		svgviewr_env$js_var[['panSpeed']] <- pan.speed
-		svgviewr_env$js_var[['panel']] <- panel
 		svgviewr_env$js_var[['play_speed']] <- animate.speed
 		svgviewr_env$js_var[['rotateSpeed']] <- rotate.speed
 		svgviewr_env$js_var[['save_as_img']] <- save_as_img
@@ -188,6 +187,13 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		svgviewr_env$js_var[['window_title']] <- window.title
 		svgviewr_env$js_var[['zoomSpeed']] <- zoom.speed
 		
+		# Add panel if TRUE
+		if(panel){
+			svg.panel()
+		}else{
+			svgviewr_env$js_var[['panel']] <- FALSE
+		}
+
 		# Create name reference
 		svgviewr_env$ref <- list()
 

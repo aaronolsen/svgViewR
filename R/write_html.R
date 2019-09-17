@@ -68,11 +68,11 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 		if(length(names_unique) > 0){
 
 			# Set height and width of panel
-			height <- min(c(200, length(names_unique)*20) + 0)
+			height <- length(names_unique)*20
 			width <- min(c(300, max(nchar(names_unique))*10 + 15))
 
 			# Open control panel div
-			body_html <- paste0(body_html, '\t\t<div id="control_panel" class="control_panel" style="height:', height, 'px;width:', width, 'px;">\n')
+			body_html <- paste0(body_html, '\t\t<div id="control_panel" class="control_panel" style="color:', js.var[['panel_col']], ';background-color:', js.var[['panel_bg_col']], ';height:', height, 'px;width:', width, 'px;">\n')
 		
 			#
 			for(i in 1:length(names_unique)){
