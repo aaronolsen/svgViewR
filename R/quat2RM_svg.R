@@ -1,4 +1,4 @@
-quat2RM <- function(q){
+quat2RM_svg <- function(q){
 
 	# http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm
 	# assumed input order is qx, qy, qz, qw
