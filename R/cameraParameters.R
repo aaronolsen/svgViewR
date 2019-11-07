@@ -24,10 +24,15 @@ cameraParameters <- function(intrinsic, extrinsic, image.size, plane.dist = NULL
 	# Find camera principal axis
 	prin_axis <- rbind(pinhole_xyz, pinhole_xyz+prin_vec)
 
+	# 
+
 	list(
+		'intrinsic'=intrinsic,
+		'extrinsic'=extrinsic,
+		'image.size'=image.size,
 		'pinhole'=pinhole_xyz,
 		'plane.corners'=iplane_xyz,
-		'plane.dist'=1,
+		'plane.dist'=plane.dist,
 		'prin.uvec'=prin_uvec,
 		'prin.vec'=prin_vec,
 		'prin.axis'=prin_axis
