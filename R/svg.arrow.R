@@ -1,5 +1,5 @@
-svg.arrow <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, head.radius=radius*1.5, 
-	head.prop=0.25, axis=NULL, head.length = NULL, length=NULL, rseg=c(20,30), hseg=c(2,10), 
+svg.arrow <- function(ends = NULL, center = NULL, length = NULL, radius=1, head.radius=radius*1.5, 
+	head.prop=0.25, axis=NULL, head.length = NULL, rseg=c(20,30), hseg=c(2,10), 
 	open.ended=FALSE, theta.start=0, theta.length=2*pi, col='blue', emissive=rgb(0.03, 0.15, 0.21), 
 	opacity = 1, ontop = FALSE, name='arrow'){
 
@@ -12,6 +12,12 @@ svg.arrow <- function(ends=rbind(c(0,0,0), c(1,0,0)), radius=1, head.radius=radi
 	# Repeat some params if length 1
 	if(length(rseg) == 1) rseg <- rep(rseg, 2)
 	if(length(hseg) == 1) hseg <- rep(hseg, 2)
+
+	# If center and length are provided, find ends
+	if(is.null(ends) && !is.null(center) && !is.null(length) && is.null(axis)) stop("If center and length are provided axis must also be provided")
+	if(is.null(ends) && !is.null(center) && !is.null(length) && !is.null(axis)){
+		ends <- rbind(center - 0.5*length*axis, center + 0.5*length*axis)
+	}
 
 	if(class(ends) == 'data.frame') stop("'ends' must be a vector or matrix, not a data.frame.")
 
