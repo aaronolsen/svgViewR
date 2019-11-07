@@ -1,4 +1,4 @@
-svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
+svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, width=1, length=NULL, 
 	col='blue', emissive=rgb(0.03, 0.15, 0.21), opacity = 1, ontop = FALSE, name='cuboid'){
 
 	# Make sure that type is webgl
@@ -40,6 +40,10 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 			# If only 2 rows provided, use ends to add first
 			if(nrow(axes) == 2) axes <- rbind(ends[2,]-ends[1,], axes)
 			if(nrow(axes) == 1){
+				if(abs(avec(axes, ends[2,]-ends[1,], max.pi=TRUE)) < 1e-10){
+					stop('If "axes" is a single vector it should not be parallel to the vector between the two ends of the cuboid.')
+					axes <- rbind(vorthogonal(axes))
+				}
 				axes <- rbind(ends[2,]-ends[1,], cprod_svg(ends[2,]-ends[1,], axes[1,]))
 				axes <- rbind(axes, cprod_svg(axes[1,], axes[2,]))
 			}
@@ -63,8 +67,11 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, length=NULL, width=1,
 	}else{
 		
 		# Set widths if only one given
+		if(length(width) == 3){
+			length <- width[1]
+			width <- width[2:3]
+		}
 		if(length(width) == 1) width <- rep(width, 2)
-		if(is.null(length)) length <- width[1]
 	
 		# Make sure unit
 		axes <- uvector_svg(axes)
