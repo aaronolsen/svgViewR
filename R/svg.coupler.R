@@ -1,6 +1,9 @@
 svg.coupler <- function(end, axes, base.width, side.sep, side.length, name = 'coupler',
 	col = 'blue', emissive=rgb(0.03, 0.15, 0.21), opacity=1){
 
+	# Make sure there are 3 axes
+	if(nrow(axes) == 2) axes <- rbind(axes, cprod_svg(axes[1,], axes[2,]))
+
 	# Make sure axes are unit vectors
 	axes <- uvector_svg(axes)
 
