@@ -235,11 +235,15 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		}
 
 		if(!is.null(times)){
+
 			# If times do not start at 0, shift to start at 0
 			if(times[1] != 0) times <- times - min(times, na.rm=TRUE)
 
 			# Set times
 			svgviewr_env$svg[['animate']][['times']] <- times
+
+			# Set number of timelines
+			#svgviewr_env$js_var[['n_timelines']] <- 1
 		}
 
 	}else{
