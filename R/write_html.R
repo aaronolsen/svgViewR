@@ -1,7 +1,8 @@
 write_HTML <- function(srcs, json, js.var, server = NULL){
 
 	# Set javascript source files
-	js_src <- c('render.scene.js', 'three.min.js', 'TrackballControls.js', 'Detector.js', 'jquery-3.2.1.min.js', 'jquery.mousewheel.js')
+	# THREE.MeshLine.js: https://github.com/spite/THREE.MeshLine
+	js_src <- c('render.scene.js', 'three.min.js', 'TrackballControls.js', 'Detector.js', 'jquery-3.2.1.min.js', 'jquery.mousewheel.js', 'THREE.MeshLine.js')
 	
 	if(js.var[['show_stats']]) js_src <- c(js_src, 'stats.min.js')
 
@@ -64,6 +65,9 @@ write_HTML <- function(srcs, json, js.var, server = NULL){
 
 		# Get unique names of all objects
 		names_unique <- sort(unique(svgviewr_env$ref$names))
+		
+		# Exclude certain names
+		names_unique <- names_unique[!names_unique %in% c('frame.axislabel', 'frame.ticklabel')]
 		
 		if(length(names_unique) > 0){
 
