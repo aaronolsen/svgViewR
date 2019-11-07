@@ -55,6 +55,13 @@ svg.lines <- function(x, y=NULL, col="black", z.index=0, layer="", name="line",
 
 			# Add animation
 			svgviewr_env[['svg']][['line']][[add_at]][['x_tm']] <- lapply(seq_len(dim(x)[3]), function(iter) t(x[,,iter]))
+			
+			# Add animated x
+			#svgviewr_env[['svg']][['line']][[add_at]][['x_animated']] <- lapply(seq_len(dim(x)[3]), function(iter) as.list(setNames(signif(x[,,iter], digits=env[['svgviewr_env']][['js_var']][['signif_digits']]), c('x', 'y', 'z'))))
+			#print(svgviewr_env[['svg']][['line']][[add_at]][['x_animated']])
+
+			# Set number of timelines
+			svgviewr_env$js_var[['n_timelines']] <- 1
 		}
 
 		# Add object reference data
