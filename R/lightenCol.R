@@ -1,5 +1,14 @@
 lightenCol <- function(col, factor){
 
+	if(length(col) > 1){
+		rcols <- rep(NA, length(col))
+		for(i in 1:length(col)){
+			rcols[i] <- lightenCol(col[i], factor)
+		}
+		names(rcols) <- names(col)
+		return(rcols)
+	}
+
 	if(factor < 0) stop(paste0("'factor' (", factor, ") must be greater than 0."))
 	if(factor > 1) stop(paste0("'factor' (", factor, ") must be less than 1."))
 	
