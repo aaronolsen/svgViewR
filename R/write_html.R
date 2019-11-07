@@ -1,8 +1,8 @@
 write_HTML <- function(srcs, json, js.var, server = NULL){
 
 	# Set javascript source files
-	# THREE.MeshLine.js: https://github.com/spite/THREE.MeshLine
-	js_src <- c('render.scene.js', 'three.min.js', 'TrackballControls.js', 'Detector.js', 'jquery-3.2.1.min.js', 'jquery.mousewheel.js', 'THREE.MeshLine.js')
+	# THREE.MeshLine.js: https://github.com/spite/THREE.MeshLine , 'THREE.MeshLine.js'
+	js_src <- c('render.scene.js', 'three.min.js', 'TrackballControls.js', 'Detector.js', 'jquery-3.2.1.min.js', 'jquery.mousewheel.js')
 	
 	if(js.var[['show_stats']]) js_src <- c(js_src, 'stats.min.js')
 
