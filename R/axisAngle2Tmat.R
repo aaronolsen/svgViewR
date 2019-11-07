@@ -1,4 +1,4 @@
-axisAngle2Tmat <- function(axis, angle){
+axisAngle2Tmat <- function(axis, angle, p=NULL){
 
 	if(length(angle) == 1){
 
@@ -6,7 +6,14 @@ axisAngle2Tmat <- function(axis, angle){
 		tmat <- diag(4)
 		
 		# Fill matrix
-		tmat[1:3, 1:3] <- tMatrixEP_svg(v=axis, a=angle[i])
+		tmat[1:3, 1:3] <- tMatrixEP_svg(v=axis, a=angle)
+
+		if(!is.null(p)){
+			tmat1 <- tmat2 <- diag(4)
+			tmat1[1:3, 4] <- p
+			tmat2[1:3, 4] <- -p
+			tmat <- tmat1 %*% tmat %*% tmat2
+		}
 
 	}else{
 
