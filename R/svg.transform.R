@@ -1,4 +1,4 @@
-svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp = FALSE){
+svg.transform <- function(tmarr, applyto = '', times = NULL, regexp = FALSE){
 
 	# If times is null, set based on dimensions of tmarr
 	if(is.null(times)){
@@ -36,13 +36,13 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 
 			# Apply each body transform in array
 			if(length(dim(tmarr)) == 6){
-				svg.transform(tmarr=tmarr[, , i, , , ], applyto=applyto[i], times=times, add=add, regexp=regexp)
+				svg.transform(tmarr=tmarr[, , i, , , ], applyto=applyto[i], times=times, regexp=regexp)
 			}else if(length(dim(tmarr)) == 5){
-				svg.transform(tmarr=tmarr[, , i, , ], applyto=applyto[i], times=times, add=add, regexp=regexp)
+				svg.transform(tmarr=tmarr[, , i, , ], applyto=applyto[i], times=times, regexp=regexp)
 			}else if(length(dim(tmarr)) == 4){
-				svg.transform(tmarr=tmarr[, , i, ], applyto=applyto[i], times=times, add=add, regexp=regexp)
+				svg.transform(tmarr=tmarr[, , i, ], applyto=applyto[i], times=times, regexp=regexp)
 			}else if(length(dim(tmarr)) == 3){
-				svg.transform(tmarr=tmarr[, , i], applyto=applyto[i], add=add, regexp=regexp)
+				svg.transform(tmarr=tmarr[, , i], applyto=applyto[i], regexp=regexp)
 			}else{
 				stop("Unrecognized number of dimensions for tmarr.")
 			}
@@ -169,7 +169,7 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 						for(dim1 in 1:n_dim1){
 							quaternion[[dim1]] <- list()
 							for(dim2 in 1:n_dim2){
-								quaternion[[dim1]][[dim2]] <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(-(signif(round(RM2Quat(t(tmarr[1:3, 1:3, dim1, dim2, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), c('x','y','z','w'))))
+								quaternion[[dim1]][[dim2]] <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(-(signif(round(RM2Quat_svg(t(tmarr[1:3, 1:3, dim1, dim2, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), c('x','y','z','w'))))
 							}
 						}
 
@@ -185,7 +185,7 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 						# Set quaternion
 						quaternion <- list()
 						for(dim1 in 1:n_dim1){
-							quaternion[[dim1]] <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(-(signif(round(RM2Quat(t(tmarr[1:3, 1:3, dim1, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), c('x','y','z','w'))))
+							quaternion[[dim1]] <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(-(signif(round(RM2Quat_svg(t(tmarr[1:3, 1:3, dim1, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), c('x','y','z','w'))))
 						}
 
 					}else if(length(dim(tmarr)) == 3){
@@ -198,8 +198,8 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, add = FALSE, regexp
 						#rotation <- lapply(seq_len(dim(tmarr)[3]), function(i) -rev(signif(rm2euler(t(tmarr[1:3, 1:3, i]))[[1]], digits=env[['svgviewr_env']][['js_var']][['signif_digits']])))
 
 						# Set quaternion
-						#quaternion <- lapply(seq_len(dim(tmarr)[3]), function(i) matrix(-(signif(round(RM2Quat(t(tmarr[1:3, 1:3, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), 4, 1, dimnames=list(c('x','y','z','w'), NULL)))
-						quaternion <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(-(signif(round(RM2Quat(t(tmarr[1:3, 1:3, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), c('x','y','z','w'))))
+						#quaternion <- lapply(seq_len(dim(tmarr)[3]), function(i) matrix(-(signif(round(RM2Quat_svg(t(tmarr[1:3, 1:3, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), 4, 1, dimnames=list(c('x','y','z','w'), NULL)))
+						quaternion <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(-(signif(round(RM2Quat_svg(t(tmarr[1:3, 1:3, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), c('x','y','z','w'))))
 
 					}else{
 
