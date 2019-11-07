@@ -13,10 +13,10 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 	# Set type
 	input_params$type <- gsub('svg[.]', '', input_params$fcn)
 
-	if(!is.null(file)){
+	# Set where to add object
+	add_at <- length(svgviewr_env$svg$mesh)+1
 
-		# Set where to add object
-		add_at <- length(svgviewr_env$svg$mesh)+1
+	if(!is.list(file)){
 
 		# Check that file exists
 		if(!file.exists(file)) stop(paste0('Input file "', file, '" not found.'))
@@ -44,16 +44,6 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 				faces[, 5:7] <- obj_faces[, c(2,4,6)] - 1
 				obj_list$faces <- t(faces)
 			}
-			
-			# Apply scaling to vertices
-			obj_list$vertices <- obj_list$vertices*scaling
-
-			# Add mesh properties to input parameters
-			for(prop_name in names(obj_list)) input_params[[prop_name]] <- obj_list[[prop_name]]
-			
-			#input_params[['vertices']] <- input_params[['vertices']]*scaling
-
-			input_params[['scale']] <- 1
 
 		}else{
 
@@ -108,51 +98,58 @@ svg.mesh <- function(file = NULL, name = gsub('[.][A-Za-z]+$', '', tail(strsplit
 
 				# Read OBJ as string
 				obj_list <- read_obj_str(paste(paste(suppressWarnings(readLines(file)), collapse="*"), '*'))
-				
-				## Format faces for threejs
-				# Convert to matrix
-				obj_faces <- matrix(obj_list$faces, nrow=length(obj_list$faces)/6, ncol=6, byrow=TRUE)
-				faces <- matrix(NA, nrow=nrow(obj_faces), ncol=7)
-				faces[, 1] <- 32
-				faces[, 2:4] <- obj_faces[, c(1,3,5)] - 1
-				faces[, 5:7] <- obj_faces[, c(2,4,6)] - 1
-				obj_list$faces <- t(faces)
 			}
-			
-			# Apply scaling to vertices
-			obj_list$vertices <- obj_list$vertices*scaling
-
-			# Add mesh properties to input parameters
-			for(prop_name in names(obj_list)) input_params[[prop_name]] <- obj_list[[prop_name]]
-
-			# Apply scaling to vertices
-			#input_params[['vertices']] <- input_params[['vertices']]*scaling
-
-			input_params[['scale']] <- 1
 		}
 		
-		# Set opacity
-		input_params[['opacity']] <- setNames(opacity, NULL)
-		input_params[['col']] <- setNames(webColor(col), NULL)
-		input_params[['emissive']] <- setNames(webColor(emissive), NULL)
-		input_params[['parseModel']] <- TRUE
-		input_params[['itmat']] <- diag(4)
-		input_params[['depthTest']] <- !ontop
-
-		# Add to meshes
-		svgviewr_env$svg$mesh[[add_at]] <- input_params
-
-		# Add object reference data
-		svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
-		svgviewr_env$ref$num <- c(svgviewr_env$ref$num, add_at)
-		svgviewr_env$ref$type <- c(svgviewr_env$ref$type, 'mesh')
-
 	}else{
 
-		stop("Mesh import without source file input is not yet supported.")
+		# Check class of input list	
+		if(class(file) != 'obj') stop("Input object must be of class 'obj'")
+	
+		# Assign as mesh
+		obj_list <- file
+		obj_faces <- obj_list$faces
 		
-		#if(is.null(obj)) stop("If file is NULL, obj must be non-NULL.")
+		## Format faces for threejs
+		# Convert to matrix
+		faces <- matrix(NA, nrow=nrow(obj_faces), ncol=7)
+		faces[, 1] <- 32
+		faces[, 2:4] <- obj_faces[, c(1,3,5)] - 1
+		faces[, 5:7] <- obj_faces[, c(2,4,6)] - 1
+		obj_list$faces <- t(faces)
+		
+		# Convert to vector for threejs
+		obj_list$vertices <- c(t(obj_list$vertices))
+
+		# Convert to vector for threejs
+		obj_list$normals <- c(t(obj_list$normals))
 	}
+
+	# Apply scaling to vertices
+	obj_list$vertices <- obj_list$vertices*scaling
+
+	# Add mesh properties to input parameters
+	for(prop_name in names(obj_list)) input_params[[prop_name]] <- obj_list[[prop_name]]
+
+	#input_params[['vertices']] <- input_params[['vertices']]*scaling
+
+	input_params[['scale']] <- 1
+
+	# Set opacity
+	input_params[['opacity']] <- setNames(opacity, NULL)
+	input_params[['col']] <- setNames(webColor(col), NULL)
+	input_params[['emissive']] <- setNames(webColor(emissive), NULL)
+	input_params[['parseModel']] <- TRUE
+	input_params[['itmat']] <- diag(4)
+	input_params[['depthTest']] <- !ontop
+
+	# Add to meshes
+	svgviewr_env$svg$mesh[[add_at]] <- input_params
+
+	# Add object reference data
+	svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
+	svgviewr_env$ref$num <- c(svgviewr_env$ref$num, add_at)
+	svgviewr_env$ref$type <- c(svgviewr_env$ref$type, 'mesh')
 
 	# Get xyz limits of mesh		
 	if(get.lim){
