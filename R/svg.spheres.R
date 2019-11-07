@@ -14,7 +14,13 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0
 	if(is.vector(x)) x <- matrix(x, nrow=1)
 
 	# If as.array is TRUE convert matrix to array
-	if(as.array) x <- array(t(x), c(1,3,nrow(x)))
+	if(as.array){
+		if(dim(x)[1] == 3){
+			x <- array(x, c(1,3,ncol(x)))
+		}else{
+			x <- array(t(x), c(1,3,nrow(x)))
+		}	
+	}
 
 	# Repeat properties to match dimensions
 	if(length(col) < dim(x)[1]) col <- rep(col, dim(x)[1])
