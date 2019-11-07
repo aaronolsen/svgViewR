@@ -560,11 +560,18 @@ function loadGeometries(){
 		for(i = 0; i < lines_length; i++){
 
 			// Set line material
-			material = new THREE.LineBasicMaterial({
-				color: svg_obj.line[i].col,
-				linewidth: svg_obj.line[i].lwd,
-				depthTest: svg_obj.line[i].depthTest
-			});
+			if(true){
+				material = new MeshLineMaterial({
+					color: svg_obj.line[i].col,
+					linewidth: svg_obj.line[i].lwd
+				});
+			}else{
+				material = new THREE.LineBasicMaterial({
+					color: svg_obj.line[i].col,
+					linewidth: svg_obj.line[i].lwd,
+					depthTest: svg_obj.line[i].depthTest
+				});
+			}
 
 			// Set line opacity
 			if(svg_obj.line[i].opacity < 1){
@@ -585,7 +592,13 @@ function loadGeometries(){
 			}
 
 			// Create line
-			line = new THREE.Line( geometry, material );
+			if(true){
+				line = new THREE.Line( geometry, material );
+			}else{
+				mesh_line = new MeshLine();
+				mesh_line.setGeometry( geometry );
+				line = new THREE.Mesh( mesh_line.geometry, material );
+			}
 
 			// Check if position over time is specified
 			if(svg_obj.line[i].x_tm != undefined){
@@ -601,7 +614,7 @@ function loadGeometries(){
 			// Set name and number of segments
 			line.name = svg_obj.line[i].name;
 
-			// Add to meshes
+			// Add to lines
 			lines.push(line)
 
 			// Add to scene
@@ -1521,7 +1534,14 @@ function printAlert2(text){
 }
 
 function printObject(object){
-   	 document.getElementById("alert2").innerHTML = Object.values(object);
+
+	if(typeof(object) == 'undefined'){
+		document.getElementById("alert2").innerHTML = object;
+	}else if(typeof(object) == 'number'){
+		document.getElementById("alert2").innerHTML = object;
+	}else{
+		document.getElementById("alert2").innerHTML = Object.values(object);
+	}
 }
 
 function setBoundingBox () {
@@ -2116,7 +2136,6 @@ function updateShapes(time_index){
 					new_pos = interpolate1D(svg_obj.mesh[obj_num].position[time_index_floor[0]], 
 									svg_obj.mesh[obj_num].position[time_index_ceil[0]], ratio_x)
 
-
 				}else if(n_timelines == 2){	
 
 					// Find the new quaternion
@@ -2190,11 +2209,11 @@ function updateShapes(time_index){
 			}
 
 			if(obj_type == 'sphere'){
-
+			
 				// Get new position (treat as simple point positions, transformation is done in R)
 				new_pos = interpolate1D(svg_obj.sphere[obj_num].x_animated[time_index_floor[0]], 
 					svg_obj.sphere[obj_num].x_animated[time_index_ceil[0]], ratio_x)
-
+				
 				// Set new position and quaternion
 				spheres[obj_num].position.set(new_pos.x, new_pos.y, new_pos.z);
 				
@@ -2205,17 +2224,37 @@ function updateShapes(time_index){
 			}
 
 			if(obj_type == 'line'){
-
+			
 				// Update each segment
 				k = 0;
 				for(j = 0; j < svg_obj.line[obj_num].nseg*3; j = j + 3){
-					lines[obj_num].geometry.vertices[k].x = lines[obj_num].x_tm[time_index[0]][j];
-					lines[obj_num].geometry.vertices[k].y = lines[obj_num].x_tm[time_index[0]][j+1];
-					lines[obj_num].geometry.vertices[k].z = lines[obj_num].x_tm[time_index[0]][j+2];
+				
+					// Get new position (treat as simple point positions, transformation is done in R)
+					new_pos = interpolate1D({x:lines[obj_num].x_tm[time_index_floor[0]][j], y:lines[obj_num].x_tm[time_index_floor[0]][j+1], z:lines[obj_num].x_tm[time_index_floor[0]][j+2]}, 
+						{x:lines[obj_num].x_tm[time_index_ceil[0]][j], y:lines[obj_num].x_tm[time_index_ceil[0]][j+1], z:lines[obj_num].x_tm[time_index_ceil[0]][j+2]}, ratio_x)
+
+					if(true){
+						lines[obj_num].geometry.vertices[k].x = new_pos.x;
+						lines[obj_num].geometry.vertices[k].y = new_pos.y;
+						lines[obj_num].geometry.vertices[k].z = new_pos.z;
+					}else{
+						lines[obj_num].geometry.attributes.position.array[j*2+0] = new_pos.x;
+						lines[obj_num].geometry.attributes.position.array[j*2+1] = new_pos.y;
+						lines[obj_num].geometry.attributes.position.array[j*2+2] = new_pos.z;
+						lines[obj_num].geometry.attributes.position.array[j*2+3] = new_pos.x;
+						lines[obj_num].geometry.attributes.position.array[j*2+4] = new_pos.y;
+						lines[obj_num].geometry.attributes.position.array[j*2+5] = new_pos.z;
+					}
+
 					k++;
 				}
+
 				// Update vertices
-				lines[obj_num].geometry.verticesNeedUpdate = true;
+				if(true){
+					lines[obj_num].geometry.verticesNeedUpdate = true;
+				}else{
+					lines[obj_num].geometry.attributes.position.needsUpdate = true;
+				}
 			}
 		}
 	}
