@@ -560,11 +560,11 @@ function loadGeometries(){
 		for(i = 0; i < lines_length; i++){
 
 			// Set line material
-			if(true){
-				material = new MeshLineMaterial({
-					color: svg_obj.line[i].col,
-					linewidth: svg_obj.line[i].lwd
-				});
+			if(false){
+				//material = new MeshLineMaterial({
+				//	color: svg_obj.line[i].col,
+				//	linewidth: svg_obj.line[i].lwd
+				//});
 			}else{
 				material = new THREE.LineBasicMaterial({
 					color: svg_obj.line[i].col,
