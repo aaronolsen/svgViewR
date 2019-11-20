@@ -21,13 +21,15 @@ svg.arrow <- function(ends = NULL, center = NULL, length = NULL, radius=1, head.
 
 	if(class(ends) == 'data.frame') stop("'ends' must be a vector or matrix, not a data.frame.")
 
+	if(any(is.na(ends))) stop("NA values in 'ends'")
+
 	## Get ends of arrow base and head portions
 	# If ends is single point, use axis to find other end point
 	if(is.vector(ends) || nrow(ends) == 1){
 	
 		# Check that vector and length are specified
 		if(is.null(axis) || is.null(length)) stop("If 'ends' is a single point then 'axis' and 'length' must both be non-NULL.")
-
+		
 		# Convert from array
 		if(length(dim(axis)) == 3) axis <- axis[,,1]
 
@@ -38,7 +40,7 @@ svg.arrow <- function(ends = NULL, center = NULL, length = NULL, radius=1, head.
 		ends <- rbind(ends, ends + length*axis)
 
 	}else{
-	
+
 		# Find axis, make unit
 		axis <- ends[2,]-ends[1,]
 		
