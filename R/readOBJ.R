@@ -1,5 +1,8 @@
 readOBJ <- function(file, scaling = 1){
 
+	# Check if file exists
+	if(!file.exists(file)) stop(paste0("File \"", file, "\" not found."))
+
 	# Read lines
 	read_lines <- suppressWarnings(readLines(con=file))
 	
