@@ -16,6 +16,10 @@ svg.arrow <- function(ends = NULL, center = NULL, length = NULL, radius=1, head.
 	# If center and length are provided, find ends
 	if(is.null(ends) && !is.null(center) && !is.null(length) && is.null(axis)) stop("If center and length are provided axis must also be provided")
 	if(is.null(ends) && !is.null(center) && !is.null(length) && !is.null(axis)){
+
+		# Make sure vector is unit length
+		axis <- uvector_svg(axis)
+
 		ends <- rbind(center - 0.5*length*axis, center + 0.5*length*axis)
 	}
 
