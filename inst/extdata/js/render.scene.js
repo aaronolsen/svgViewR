@@ -200,6 +200,9 @@ function addMeshToScene( geometry, materials ) {
 		meshes[mesh_load_ct].rotation.y = svg_obj.mesh[mesh_load_ct].irotation[1];
 		meshes[mesh_load_ct].rotation.z = svg_obj.mesh[mesh_load_ct].irotation[2];
 	}
+	
+	// Set visibility to true by default
+	svg_obj.mesh[mesh_load_ct].visible = true;
 
 	// If additional meshes, load next mesh
 	if(mesh_load_ct+1 < svg_obj.mesh.length){
@@ -813,51 +816,64 @@ function loadNextMesh(){
 	}
 
 	if(svg_obj.mesh[mesh_load_ct].src_idx == undefined){
-		
-		var i, material, mesh, num_faces, num_vertices, vertex, face;
+
+		var i, material, mesh, num_faces, num_vertices, vertex, face, double_side;
 		
 		// Get mesh object
 		mesh = svg_obj.mesh[mesh_load_ct];
 
+		if(mesh.doubleSide == undefined) svg_obj.mesh[mesh_load_ct].doubleSide = true;
+		if(mesh.doubleSide == true){ double_side = THREE.DoubleSide; }else{ double_side = false; }
+
+		// Create geometry
 		if(mesh.parseModel){
 
-			// Create geometry
 			var geometry = new THREE.Geometry();
 			geometry = parseModel( mesh, geometry );
-			material = new THREE.MeshLambertMaterial( { color:mesh.col, emissive: mesh.emissive } );
 
 		}else{
-
 			// Get mesh vertices and faces
 			geometry = parseMeshGeometry(mesh);
 
 			geometry.computeFaceNormals();
-			if(svg_obj.mesh[mesh_load_ct].computeVN == true) geometry.computeVertexNormals();
+			if(mesh.computeVN == true) geometry.computeVertexNormals();
+		}
+
+		// Set material
+		if(mesh.material == 'lambert'){
+
+			material = new THREE.MeshLambertMaterial( { 
+					color:mesh.col, 
+					emissive: mesh.emissive,
+					side: double_side
+				} );
+
+		}else{
 
 			material = new THREE.MeshPhongMaterial( {
 						color: mesh.col,
 						emissive: mesh.emissive,
-						side: THREE.DoubleSide,
+						side: double_side,
 						//flatShading: true
 					} )
 		}
 
 		// Set mesh name
-		mesh_name = svg_obj.mesh[mesh_load_ct].name;
-		mesh_opacity = svg_obj.mesh[mesh_load_ct].opacity;
-		mesh_color = svg_obj.mesh[mesh_load_ct].col;
-		mesh_depthTest = svg_obj.mesh[mesh_load_ct].depthTest;
-		//mesh_depthWrite = false; //svg_obj.mesh[mesh_load_ct].depthWrite;
+		mesh_name = mesh.name;
+		mesh_opacity = mesh.opacity;
+		mesh_color = mesh.col;
+		mesh_depthTest = mesh.depthTest;
+		//mesh_depthWrite = false; //mesh.depthWrite;
 
 		// Check if there's a deformation
-		if(svg_obj.mesh[mesh_load_ct].deform != undefined){
+		if(mesh.deform != undefined){
 
 			// Copy vertices
 			deform_obj.num.push(mesh_load_ct);
 			deform_obj.type.push('mesh');
 
 			var nVertices = geometry.vertices.length;
-			svg_obj.mesh[mesh_load_ct].clone_vertices = new Array();
+			mesh.clone_vertices = new Array();
 
 			for(i = 0; i < nVertices; i++) {
 				svg_obj.mesh[mesh_load_ct].clone_vertices[i] = geometry.vertices[i].clone();
@@ -999,7 +1015,7 @@ function onObjectsReady(){
 	}else{
 
 		// Setup a camera
-		camera = new THREE.PerspectiveCamera( fov=45, aspect=window_dims.width / window_dims.height, near=camera_near, far=bbox_size*20 );
+		camera = new THREE.PerspectiveCamera( fov=camera_fov, aspect=window_dims.width / window_dims.height, near=camera_near, far=bbox_size*20 );
 
 		// Set camera to controls
 		controls = new THREE.TrackballControls( camera );
@@ -1947,7 +1963,11 @@ function toggleVisibility(box_elem){
 
 	if(svg_obj.mesh != undefined){
 		for (i = 0; i < meshes.length; i++){
-			if(meshes[i].name == box_elem.value) meshes[i].visible = change_to;
+			if(meshes[i].name == box_elem.value){
+
+				meshes[i].visible = change_to;
+				svg_obj.mesh[i].visible = change_to;
+			}
 		}
 	}
 	if(svg_obj.line != undefined){
@@ -2102,6 +2122,7 @@ function updateShapes(time_index){
 		var time_index_floor = new Array(n_timelines);
 		var time_index_ceil = new Array(n_timelines);
    		var ratio_x, ratio_y, ratio_z;
+   		var opacity_t;
    		
 		// Set floor and ceiling from time indices
 		for (j = 0; j < n_timelines; j++){
@@ -2179,7 +2200,21 @@ function updateShapes(time_index){
 
 				// If opacity is animated
 				if(svg_obj.mesh[obj_num].opacity.length == animation_ntimes){
-					meshes[obj_num].material.opacity = svg_obj.mesh[obj_num].opacity[time_index[0]];
+
+					// Interpolate opacity value
+					opacity_t = (1 - ratio_x)*svg_obj.mesh[obj_num].opacity[time_index_floor[0]] + 
+						ratio_x*svg_obj.mesh[obj_num].opacity[time_index_ceil[0]];
+					
+					// User input mesh visibility takes priority over animation
+					if(svg_obj.mesh[i].visible == true){
+						if(opacity_t == 0){
+							meshes[obj_num].visible = false;
+						}else{
+							meshes[obj_num].visible = true;
+						}
+					}
+
+					meshes[obj_num].material.opacity = opacity_t;
 				}
 			}
 
