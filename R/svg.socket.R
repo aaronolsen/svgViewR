@@ -85,6 +85,7 @@ svg.socket <- function(center = NULL, axes = NULL, outer.radius = 1, inner.radiu
 
 			# Add vertices
 			svgviewr_env$svg$mesh[[add_at]] <- list()
+			svgviewr_env$svg$mesh[[add_at]]$name <- name
 			svgviewr_env$svg$mesh[[add_at]]$vertices <- t(vertices)
 			svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
 			svgviewr_env$svg$mesh[[add_at]]$col <- setNames(webColor(color), NULL)
