@@ -3,6 +3,10 @@ svg.coupler <- function(end, axes, base.width, side.sep, side.length, name = 'co
 
 	# Make sure there are 3 axes
 	if(nrow(axes) == 2) axes <- rbind(axes, cprod_svg(axes[1,], axes[2,]))
+	if(nrow(axes) < 3) stop("'axes' must be a 3-row matrix.")
+	
+	# Check base.width
+	if(length(base.width) == 2) stop("'base.width' must be a 3-length vector.")
 
 	# Make sure axes are unit vectors
 	axes <- uvector_svg(axes)
@@ -17,6 +21,7 @@ svg.coupler <- function(end, axes, base.width, side.sep, side.length, name = 'co
 	svg.cuboid(ends=end+base.width[1]*axes[1,]+((side.sep/2)+(side_width/2))*axes[3,], 
 		axes=axes, width=c(side.length,base.width[2],side_width), name=name, col=col, 
 		emissive=emissive, opacity=opacity)
+
 	svg.cuboid(ends=end+base.width[1]*axes[1,]-((side.sep/2)+(side_width/2))*axes[3,], 
 		axes=axes, width=c(side.length,base.width[2],side_width), name=name, col=col, 
 		emissive=emissive, opacity=opacity)
