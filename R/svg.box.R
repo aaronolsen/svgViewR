@@ -1,6 +1,7 @@
 svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axes = c(2,3,2), 
 	tick.labels = c(2,3,2), tick.lwd = 1, tick.num = 10, tick.label.size = 'auto', 
-	tick.label.opacity = 1, axis.label.opacity = 1, axis.label.size = 'auto', grid.opacity = 0.1, 
+	tick.label.opacity = 1, axis.label = c('x', 'y', 'z'), axis.label.opacity = 1, 
+	axis.label.size = 'auto', grid.opacity = 0.1, 
 	axis.col = rgb(0.5,0.5,0.5), grid.col = rgb(0.8,0.8,0.8), text.col = 'black', z.index=0, 
 	lim.exact=FALSE, name = NULL, file=NULL){
 	
@@ -58,6 +59,9 @@ svg.box <- function(x = NULL, ranges = NULL, sides = 1:6, grid.lwd = 1, tick.axe
 	tick_len <- max_diff*0.03
 	ticks <- svg_axis_ticks(xlim, ylim, zlim, grid_by, tick.label.size, tick_len, tick.axes, 
 		tick.labels)
+	
+	# Set axis labels
+	ticks$axislabels <- as.list(axis.label)
 
 	if(getOption("svgviewr_glo_type") == 'svg'){
 
