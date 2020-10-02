@@ -1,8 +1,14 @@
-create_plane_mesh <- function(corners, seg=c(1,1), create.uvs = FALSE, vertices = NULL, faces = NULL){
+create_plane_mesh <- function(corners, seg=c(1,1), create.uvs = FALSE, vertices = NULL, faces = NULL, rev.normals = FALSE){
+
+	## On March 7, 2020 I flipped the direction of the vertex normals so they match the direction of the face normals
+	# From 	normals <- matrix((norm1+norm2)/2, nrow=n_vertices, ncol=3, byrow=TRUE)
+	# To 	normals <- -matrix((norm1+norm2)/2, nrow=n_vertices, ncol=3, byrow=TRUE)
+	# Not sure if this will cause issues downstream
 
 	# Create empty faces matrix if NULL
 	if(is.null(vertices)) vertices <- matrix(NA, 0, 3)
 	if(is.null(faces)) faces <- matrix(NA, 0, 3)
+	if(length(seg) == 1) seg <- rep(seg, 2)
 
 	# Set number of vertices
 	vertex_ct <- seg+1
@@ -27,12 +33,19 @@ create_plane_mesh <- function(corners, seg=c(1,1), create.uvs = FALSE, vertices 
 	# Create faces matrix
 	new_faces <- matrix(NA, n_faces, 3)
 	
+	# Get normal vectors
+	norm1 <- cprod_svg(corners[2,]-corners[1,], corners[3,]-corners[1,])
+	norm2 <- cprod_svg(corners[2,]-corners[1,], corners[4,]-corners[1,])
+	if(abs(avec_svg(norm1, norm2)) > pi/2) norm1 <- -norm1
+	normals <- -matrix((norm1+norm2)/2, nrow=n_vertices, ncol=3, byrow=TRUE)
+	
 	# Fill new_faces matrix
 	n <- 1
 	for(i in 0:(vertex_ct[2]-2)){
 		
 		cross_idx <- seq(i, n_vertices-vertex_ct[2]+i, by=vertex_ct[2])
 		for(j in 1:(length(cross_idx)-1)){
+			
 			new_faces[n, ] <- c(cross_idx[j], cross_idx[j]+1, cross_idx[j+1])
 			n <- n + 1
 
@@ -45,8 +58,13 @@ create_plane_mesh <- function(corners, seg=c(1,1), create.uvs = FALSE, vertices 
 	faces <- rbind(faces, new_faces+nrow(vertices))
 	vertices <- rbind(vertices, new_vertices)
 
+	if(rev.normals){
+		normals <- -normals
+		faces <- faces[, 3:1]
+	}
+
 	# Output vertices and faces
-	if(!create.uvs) return(list('vertices'=vertices, 'faces'=faces))
+	if(!create.uvs) return(list('vertices'=vertices, 'faces'=faces, 'normals'=normals))
 
 	if(create.uvs){
 		vertices_v <- rep(seq(0, 1, length=vertex_ct[2]), vertex_ct[1])
@@ -62,5 +80,5 @@ create_plane_mesh <- function(corners, seg=c(1,1), create.uvs = FALSE, vertices 
 	}
 
 	# Output vertices and faces
-	list('vertices'=vertices, 'faces'=faces, 'uvs'=uvs, 'vertices_norm'=cbind(vertices_u, vertices_v))
+	list('vertices'=vertices, 'faces'=faces, 'normals'=normals, 'uvs'=uvs, 'vertices_norm'=cbind(vertices_u, vertices_v))
 }
