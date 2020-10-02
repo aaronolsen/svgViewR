@@ -3,6 +3,9 @@ svg.arrow <- function(ends = NULL, center = NULL, length = NULL, radius=1, head.
 	open.ended=FALSE, theta.start=0, theta.length=2*pi, col='blue', emissive=rgb(0.03, 0.15, 0.21), 
 	opacity = 1, ontop = FALSE, name='arrow'){
 
+	# Check that only single name given
+	if(length(name) > 1) stop("Input parameter 'name' is a vector of length greater than one. 'name' must be of length 1.")
+
 	# Make sure that type is webgl
 	if('svg' == getOption("svgviewr_glo_type")) stop("Arrow drawing is currently only available with webgl svgViewR output.")
 	
