@@ -60,7 +60,7 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, regexp = FALSE){
 		ref_names <- svgviewr_env$ref$names
 		ref_types <- svgviewr_env$ref$type
 		ref_nums <- svgviewr_env$ref$num
-
+		
 		# Get matching names
 		if(!regexp){
 
@@ -73,6 +73,11 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, regexp = FALSE){
 			applyto_which <- c()
 			for(i in 1:length(applyto)) applyto_which <- c(applyto_which, which(grepl(applyto[i], ref_names)))
 		}
+		
+		#print(length(ref_names))
+		#print(length(ref_types))
+		#print(applyto)
+		#print(applyto_which)
 
 		# Make sure name was found
 		if(length(applyto_which) == 0){
@@ -144,9 +149,9 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, regexp = FALSE){
 			# Define number of animation iterations and times if not already defined
 			if(is.null(svgviewr_env$svg$animate$times)) svgviewr_env$svg$animate$times <- times
 			
-			# For each object for which position will become 
+			# For each object for which position will become
 			for(idx in applyto_which){
-
+				
 				if(ref_types[idx] == 'mesh'){
 
 					if(length(dim(tmarr)) == 5){
@@ -189,17 +194,26 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, regexp = FALSE){
 						}
 
 					}else if(length(dim(tmarr)) == 3){
-						
+
+						if(!is.null(svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['itmat']])){
+							tmarr_new <- tmarr
+							for(iter in 1:dim(tmarr)[3]){
+								tmarr_new[,,iter] <- tmarr[,,iter] %*% svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['itmat']]
+							}
+						}else{
+							tmarr_new <- tmarr
+						}
+
 						# Set position
-						position <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(signif(tmarr[1:3, 4, i], digits=env[['svgviewr_env']][['js_var']][['signif_digits']]), c('x', 'y', 'z'))))
+						position <- lapply(seq_len(dim(tmarr_new)[3]), function(i) as.list(setNames(signif(tmarr_new[1:3, 4, i], digits=env[['svgviewr_env']][['js_var']][['signif_digits']]), c('x', 'y', 'z'))))
 						#if(idx == applyto_which[1]) print(position)
 
 						# Set rotation
-						#rotation <- lapply(seq_len(dim(tmarr)[3]), function(i) -rev(signif(rm2euler(t(tmarr[1:3, 1:3, i]))[[1]], digits=env[['svgviewr_env']][['js_var']][['signif_digits']])))
+						#rotation <- lapply(seq_len(dim(tmarr_new)[3]), function(i) -rev(signif(rm2euler(t(tmarr_new[1:3, 1:3, i]))[[1]], digits=env[['svgviewr_env']][['js_var']][['signif_digits']])))
 
 						# Set quaternion
-						#quaternion <- lapply(seq_len(dim(tmarr)[3]), function(i) matrix(-(signif(round(RM2Quat_svg(t(tmarr[1:3, 1:3, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), 4, 1, dimnames=list(c('x','y','z','w'), NULL)))
-						quaternion <- lapply(seq_len(dim(tmarr)[3]), function(i) as.list(setNames(-(signif(round(RM2Quat_svg(t(tmarr[1:3, 1:3, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), c('x','y','z','w'))))
+						#quaternion <- lapply(seq_len(dim(tmarr_new)[3]), function(i) matrix(-(signif(round(RM2Quat_svg(t(tmarr_new[1:3, 1:3, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), 4, 1, dimnames=list(c('x','y','z','w'), NULL)))
+						quaternion <- lapply(seq_len(dim(tmarr_new)[3]), function(i) as.list(setNames(-(signif(round(RM2Quat_svg(t(tmarr_new[1:3, 1:3, i])),10), digits=env[['svgviewr_env']][['js_var']][['signif_digits']])), c('x','y','z','w'))))
 
 					}else{
 
@@ -209,7 +223,7 @@ svg.transform <- function(tmarr, applyto = '', times = NULL, regexp = FALSE){
 					# Save transformations
 					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['position']] <- position
 					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['quaternion']] <- quaternion
-					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['tmat']] <- tmarr
+					svgviewr_env[['svg']][[ref_types[idx]]][[ref_nums[idx]]][['tmat']] <- tmarr_new
 
 				}else if(ref_types[idx] == 'sphere'){
 				
