@@ -2,6 +2,9 @@ svg.cylinder <- function(ends=NULL, center=NULL, radius=1, axis=NULL,
 	length=NULL, rseg=20, hseg=2, open.ended=FALSE, theta.start=0, theta.length=2*pi, col='blue', 
 	emissive=rgb(0.03, 0.15, 0.21), opacity = 1, ontop = FALSE, name='cylinder'){
 
+	# Check that only single name given
+	if(length(name) > 1) stop("Input parameter 'name' is a vector of length greater than one. 'name' must be of length 1.")
+
 	# Make sure that type is webgl
 	if('svg' == getOption("svgviewr_glo_type")) stop("'webgl' mode must be used to enable mesh drawing. This can be done by adding the following parameter to the svg.new() function call: mode='webgl'. This will become the default mode by version 1.4.")
 
@@ -157,7 +160,7 @@ svg.cylinder <- function(ends=NULL, center=NULL, radius=1, axis=NULL,
 	}else{
 
 		# Get viewer environment
-		env <- as.environment(getOption("svgviewr_glo_env"))
+		#env <- as.environment(getOption("svgviewr_glo_env"))
 		
 		mesh_list <- list(list('vertices'=side_vertices, 'faces'=side_faces))
 
@@ -176,6 +179,7 @@ svg.cylinder <- function(ends=NULL, center=NULL, radius=1, axis=NULL,
 			svgviewr_env$svg$mesh[[add_at]]$vertices <- t(vertices)
 			svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
 			svgviewr_env$svg$mesh[[add_at]]$itmat <- diag(4)
+			svgviewr_env$svg$mesh[[add_at]]$name <- name
 			svgviewr_env$svg$mesh[[add_at]]$col <- setNames(webColor(col), NULL)
 			svgviewr_env$svg$mesh[[add_at]]$opacity <- setNames(opacity, NULL)
 			svgviewr_env$svg$mesh[[add_at]]$emissive <- setNames(webColor(emissive), NULL)
