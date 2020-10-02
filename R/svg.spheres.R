@@ -1,6 +1,9 @@
 svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0.21), opacity = 1, 
 	name = 'sphere', ontop = FALSE, wseg = 16, hseg = 16, as.array = FALSE){
 
+	# Check that only single name given
+	if(length(name) > 1) stop("Input parameter 'name' is a vector of length greater than one. 'name' must be of length 1.")
+
 	# Return NULL if zero length
 	if(length(x) == 0) return(NULL)
 
@@ -13,6 +16,9 @@ svg.spheres <- function(x, radius = 1, col = 'black', emissive=rgb(0.03, 0.15, 0
 	# If vector, make into matrix
 	if(is.vector(x)) x <- matrix(x, nrow=1)
 
+	# If data.frame, convert to matrix
+	if(is.data.frame(x)) x <- as.matrix(x)
+	
 	# If as.array is TRUE convert matrix to array
 	if(as.array){
 		if(dim(x)[1] == 3){
