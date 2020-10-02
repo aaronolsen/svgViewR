@@ -6,10 +6,11 @@
 svg.new(file = NULL, window.title="svgViewR", animate.duration = 1, 
         animate.speed = 1, interpolate = TRUE, timeline = TRUE, mode = c('svg', 'webgl'), 
         animate.reverse = FALSE, animate.repeat = -1, margin = 20, col = "white", 
-        times = NULL, clock = FALSE, stats = FALSE, show.control = TRUE, 
-        start.rotate = TRUE, rotate.speed = 1.2, zoom.speed = 1, pan.speed = 0.2, 
-        layers = NULL, connection = TRUE, close.on.done = TRUE, 
-        file.type = NULL, app.dir.src = NULL, debug = FALSE, src.link = NULL)
+        times = NULL, clock = FALSE, stats = FALSE, panel = FALSE, show.control = TRUE, 
+        start.rotate = TRUE, rotate.speed = 1.2, camera.near = 0.01, fov = 45,
+        zoom.speed = 1, pan.speed = 0.2, layers = NULL, connection = TRUE, 
+        close.on.done = TRUE, file.type = NULL, app.dir.src = NULL, debug = FALSE, 
+        src.link = NULL)
 }
 \arguments{
   \item{file}{File path and name (having the extenstion ".html") where Viewer will be created. If file is \code{NULL} then the viewer will open over a local server in the default web browser and mode 'webgl' will be automatically selected.}
@@ -26,9 +27,12 @@ svg.new(file = NULL, window.title="svgViewR", animate.duration = 1,
   \item{times}{If including animated shapes without svg.transform, this parameter can be used to input time points corresponding to each frame of the animation.}
   \item{clock}{Whether a clock should be visible or not.}
   \item{stats}{Whether processing stats should be visible or not.}
+  \item{panel}{Whether a panel is visible showing all objects by name with a toggle option to show or hide.}
   \item{show.control}{Whether control panel should be visible or not. Only used in 'svg' mode.}
   \item{start.rotate}{Whether visualization should start with 'rotate' enabled or 'translate' enabled. Only used in 'svg' mode.}
   \item{rotate.speed}{How much the camera rotates in response to mouse click and drag. Only used in 'webgl' mode.}
+  \item{camera.near}{Distance of the camera to the plotted objects.}
+  \item{fov}{Field of view of the camera. This will determine the strength of perspective effects.}
   \item{zoom.speed}{How much the camera zooms in response to mouse click and drag. Only used in 'webgl' mode.}
   \item{pan.speed}{How much the camera pans in response to mouse click and drag. Only used in 'webgl' mode.}
   \item{layers}{Not yet fully enabled.}
