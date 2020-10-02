@@ -22,7 +22,7 @@ axisAngle2Tmat <- function(axis, angle, p=NULL){
 
 		# Fill array
 		for(i in 1:length(angle)){
-			tmat[1:3, 1:3, i] <- tMatrixEP_svg(v=axis, a=angle[i])
+			tmat[,,i] <- axisAngle2Tmat(axis=axis, angle=angle[i], p=p)
 		}
 	}
 
