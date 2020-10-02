@@ -1,5 +1,18 @@
 addMeshes <- function(mesh1, mesh2 = NULL, mesh3 = NULL, mesh4 = NULL, mesh5 = NULL, mesh6 = NULL){
 
+	# Check if first mesh is list of OBJs
+	if(is.list(mesh1[[1]])){
+		
+		# If single mesh return mesh
+		if(length(mesh1) == 1) return(mesh1[[1]])
+
+		# Add subsequent meshes
+		for(i in 2:length(mesh1)) mesh1[[1]] <- addMeshes(mesh1[[1]], mesh1[[i]])
+		
+		return(mesh1[[1]])
+	}
+
+	# If only one mesh return mesh
 	if(is.null(mesh2)) return(mesh1)
 
 	if(!is.null(mesh6)) return(addMeshes(addMeshes(addMeshes(addMeshes(addMeshes(mesh1, mesh2), mesh3), mesh4), mesh5), mesh6))
