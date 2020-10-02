@@ -27,7 +27,7 @@ svg.text <- function(x, y = NULL, labels = NULL, layer="", name="text",
 		env <- as.environment(getOption("svgviewr_glo_env"))
 
 		# Convert to matrix if vector
-		if(is.vector(x)) x <- matrix(x, nrow=1, )
+		if(is.vector(x)) x <- matrix(x, nrow=1, 3)
 		
 		colnames(x) <- NULL
 
@@ -38,7 +38,7 @@ svg.text <- function(x, y = NULL, labels = NULL, layer="", name="text",
 				# Add text to environment
 				add_at <- length(svgviewr_env$svg$text)+1
 				svgviewr_env$svg$text[[add_at]] <- list('type'='text', 'labels'=as.character(labels[i]), 
-					'name'=name, 'x'=x[i,], 'col'=setNames(webColor(col), NULL), 'size'=size)
+					'name'=name, 'x'=x[i,], 'col'=setNames(webColor('black'), NULL), 'size'=size)
 
 				# Add object reference data
 				svgviewr_env$ref$names <- c(svgviewr_env$ref$names, name)
