@@ -9,6 +9,9 @@ svg.carrow <- function(center, axis, point.radius=NULL, radius=NULL, point.radiu
 	
 	if(is.null(point.radius) && is.null(radius)) stop("Both 'point.radius' and 'radius' are NULL. One must be non-NULL.")
 	
+	# Check that point.radius is point
+	if(!is.null(point.radius) && length(point.radius) != 3) stop("'point.radius' must be vector of length 3.")
+
 	# Define circle
 	circle <- defineCircle_svg(center=center, nvector=axis, point_on_radius=point.radius, radius=radius)
 	
@@ -33,7 +36,7 @@ svg.carrow <- function(center, axis, point.radius=NULL, radius=NULL, point.radiu
 
 	# Set radius
 	if(is.null(radius)) radius <- circle$R
-		
+
 	# Set circle circumference
 	circle_circum_half <- pi*circle$R
 
@@ -100,6 +103,7 @@ svg.carrow <- function(center, axis, point.radius=NULL, radius=NULL, point.radiu
 	svgviewr_env$svg$mesh[[add_at]]$vertices <- t(vertices)
 	svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
 	svgviewr_env$svg$mesh[[add_at]]$col <- setNames(webColor(col), NULL)
+	svgviewr_env$svg$mesh[[add_at]]$name <- name
 	svgviewr_env$svg$mesh[[add_at]]$opacity <- setNames(opacity, NULL)
 	svgviewr_env$svg$mesh[[add_at]]$emissive <- setNames(webColor(emissive), NULL)
 	svgviewr_env$svg$mesh[[add_at]]$computeVN <- TRUE
