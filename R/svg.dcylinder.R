@@ -1,8 +1,11 @@
-svg.dcylinder <- function(ends, n=2, gap.prop=0.2, radius=1, rseg=20, hseg=2, open.ended=FALSE, 
+svg.dcylinder <- function(ends = NULL, center = NULL, axis = NULL, length = NULL, n=2, gap.prop=0.2, 
+	radius=1, rseg=20, hseg=2, open.ended=FALSE, 
 	theta.start=0, theta.length=2*pi, col='blue', emissive=rgb(0.03, 0.15, 0.21), opacity = 1, 
 	ontop = FALSE, name='cylinder'){
 
 	## Dashed cylinder
+	if(is.null(ends)) ends <- rbind(center + (length/2)*axis, center - (length/2)*axis)
+	
 	# Set cylinder length
 	cyl_len <- dppt_svg(ends)
 	
