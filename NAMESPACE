@@ -7,7 +7,7 @@ export(Rhttpd2)
 
 importFrom("grDevices", "col2rgb", "dev.off", "rgb")
 importFrom("methods", "new")
-importFrom("stats", "median", "na.omit", "sd", "setNames")
+importFrom("stats", "median", "na.omit", "prcomp", "sd", "setNames")
 importFrom("utils", "capture.output", "head", "packageVersion", "tail", "URLdecode", "URLencode")
 
 import(Rcpp)
