@@ -88,38 +88,11 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, width=1, length=NULL,
 		#width <- width[2:3]
 	}
 	
-	# Create vertices matrix
-	vertices <- matrix(NA, 8, 3)
-
-	# Add vertices
-	vertices[1,] <- ends[1,] + (width[1]/2)*axes[2,] + (width[2]/2)*axes[3,]
-	vertices[2,] <- ends[1,] + (width[1]/2)*axes[2,] - (width[2]/2)*axes[3,]
-	vertices[3,] <- ends[1,] - (width[1]/2)*axes[2,] + (width[2]/2)*axes[3,]
-	vertices[4,] <- ends[1,] - (width[1]/2)*axes[2,] - (width[2]/2)*axes[3,]
-	vertices[5,] <- ends[2,] + (width[1]/2)*axes[2,] + (width[2]/2)*axes[3,]
-	vertices[6,] <- ends[2,] + (width[1]/2)*axes[2,] - (width[2]/2)*axes[3,]
-	vertices[7,] <- ends[2,] - (width[1]/2)*axes[2,] + (width[2]/2)*axes[3,]
-	vertices[8,] <- ends[2,] - (width[1]/2)*axes[2,] - (width[2]/2)*axes[3,]
-
-	# Create faces matrix
-	faces <- matrix(NA, 12, 3)
+	# Normals and faces don't match so ignore these and have threejs generate normals
+	cuboid_mesh <- create_cuboid_mesh(ends, width, axes)
+	vertices <- cuboid_mesh$vertices
+	faces <- cuboid_mesh$faces
 	
-	# Add faces
-	faces[1,] <- c(0,1,2)
-	faces[2,] <- c(1,3,2)
-	faces[3,] <- c(4,5,6)
-	faces[4,] <- c(5,7,6)
-	faces[5,] <- c(2,3,6)
-	faces[6,] <- c(3,7,6)
-	faces[7,] <- c(1,3,7)
-	faces[8,] <- c(1,7,5)
-	faces[9,] <- c(4,6,2)
-	faces[10,] <- c(4,2,0)
-	faces[11,] <- c(1,5,4)
-	faces[12,] <- c(1,4,0)
-	
-	faces <- faces[!is.na(faces[,1]), ]
-
 	if('svg' == getOption("svgviewr_glo_type")){
 
 		svg.points(vertices)
@@ -140,6 +113,7 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, width=1, length=NULL,
 
 		# Add vertices
 		svgviewr_env$svg$mesh[[add_at]] <- list()
+		svgviewr_env$svg$mesh[[add_at]]$name <- name
 		svgviewr_env$svg$mesh[[add_at]]$vertices <- t(vertices)
 		svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
 		svgviewr_env$svg$mesh[[add_at]]$col <- setNames(webColor(col), NULL)
