@@ -1,5 +1,8 @@
 set_plane_corners <- function(center, dims, vecs){
 
+	# Check length
+	if(length(dims) == 2) dims <- c(dims, 0)
+
 	corners <- matrix(NA, 4, 3, byrow=TRUE)
 
 	# Add vertices
