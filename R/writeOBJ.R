@@ -1,5 +1,8 @@
 writeOBJ <- function(obj, file){
 
+	# Check if obj is a list of objs
+	if(is.list(obj[[1]])) obj <- addMeshes(obj)
+
 	# Get numbers of each
 	n_vertices <- nrow(obj$vertices)
 	n_normals <- nrow(obj$normals)
@@ -15,6 +18,17 @@ writeOBJ <- function(obj, file){
 	#vertices_normals <- rep(NA, length=n_vertices+n_normals)
 	#vertices_normals[seq(1,length(vertices_normals),by=2)] <- vn
 	#vertices_normals[seq(2,length(vertices_normals),by=2)] <- v
+	
+	# Make faces matrix consistent
+	if(ncol(obj$faces) == 3){
+		new_faces <- matrix(NA, nrow(obj$faces), 6)
+		new_faces[, 1:2] <- obj$faces[, 1]
+		new_faces[, 3:4] <- obj$faces[, 2]
+		new_faces[, 5:6] <- obj$faces[, 3]
+		obj$faces <- new_faces
+	}
+	
+	if(any(obj$faces == 0)) obj$faces <- obj$faces + 1
 	
 	# Create list of faces
 	face_mat <- matrix(' ', nrow=n_faces, ncol=11)
