@@ -9,7 +9,7 @@ cprod_svg <- function(u, v, h='right'){
 	if(is.vector(v) && is.null(dim(v))){
 		if(length(u) != length(v)){
 			cat("CPROD ERROR: VECTORS ARE NOT OF EQUAL DIMENSION\n")
-			return
+			return(NA)
 		}
 		if(length(v) == 2){
 			u[3] <- 0
