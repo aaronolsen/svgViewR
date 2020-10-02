@@ -4,7 +4,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 	animate.speed = 1, interpolate = TRUE, timeline = TRUE, 
 	mode = c('svg', 'webgl'), animate.reverse = FALSE, animate.repeat = -1, 
 	margin = 20, col = "white", times = NULL, clock = FALSE, stats = FALSE, panel = FALSE, 
-	show.control = TRUE, start.rotate = TRUE, rotate.speed = 1.2, camera.near = 0.01,
+	show.control = TRUE, start.rotate = TRUE, rotate.speed = 1.2, camera.near = 0.01, fov = 45, 
 	zoom.speed = 1, pan.speed = 0.2, layers = NULL, connection = TRUE, 
 	close.on.done = TRUE, file.type = NULL, app.dir.src = NULL, debug = FALSE, 
 	src.link = NULL){
@@ -181,6 +181,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		svgviewr_env$js_var[['save_as_img_type']] <- file.type
 		svgviewr_env$js_var[['save_as_img_paths']] <- save_as_img_paths
 		svgviewr_env$js_var[['camera_near']] <- camera.near
+		svgviewr_env$js_var[['camera_fov']] <- fov
 		svgviewr_env$js_var[['save_as_img_close']] <- close.on.done
 		svgviewr_env$js_var[['signif_digits']] <- digits
 		svgviewr_env$js_var[['time_units']] <- 'sec'
