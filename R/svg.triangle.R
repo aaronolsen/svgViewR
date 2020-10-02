@@ -119,6 +119,7 @@ svg.triangle <- function(corners, col='blue', seg=1, emissive=rgb(0.03, 0.15, 0.
 
 		# Add vertices
 		svgviewr_env$svg$mesh[[add_at]] <- list()
+		svgviewr_env$svg$mesh[[add_at]]$name <- name
 		svgviewr_env$svg$mesh[[add_at]]$vertices <- t(vertices)
 		svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
 		svgviewr_env$svg$mesh[[add_at]]$col <- setNames(webColor(col), NULL)
