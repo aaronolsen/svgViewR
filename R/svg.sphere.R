@@ -45,6 +45,7 @@ svg.sphere <- function(center = NULL, ends = NULL, radius = NULL, width = NULL, 
 
 		# Add vertices
 		svgviewr_env$svg$mesh[[add_at]] <- list()
+		svgviewr_env$svg$mesh[[add_at]]$name <- name
 		svgviewr_env$svg$mesh[[add_at]]$vertices <- t(vertices)
 		svgviewr_env$svg$mesh[[add_at]]$faces <- t(faces)
 		svgviewr_env$svg$mesh[[add_at]]$col <- setNames(webColor(col), NULL)
