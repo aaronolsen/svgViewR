@@ -1,5 +1,5 @@
 \name{svgViewR-package}
-\alias{svgViewR}
+\alias{svgViewR-package}
 
 \alias{addMeshes}
 \alias{apply_transform_svg}
