@@ -26,7 +26,7 @@ svg.arrow <- function(ends = NULL, center = NULL, length = NULL, radius=1, head.
 		ends <- rbind(center - 0.5*length*axis, center + 0.5*length*axis)
 	}
 
-	if(class(ends) == 'data.frame') stop("'ends' must be a vector or matrix, not a data.frame.")
+	if(inherits(ends, 'data.frame')) stop("'ends' must be a vector or matrix, not a data.frame.")
 
 	if(any(is.na(ends))) stop("NA values in 'ends'")
 

@@ -8,7 +8,7 @@ svg.cplanes <- function(corners1, corners2 = NULL, depth = NULL, col='blue', emi
 	if(is.null(corners2)){
 
 		# Get triangle normal
-		if(nrow(corners1) == 3) n_vector <- uvector(cprod_svg(corners1[2,] - corners1[1,], corners1[3,] - corners1[1,]))
+		if(nrow(corners1) == 3) n_vector <- uvector_svg(cprod_svg(corners1[2,] - corners1[1,], corners1[3,] - corners1[1,]))
 		
 		# Fit plane to points
 		if(nrow(corners1) >= 4) n_vector <- fitPlane_svg(corners1)$N

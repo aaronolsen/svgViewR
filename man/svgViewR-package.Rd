@@ -118,8 +118,8 @@
 \tabular{ll}{
 Package: \tab svgViewR\cr
 Type: \tab Package\cr
-Version: \tab 1.4.1\cr
-Date: \tab 2019-07-03\cr
+Version: \tab 1.4.2\cr
+Date: \tab 2022-11-01\cr
 License: \tab GPL (>= 2)\cr}}
 \author{
 Aaron Olsen (maintainer, <aarolsen@gmail.com>), Alejandro Romero

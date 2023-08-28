@@ -13,7 +13,6 @@ importFrom("utils", "capture.output", "head", "packageVersion", "tail", "URLdeco
 import(Rcpp)
 import(grid)
 import(rjson)
-import(Rook)
 import(methods)
 
 S3method(print, obj)

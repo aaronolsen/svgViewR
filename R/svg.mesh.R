@@ -120,7 +120,7 @@ svg.mesh <- function(file = NULL, name = NULL, col = '#F5F5F5', emissive = 'blac
 		if(is.null(name)) name <- 'mesh'
 
 		# Check class of input list	
-		if(class(file) == 'obj'){
+		if(inherits(file, 'obj')){
 
 			# Set material if auto
 			if(material == 'auto') material <- 'lambert'
@@ -135,7 +135,7 @@ svg.mesh <- function(file = NULL, name = NULL, col = '#F5F5F5', emissive = 'blac
 		# Assign as mesh
 		obj_list <- file
 		
-		if(class(file) != 'obj' && material == 'lambert'){
+		if(!inherits(file, 'obj') && material == 'lambert'){
 			if(ncol(file$faces) == 3){
 				new_faces <- matrix(NA, nrow=nrow(file$faces), ncol=6)
 				new_faces[,3:1] <- file$faces
@@ -145,7 +145,7 @@ svg.mesh <- function(file = NULL, name = NULL, col = '#F5F5F5', emissive = 'blac
 			class(file) <- 'obj'
 		}
 
-		if(class(file) == 'obj' && material == 'lambert'){
+		if(inherits(file, 'obj') && material == 'lambert'){
 
 			## Format faces for threejs
 			# Convert to matrix
@@ -165,12 +165,12 @@ svg.mesh <- function(file = NULL, name = NULL, col = '#F5F5F5', emissive = 'blac
 			if('normals' %in% names(obj_list)) obj_list$normals <- c(t(obj_list$normals))
 		}
 		
-		if(class(file) == 'obj' && material == 'phong'){
+		if(inherits(file, 'obj') && material == 'phong'){
 			obj_list$faces <- obj_list$faces[, c(1,3,5)] - 1
 			parse_model <- FALSE
 		}
 		
-		if(class(file) != 'obj'){
+		if(!inherits(file, 'obj')){
 			material_final <- 'phong'
 			double_side <- TRUE
 			parse_model <- FALSE

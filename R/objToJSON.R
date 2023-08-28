@@ -2,7 +2,7 @@ objToJSON <- function(obj, file = NULL){
 
 	if(is.vector(obj)) obj <- readOBJ(file=obj)
 
-	if(class(obj) == 'obj'){
+	if(inherits(obj, 'obj')){
 
 		obj$vertices <- t(obj$vertices)
 		obj$normals <- t(obj$normals)

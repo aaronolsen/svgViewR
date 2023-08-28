@@ -48,7 +48,7 @@ svg.farrow <- function(ends=NULL, center=NULL, length=NULL, width.prop=0.05, wid
 	}else{
 
 		# Make sure ends is matrix
-		if(class(ends) == 'data.frame') stop("'ends' must be a vector or matrix, not a data.frame.")
+		if(inherits(ends, 'data.frame')) stop("'ends' must be a vector or matrix, not a data.frame.")
 
 		# Make sure axes is matrix
 		if(is.vector(axes)) axes <- matrix(axes, 1, 3)

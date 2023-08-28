@@ -126,15 +126,15 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 			}else{
 				pkg_load <- 'library'
 			}
-		}		
-
+		}
+		
 		# Set app source file directory and viewer environment
 		if(pkg_load == 'source'){
 			options("svgviewr_glo_env"='.GlobalEnv')
 		}else{
 			options("svgviewr_glo_env"='package:svgViewR')
 		}
-	
+
 		# Get viewer environment
 		env <- as.environment(getOption("svgviewr_glo_env"))
 
@@ -207,33 +207,7 @@ svg.new <- function(file = NULL, window.title="svgViewR", animate.duration = 1,
 		# Create deformation reference
 		svgviewr_env$svg$deform <- list()
 
-		## Create server connection to plot WebGL graphics
-		if(options("svgviewr_glo_type") == 'live'){
-
-			# Try stopping server, if running
-			tryCatch({ svgviewr_env$R.server$stop() }, error = function(e) {}, warning = function(e) {})
-
-			# Remove R.server, if exists
-			tryCatch({ remove(svgviewr_env$R.server) }, error = function(e) {}, warning = function(e) {})
-
-			# Try adding server to package environment instead of declaring as a global variable:
-			# 	https://stackoverflow.com/questions/12598242/global-variables-in-packages-in-r
-			# pkg.env$cur.val <- 0
-			# pkg.env$times.changed <- 0
-
-			# Create new server
-			#R.server <<- Rhttpd2$new()
-			svgviewr_env$R.server <- Rhttpd2$new()
-
-			# Add directories that will be accessible to server
-			svgviewr_env$R.server$add(app = File$new(app_dir), name = "extdata")
-			#File$new(paste0(dirname(getwd()), '/json'))
-			#svgviewr_env$R.server$add(app = File$new('/Users/aaron/Documents/Research/R Package Tests/svgViewR/WebGL and three js/json'), name = "json_dir")
-
-		}else{
-
-			svgviewr_env$js_var[['app_dir']] <- app_dir
-		}
+		svgviewr_env$js_var[['app_dir']] <- app_dir
 
 		if(!is.null(times)){
 

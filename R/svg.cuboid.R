@@ -40,9 +40,9 @@ svg.cuboid <- function(ends=NULL, center=NULL, axes=NULL, width=1, length=NULL,
 			# If only 2 rows provided, use ends to add first
 			if(nrow(axes) == 2) axes <- rbind(ends[2,]-ends[1,], axes)
 			if(nrow(axes) == 1){
-				if(abs(avec(axes, ends[2,]-ends[1,], max.pi=TRUE)) < 1e-10){
+				if(abs(avec_svg(axes, ends[2,]-ends[1,], max.pi=TRUE)) < 1e-10){
 					stop('If "axes" is a single vector it should not be parallel to the vector between the two ends of the cuboid.')
-					axes <- rbind(vorthogonal(axes))
+					axes <- rbind(vorthogonal_svg(axes))
 				}
 				axes <- rbind(ends[2,]-ends[1,], cprod_svg(ends[2,]-ends[1,], axes[1,]))
 				axes <- rbind(axes, cprod_svg(axes[1,], axes[2,]))
